@@ -27,5 +27,52 @@ namespace WorkoutApp.View
         {
             this.InitializeComponent();
         }
+
+        public event Action<Product> ProductAdded;
+        Product newProduct { get; set; }
+ 
+        private void ProductTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string selectedType = (ProductTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            ClothesPanel.Visibility = Visibility.Collapsed;
+            FoodPanel.Visibility = Visibility.Collapsed;
+
+            if (selectedType == "Clothes")
+            {
+                ClothesPanel.Visibility = Visibility.Visible;
+            }
+            else if (selectedType == "Food")
+            {
+                FoodPanel.Visibility = Visibility.Visible;
+            }
+        }
+
+
+        private void Add_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedType = (ProductTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            newProduct = new Product
+            {
+                Name = NameTextBox.Text,
+                Price = PriceTextBox.Text,
+                Image = ImageTextBox.Text,
+                Type = selectedType
+            };
+
+            if (selectedType == "Clothes")
+            {
+                newProduct.Colors = ColorsTextBox.Text.Split(',').Select(c => c.Trim()).ToList();
+                newProduct.Sizes = SizesTextBox.Text.Split(',').Select(s => s.Trim()).ToList();
+            }
+            else if (selectedType == "Food")
+            {
+                newProduct.Weights = WeightsTextBox.Text.Split(',').Select(w => w.Trim()).ToList();
+            }
+
+            ProductAdded?.Invoke(newProduct);
+            this.Close();
+        }
     }
 }

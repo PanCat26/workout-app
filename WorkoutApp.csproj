@@ -14,6 +14,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="View\Add.xaml" />
+    <None Remove="View\AddProductWindow.xaml" />
+    <None Remove="View\BlankWindow1.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +51,21 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Service\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="View\AddProductWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="View\BlankWindow1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="View\AddProductWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="View\Add.xaml">

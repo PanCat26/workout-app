@@ -12,6 +12,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WorkoutApp.View;
 
 namespace WorkoutApp
 {
@@ -44,6 +45,28 @@ namespace WorkoutApp
             };
             ProductsGridView.ItemsSource = products;
         }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            AddProductWindow addProductWindow = new AddProductWindow();
+
+            
+            addProductWindow.ProductAdded += (newProduct) =>
+            {
+                if (newProduct != null)
+                {
+                    var products = ProductsGridView.ItemsSource as List<Product>;
+                    if (products != null)
+                    {
+                        products.Add(newProduct);
+                        ProductsGridView.ItemsSource = null;
+                        ProductsGridView.ItemsSource = products;
+                    }
+                }
+            };
+
+            addProductWindow.Activate();
+        }
     }
 
     public class Product
@@ -51,5 +74,13 @@ namespace WorkoutApp
         public string Name { get; set; }
         public string Price { get; set; }
         public string Image { get; set; }
+
+        public string Type { get; set; }
+
+        public string Quantity { get; set; }
+
+        public List<string>? Colors { get; set; }
+        public List<string>? Sizes { get; set; }
+        public List<string>? Weights { get; set; }
     }
 }

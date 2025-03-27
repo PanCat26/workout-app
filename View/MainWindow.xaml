@@ -22,7 +22,7 @@
         </StackPanel>
 
         <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
-            <AppBarButton Icon="Add" Label="Add"/>
+            <AppBarButton Icon="Add" Label="Add" Click="AddButton_Click"/>
         </CommandBar>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Background="Black">
@@ -78,22 +78,18 @@
                 </GridView.ItemTemplate>
             </GridView>
 
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20" Background="Gray">
-                <Border BorderBrush="Black" BorderThickness="2" Padding="10" Margin="0,10,0,10">
-                    <StackPanel>
-                        <TextBlock Text="Special Offer!" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                        <Image Source="https://example.com/offer1.jpg" Height="150" Width="150"/>
-                        <TextBlock Text="Discount on Protein Powder!" FontSize="14" Foreground="Yellow" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,10,0,10" Background="DarkGray">
+                <StackPanel Padding="10">
+                    <TextBlock Text="Special Offer!" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                    <Image Source="https://example.com/offer1.jpg" Height="150" Width="150"/>
+                    <TextBlock Text="Discount on Protein Powder!" FontSize="14" Foreground="Yellow" TextWrapping="Wrap"/>
+                </StackPanel>
 
-                <Border BorderBrush="Black" BorderThickness="2" Padding="10">
-                    <StackPanel>
-                        <TextBlock Text="Limited Time Deal!" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                        <Image Source="https://example.com/offer2.jpg" Height="150" Width="150"/>
-                        <TextBlock Text="Get 2 for 1 on Sports Equipment!" FontSize="14" Foreground="Yellow" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
+                <StackPanel>
+                    <TextBlock Text="Limited Time Deal!" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                    <Image Source="https://example.com/offer2.jpg" Height="150" Width="150"/>
+                    <TextBlock Text="Get 2 for 1 on Sports Equipment!" FontSize="14" Foreground="Yellow" TextWrapping="Wrap"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
     </Grid>

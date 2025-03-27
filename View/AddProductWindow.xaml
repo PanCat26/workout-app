@@ -9,7 +9,57 @@
     mc:Ignorable="d"
     Title="AddProductWindow">
 
-    <Grid>
+    <Grid Padding="30">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Name:" Grid.Row="0" HorizontalAlignment="Center" />
+        <TextBox x:Name="NameTextBox" Grid.Row="1" Width="500" />
+
+        <TextBlock Text="Price:" Grid.Row="2" HorizontalAlignment="Center"></TextBlock>
+        <TextBox x:Name="PriceTextBox" Grid.Row="3" Width="500"></TextBox>
+
+        <TextBlock Text="Image:" Grid.Row="4" HorizontalAlignment="Center"></TextBlock>
+        <TextBox x:Name="ImageTextBox" Grid.Row="5" Width="500"></TextBox>
+
+        <TextBlock Text="Description:" Grid.Row="6" HorizontalAlignment="Center"></TextBlock>
+        <TextBox x:Name="DescriptionTextBox" Grid.Row="7" Width="500"></TextBox>
+
+        <TextBlock Text="Type:" Grid.Row="8" HorizontalAlignment="Center"/>
+        <ComboBox x:Name="ProductTypeComboBox" Grid.Row="9" SelectionChanged="ProductTypeComboBox_SelectionChanged" Width="500" HorizontalAlignment="Center">
+            <ComboBoxItem Content="Clothes"/>
+            <ComboBoxItem Content="Food"/>
+            <ComboBoxItem Content="Accessories"/>
+        </ComboBox>
+
+
+        <StackPanel x:Name="ClothesPanel" Grid.Row="10" Visibility="Collapsed">
+            <TextBlock Text="Available Colors:" HorizontalAlignment="Center"/>
+            <TextBox x:Name="ColorsTextBox" PlaceholderText="Red, Blue, Black" Width="500"/>
+
+            <TextBlock Text="Available Sizes:" HorizontalAlignment="Center"/>
+            <TextBox x:Name="SizesTextBox" PlaceholderText="S, M, L, XL" Width="500"/>
+        </StackPanel>
+
+        <StackPanel x:Name="FoodPanel" Grid.Row="11" Visibility="Collapsed">
+            <TextBlock Text="Available Weights (grams):" HorizontalAlignment="Center"/>
+            <TextBox x:Name="WeightsTextBox" PlaceholderText="500, 1000, 1500" Width="500"/>
+        </StackPanel>
+
+        <Button Content="Add Product" Grid.Row="13" Margin="0,20,0,0" Click="Add_Click" HorizontalAlignment="Center"></Button>
 
     </Grid>
 </Window>
