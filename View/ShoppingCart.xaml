@@ -33,7 +33,7 @@
             <!-- 30% -->
         </Grid.ColumnDefinitions>
 
-        <!-- Left Content (70%) -->
+        <!-- Left Content (70%) 
 
         <ListView x:Name="ProductsGridView" Margin="20" HorizontalAlignment="Center" Width="600">
             <ListView.ItemTemplate>
@@ -57,6 +57,17 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+-->
+
+        <ScrollViewer
+            HorizontalAlignment="Center"
+            Width = "Auto"
+            VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="ProductsStackPanel" Margin="10">
+                <!-- Posts will be dynamically added here -->
+            </StackPanel>
+        </ScrollViewer>
+
 
         <!-- Right Content (30%) -->
         <StackPanel Grid.Column="1" Margin="10" Background="White">

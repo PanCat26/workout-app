@@ -16,6 +16,9 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WorkoutApp.Components;
+using WorkoutApp.Repository;
+using WorkoutApp.Service;
 using WorkoutApp.View;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -36,29 +39,14 @@ namespace WorkoutApp
 
         private void LoadProducts()
         {
-            var products = new List<Product>
-            {
-                new Product { Name = "Tricou Negru XL", Price = 29.99, Quantity = 2, Image = "./photos/tricou.jpg" },
-                new Product { Name = "Gantera 10 KG", Price = 49.99, Quantity = 1, Image = "./photos/gantera.jpg" },
-                new Product { Name = "Proteina Gym Beam", Price = 19.99, Quantity = 3, Image = "./photos/protein.jpg" },
-            };
+            CartItemRepository cartItemRepository = new CartItemRepository();
+            ProductRepository productRepository = new ProductRepository();
+            CartService cartService = new CartService(cartItemRepository, productRepository);
 
-            ProductsGridView.ItemsSource = products;
-        }
-
-        private void deacreaseQuantityButton_Click(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void increaseQuantityButton_Click(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void removeProductButton_Click(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
+            var cartItems = cartService.GetCartItems();
+            foreach (var cartItem in cartItems) {
+               ProductsStackPanel.Children.Add(new CartItemComponent(cartItem, ProductsStackPanel));
+            }
         }
 
         private void proceedToCheckoutButton(object sender, RoutedEventArgs e)
@@ -66,22 +54,6 @@ namespace WorkoutApp
             Window window = new Payment();
             window.Activate();
             this.Close();
-        }
-    }
-    public class PriceTotalConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is Product product)
-            {
-                return "$" + (product.Price * product.Quantity).ToString();
-            }
-            return "N/A";
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
         }
     }
 

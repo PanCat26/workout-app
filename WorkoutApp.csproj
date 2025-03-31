@@ -13,6 +13,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Components\CartItemComponent.xaml" />
     <None Remove="View\Payment.xaml" />
   </ItemGroup>
 
@@ -48,7 +49,9 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Service\" />
+    <Page Update="Components\CartItemComponent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="View\Payment.xaml">
