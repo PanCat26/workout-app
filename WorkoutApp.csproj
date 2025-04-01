@@ -22,10 +22,6 @@
     <None Remove="View\BlankWindow1.xaml" />
 >>>>>>> main_shop_frontend
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="Components\CartItemComponent.xaml" />
-    <None Remove="View\Payment.xaml" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -60,14 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Service\" />
-    <Page Update="Components\CartItemComponent.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="View\Payment.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
 <<<<<<< HEAD
