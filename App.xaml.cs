@@ -15,6 +15,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WorkoutApp.View.ProductTab;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -41,8 +42,9 @@ namespace WorkoutApp
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new ShoppingWindow();
-            m_window.Activate();
+            var window = new Microsoft.UI.Xaml.Window();
+            window.Content = new ProductTab(); // Load ProductTab instead of MainWindow
+            window.Activate();
         }
 
         private Window? m_window;
