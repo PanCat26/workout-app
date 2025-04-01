@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -13,14 +13,21 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-<<<<<<< HEAD
+
     <None Remove="View\ProductTab\ProductTab.xaml" />
     <None Remove="View\ProductTab\UpdateWindow.xaml" />
-=======
+
     <None Remove="View\Add.xaml" />
     <None Remove="View\AddProductWindow.xaml" />
     <None Remove="View\BlankWindow1.xaml" />
->>>>>>> main_shop_frontend
+
+  </ItemGroup>
+	  <None Remove="Components\CartItemComponent.xaml" />
+	  <None Remove="View\Payment.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Components\CartItemComponent.xaml" />
+    <None Remove="View\Payment.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,37 +58,17 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Service\" />
-  </ItemGroup>
-  <ItemGroup>
-<<<<<<< HEAD
-    <Page Update="View\ProductTab\UpdateWindow.xaml">
-=======
-    <Page Update="View\AddProductWindow.xaml">
->>>>>>> main_shop_frontend
+    <Page Update="Components\CartItemComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
-    <Page Update="View\ProductTab\ProductTab.xaml">
-=======
-    <Page Update="View\BlankWindow1.xaml">
+    <Page Update="View\Payment.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
   <ItemGroup>
-    <Page Update="View\AddProductWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="View\Add.xaml">
->>>>>>> main_shop_frontend
+    <Page Update="View\Payment.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
