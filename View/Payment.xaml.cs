@@ -63,7 +63,7 @@ namespace WorkoutApp.View
 
         private void SendOrderButtonClick(object sender, RoutedEventArgs e)
         {
-            Window shoppingCart = new MainWindow();
+            Window shoppingCart = new ShoppingWindow();
             shoppingCart.Activate();
             this.Close();
         }
