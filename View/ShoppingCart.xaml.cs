@@ -56,19 +56,18 @@ namespace WorkoutApp
             this.Close();
         }
     }
+}
+public class Product
+{
+    public string Name { get; set; }
+    public double Price { get; set; }
+    public string Image { get; set; }
 
-    public class Product
-    {
-        public string Name { get; set; }
-        public double Price { get; set; }
-        public string Image { get; set; }
+    public string Type { get; set; }
 
-        public string Type { get; set; }
+    public int Quantity { get; set; }
 
-        public int Quantity { get; set; }
-
-        public List<string>? Colors { get; set; }
-        public List<string>? Sizes { get; set; }
-        public List<string>? Weights { get; set; }
-    }
+    public List<string>? Colors { get; set; }
+    public List<string>? Sizes { get; set; }
+    public List<string>? Weights { get; set; }
 }

@@ -11,19 +11,19 @@ namespace WorkoutApp.ViewModel
     public class CartItemViewModel : INotifyPropertyChanged
     {
         public string ProductName {  get; set; }
-        public double Price {  get; set; }
+        public string Price {  get; set; }
         public string ImageSource {  get; set; }
-        public int Quantity { get; set; }
+        public string Quantity { get; set; }
 
-        public double TotalPrice { get; set; }
+        public string TotalPrice { get; set; }
 
         public CartItemViewModel() { }  
-        public CartItemViewModel(string ProductName, string ImageSource, double Price, int Quantity) { 
+        public CartItemViewModel(string ProductName, string ImageSource, string Price, string Quantity) { 
             this.ProductName = ProductName;
             this.Price = Price;
             this.ImageSource = ImageSource;
             this.Quantity = Quantity;
-            TotalPrice = this.Price * this.Quantity;
+            TotalPrice = "totalPrice";
 
         }
 
@@ -31,9 +31,9 @@ namespace WorkoutApp.ViewModel
         {
             ProductName = product.Name;
             ImageSource = product.Image;
-            Quantity = product.Quantity;
-            Price = product.Price;
-            TotalPrice = Price * Quantity;
+            Quantity = product.Quantity.ToString();
+            Price = product.Price.ToString();
+            TotalPrice = "totalPrice";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -23,6 +23,7 @@ namespace WorkoutApp.Service
             return cartItemRepository.GetAll();
         }
 
+
         public CartItem GetCartItemById(int id)
         {
             return cartItemRepository.GetItemById(id);

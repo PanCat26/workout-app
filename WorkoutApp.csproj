@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -13,8 +13,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Components\CartItemComponent.xaml" />
-    <None Remove="View\Payment.xaml" />
+	  <None Remove="Components\CartItemComponent.xaml" />
+	  <None Remove="View\Payment.xaml" />
   </ItemGroup>
 
   <ItemGroup>
