@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.SmartCards;
-
+using WorkoutApp.Models;
 namespace WorkoutApp.ViewModel
 {
     public class CartItemViewModel : INotifyPropertyChanged
