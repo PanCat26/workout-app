@@ -12,10 +12,10 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using WorkoutApp.ViewModel;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
 using WorkoutApp.Service;
+using WorkoutApp.ViewModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -37,11 +37,11 @@ namespace WorkoutApp.Components
         {
             this.InitializeComponent();
 
-            this.cartItem = cartItem; 
+            this.cartItem = cartItem;
             this.cartService = new CartService(new CartItemRepository(), new ProductRepository());
             this.parent = parent;
 
-            setDataContext();  
+            setDataContext();
         }
 
         private void setDataContext()
@@ -53,14 +53,14 @@ namespace WorkoutApp.Components
         private void deacreaseQuantityButton_Click(object sender, RoutedEventArgs e)
         {
             cartService.DecreaseQuantity(cartItem);
-            cartItem = cartService.GetCartItemById((int) cartItem.Id);
+            cartItem = cartService.GetCartItemById((int)cartItem.Id);
             setDataContext();
         }
 
         private void increaseQuantityButton_Click(object sender, RoutedEventArgs e)
         {
             cartService.IncreaseQuantity(cartItem);
-            cartItem = cartService.GetCartItemById((int) cartItem.Id);
+            cartItem = cartService.GetCartItemById((int)cartItem.Id);
             setDataContext();
         }
 
