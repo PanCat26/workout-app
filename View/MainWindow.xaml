@@ -50,7 +50,13 @@
             </MenuBar>
 
             <MenuBar BorderThickness="2" Margin="300,0,0,0">
-                <MenuBarItem Title="Filter"/>
+                <MenuBarItem Title="Filter">
+                    <MenuFlyoutItem Text="All Products" Click="OnFilterAllProducts"/>
+                    <MenuFlyoutItem Text="Creatine" Click="OnFilterCreatine"/>
+                    <MenuFlyoutItem Text="Protein" Click="OnFilterProtein"/>
+                    <MenuFlyoutItem Text="Clothing" Click="OnFilterClothing"/>
+                    <MenuFlyoutItem Text="Accessories" Click="OnFilterAccessories"/>
+                </MenuBarItem>
                 <MenuBarItem Title="Wishlist"/>
                 <MenuBarItem Title="Cart"/>
             </MenuBar>
@@ -66,18 +72,41 @@
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
-            <GridView x:Name="ProductsGridView" Margin="20" HorizontalAlignment="Center" Width="600">
-                <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="local:Product">
-                        <StackPanel Orientation="Vertical" Padding="10" Background="LightGray" CornerRadius="10">
-                            <Image Source="{Binding ImageUrl}" Height="100" Width="100" Stretch="Uniform"/>
-                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding Price}" FontSize="14" Foreground="Green" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-            </GridView>
+            <!-- LEFT SIDE -->
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <!-- Filter Panel -->
+                    <ColumnDefinition Width="2*"/>
+                    <!-- Product Grid -->
+                </Grid.ColumnDefinitions>
 
+                <StackPanel x:Name="FilterOptionsPanel"
+                    Grid.Column="0"
+                    Visibility="Collapsed"
+                    Background="#FF6961"
+                    Margin="10"
+                    Padding="10"
+                    Width="200"/>
+
+                <GridView x:Name="ProductsGridView"
+                  Grid.Column="1"
+                  Margin="20"
+                  HorizontalAlignment="Center"
+                  Width="400">
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="local:Product">
+                            <StackPanel Orientation="Vertical" Padding="10" Background="LightGray" CornerRadius="10">
+                                <Image Source="{Binding Image}" Height="100" Width="100" Stretch="Uniform"/>
+                                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Price}" FontSize="14" Foreground="Green" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+            </Grid>
+
+            <!-- RIGHT SIDE: Offers -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,10,0,10" Background="DarkGray">
                 <StackPanel Padding="10">
                     <TextBlock Text="Special Offer!" FontSize="18" FontWeight="Bold" Foreground="White"/>
