@@ -50,13 +50,7 @@
             </MenuBar>
 
             <MenuBar BorderThickness="2" Margin="300,0,0,0">
-                <MenuBarItem Title="Filter">
-                    <MenuFlyoutItem Text="All Products" Click="OnFilterAllProducts"/>
-                    <MenuFlyoutItem Text="Creatine" Click="OnFilterCreatine"/>
-                    <MenuFlyoutItem Text="Protein" Click="OnFilterProtein"/>
-                    <MenuFlyoutItem Text="Clothing" Click="OnFilterClothing"/>
-                    <MenuFlyoutItem Text="Accessories" Click="OnFilterAccessories"/>
-                </MenuBarItem>
+                <MenuBarItem Title="Filter" Tapped="OnFilterClick"/>
                 <MenuBarItem Title="Wishlist"/>
                 <MenuBarItem Title="Cart"/>
             </MenuBar>
