@@ -11,7 +11,7 @@ namespace WorkoutApp.Repository
 {
     public class WishlistItemRepository
     {
-        private string connectionString = @"Server=Dell\SQLEXPRESS;Database=ShopDB;Integrated Security=True;TrustServerCertificate=True";
+        private string connectionString = @"Data Source=FLORIN;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
         private SqlConnection connection;
 
         public WishlistItemRepository()

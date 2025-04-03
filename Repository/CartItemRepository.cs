@@ -10,7 +10,7 @@ namespace WorkoutApp.Repository
 {
     public class CartItemRepository
     {
-        private string connectionString = @"Server=Dell\SQLEXPRESS;Database=ShopDB;Integrated Security=True;TrustServerCertificate=True";
+        private string connectionString = @"Data Source=FLORIN;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
         private SqlConnection connection;
 
         public CartItemRepository()
@@ -20,21 +20,23 @@ namespace WorkoutApp.Repository
 
         private int GetActiveCartId()
         {
-            return 1;
+            if (connection.State == System.Data.ConnectionState.Closed)
+                connection.Open();
+
+            SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) FROM Cart", connection);
+            int newId = (int)getMaxIdCommand.ExecuteScalar();
+
+            connection.Close();
+            
+            return newId;
         }
 
         public List<CartItem> GetAll()
         {
-            List<CartItem> list = new List<CartItem>();
-            list.Add(new CartItem { Id = 0, CartId = 1, ProductId = 0, Quantity = 2 });
-            list.Add(new CartItem { Id = 1, CartId = 1, ProductId = 1, Quantity = 1 });
-            list.Add(new CartItem { Id = 2, CartId = 1, ProductId = 2, Quantity = 3 });
-            return list;
+            int cartId = GetActiveCartId();
 
             connection.Open();
             List<CartItem> cartItems = new List<CartItem>();
-
-            int cartId = GetActiveCartId();
 
             SqlCommand selectCommand = new SqlCommand("SELECT * FROM CartItem Where IsActive = 1 and CartId = " + cartId.ToString(), connection);
             SqlDataReader reader = selectCommand.ExecuteReader();
@@ -43,10 +45,10 @@ namespace WorkoutApp.Repository
             {
                 CartItem cartItem = new CartItem
                 {
-                    Id = reader.GetInt64(reader.GetOrdinal("ID")),
-                    CartId = reader.GetInt64(reader.GetOrdinal("CartId")),
-                    ProductId = reader.GetInt64(reader.GetOrdinal("ProductID")),
-                    Quantity = reader.GetInt64(reader.GetOrdinal("Quantity")),
+                    Id = reader.GetInt32(reader.GetOrdinal("ID")),
+                    CartId = reader.GetInt32(reader.GetOrdinal("CartId")),
+                    ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
+                    Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
                 };
                 cartItems.Add(cartItem);
             }
@@ -55,6 +57,35 @@ namespace WorkoutApp.Repository
             connection.Close();
 
             return cartItems;
+        }
+
+        public void ResetCart()
+        {
+            List<CartItem> cartItems = GetAll();
+
+            foreach(CartItem cartItem in cartItems)
+            {
+                DeleteById(cartItem.Id);
+            }
+
+            int newId = GetActiveCartId();
+            
+            connection.Open();
+
+            SqlCommand insertCommand = new SqlCommand(
+                "INSERT INTO Cart (Id, CustomerID, CreatedAt, IsActive) VALUES (@Id, 1, GETDATE(), 1)",
+                connection
+            );
+            insertCommand.Parameters.AddWithValue("@Id", newId + 1);
+            insertCommand.ExecuteNonQuery();
+
+            SqlCommand updateCommand = new SqlCommand(
+                "UPDATE Cart SET IsActive = 0 WHERE Id = " + newId.ToString(),
+                connection
+            );
+            updateCommand.ExecuteNonQuery();
+            connection.Close();
+
         }
 
         public void AddCartItem(int productId, int quantity)
@@ -102,7 +133,7 @@ namespace WorkoutApp.Repository
             connection.Open();
 
             SqlCommand updateCommand = new SqlCommand(
-                "UPDATE CartItem SET IsActive = false WHERE Id = @Id",
+                "UPDATE CartItem SET IsActive = 0 WHERE ID = @Id",
                 connection
             );
 
@@ -114,8 +145,28 @@ namespace WorkoutApp.Repository
         }
 
         public CartItem GetItemById(long id)
-        {
-            throw new NotImplementedException();
+        {            
+            int cartId = GetActiveCartId();
+
+            connection.Open();
+
+
+            SqlCommand selectCommand = new SqlCommand("SELECT * FROM CartItem Where IsActive = 1 and CartId = " + cartId.ToString() + " and ID = " + id.ToString(), connection);
+            SqlDataReader reader = selectCommand.ExecuteReader();
+
+            reader.Read();
+            CartItem cartItem = new CartItem
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("ID")),
+                    CartId = reader.GetInt32(reader.GetOrdinal("CartId")),
+                    ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
+                    Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                };
+
+            reader.Close();
+            connection.Close();
+
+            return cartItem;
         }
     }
 }

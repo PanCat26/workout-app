@@ -13,6 +13,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WorkoutApp.Service;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -24,9 +25,16 @@ namespace WorkoutApp.View
     /// </summary>
     public sealed partial class Payment : Window
     {
+        private double TotalAmount { get; set; }
         public Payment()
         {
             this.InitializeComponent();
+        }
+
+        public Payment(double TotalAmount)
+        {
+            this.InitializeComponent();
+            this.TotalAmount = TotalAmount;
         }
 
         private void FirstNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -63,8 +71,10 @@ namespace WorkoutApp.View
 
         private void SendOrderButtonClick(object sender, RoutedEventArgs e)
         {
-            Window shoppingCart = new ShoppingCart();
-            shoppingCart.Activate();
+            OrderService orderService = new OrderService();
+            orderService.SendOrder(TotalAmount);
+            Window main = new MainWindow();
+            main.Activate();
             this.Close();
         }
     }
