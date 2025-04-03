@@ -42,8 +42,8 @@
                         <GridView.ItemTemplate>
                             <DataTemplate >
                                 <StackPanel Orientation="Vertical" Padding="10" Background="LightGray" BorderBrush="Gray" BorderThickness="1" CornerRadius="10" Margin="10" Width="150">
-                                    <Image Source="{Binding ImageSource}" Height="100" Width="100" Stretch="Uniform" Margin="0,0,0,5"/>
-                                    <TextBlock Text="{Binding ProductName}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5"/>
+                                    <Image Source="{Binding FileUrl}" Height="100" Width="100" Stretch="Uniform" Margin="0,0,0,5"/>
+                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5"/>
                                     <TextBlock Text="{Binding Price}" FontSize="14" Foreground="Red" HorizontalAlignment="Center" Margin="0,5"/>
                                     <Button  Content="View" HorizontalAlignment="Center" Margin="0,5" Click="View_Button"/>
                                 </StackPanel>

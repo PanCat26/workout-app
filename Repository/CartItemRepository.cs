@@ -10,7 +10,7 @@ namespace WorkoutApp.Repository
 {
     public class CartItemRepository
     {
-        private string connectionString = @"Data Source=.\FLORIN;Initial Catalog=ISSDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
+        private string connectionString = @"Server=Dell\SQLEXPRESS;Database=ShopDB;Integrated Security=True;TrustServerCertificate=True";
         private SqlConnection connection;
 
         public CartItemRepository()
@@ -57,7 +57,7 @@ namespace WorkoutApp.Repository
             return cartItems;
         }
 
-        public void AddCartItem(CartItem entity)
+        public void AddCartItem(int productId, int quantity)
         {
             connection.Open();
 
@@ -66,10 +66,13 @@ namespace WorkoutApp.Repository
                 connection
             );
 
-            insertCommand.Parameters.AddWithValue("@Id", entity.Id);
-            insertCommand.Parameters.AddWithValue("@CartId", entity.CartId);
-            insertCommand.Parameters.AddWithValue("@ProductId", entity.ProductId);
-            insertCommand.Parameters.AddWithValue("@Quantity", entity.Quantity);
+            SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) + 1 FROM CartItem", connection);
+            int newId = (int)getMaxIdCommand.ExecuteScalar();
+
+            insertCommand.Parameters.AddWithValue("@Id", newId);
+            insertCommand.Parameters.AddWithValue("@CartId", this.GetActiveCartId());
+            insertCommand.Parameters.AddWithValue("@ProductId", productId);
+            insertCommand.Parameters.AddWithValue("@Quantity", quantity);
             insertCommand.Parameters.AddWithValue("@IsActive", true);
 
             insertCommand.ExecuteNonQuery();

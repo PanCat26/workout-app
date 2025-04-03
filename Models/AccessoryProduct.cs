@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WorkoutApp.Models
+{
+    public class AccessoryProduct : IProduct
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public double Price { get; set; }
+        public int Stock { get; set; }
+        public int CategoryID { get; set; }
+        public string Description { get; set; }
+        public string FileUrl { get; set; }
+        public bool IsActive { get; set; }
+
+        public AccessoryProduct(int id, string name, double price, int stock, int categoryId, string description, string fileUrl, bool isActive)
+        {
+            ID = id;
+            Name = name;
+            Price = price;
+            Stock = stock;
+            CategoryID = categoryId;
+            Description = description;
+            FileUrl = fileUrl;
+            IsActive = isActive;
+        }
+    }
+}

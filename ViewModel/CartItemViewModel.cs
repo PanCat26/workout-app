@@ -27,14 +27,15 @@ namespace WorkoutApp.ViewModel
 
         }
 
-        public CartItemViewModel(Product product)
+        public CartItemViewModel(IProduct product)
         {
             ProductName = product.Name;
-            ImageSource = product.Image;
-            Quantity = product.Quantity.ToString();
+            ImageSource = product.FileUrl;
+            Quantity = product.Stock.ToString();
             Price = product.Price.ToString();
             TotalPrice = "totalPrice";
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)

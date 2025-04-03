@@ -6,16 +6,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WorkoutApp.Models;
+using WorkoutApp.Service;
 
 namespace WorkoutApp.ViewModel
 {
     public class ProductDetailsViewModel : INotifyPropertyChanged
     {
+        private readonly ProductService _productService;
+        private readonly WishlistService _wishlistService;
+        private readonly CartService _cartService;
 
-        private MOCKProduct product = new MOCKProduct("Sports Bra", "$29.99", "https://i.pinimg.com/736x/f9/15/2b/f9152bb652ed2ef22f4271752e9ffbc0.jpg", "A comfortable sports bra", "XS, S, M, L", "White, Black, Red, Blue, Green", "10");
-        public string ProductName => product.ProductName;
-        public string Price => product.Price;
-        public string ImageSource => product.ImageSource;
+        // private MOCKProduct product = new MOCKProduct("Sports Bra", "$29.99", "https://i.pinimg.com/736x/f9/15/2b/f9152bb652ed2ef22f4271752e9ffbc0.jpg", "A comfortable sports bra", "XS, S, M, L", "White, Black, Red, Blue, Green", "10");
+        private IProduct product;
+
+
+        public int ProductID => product.ID;
+        public string ProductName => product.Name;
+        public string Price => "$" + product.Price.ToString("F2");
+        public string ImageSource => product.FileUrl;
+        public int Stock => product.Stock;
         public string Description => product.Description;
 
 
@@ -25,9 +35,9 @@ namespace WorkoutApp.ViewModel
 
         public ObservableCollection<string> AvailableQuantities { get; set; }
         private string _selectedQuantity;
-        public ObservableCollection<MOCKProduct> RecommendedProducts { get; set; }
+        public ObservableCollection<IProduct> RecommendedProducts { get; set; }
 
-        public ObservableCollection<string> AvailableColors { get; set; }
+        public ObservableCollection<string> AvailableColors  { get; set; }
 
         private string _selectedColor = "Choose Color";
         public string SelectedColor
@@ -67,56 +77,76 @@ namespace WorkoutApp.ViewModel
         public ICommand SelectColorCommand { get; }
 
 
-        public ProductDetailsViewModel()
+        public ProductDetailsViewModel(ProductService productService, WishlistService wishlistService, CartService cartService, IProduct product)
         {
-            LoadColors();
-            LoadSizes();
-            LoadQuantities();
-            RecommendedProducts = new ObservableCollection<MOCKProduct>
-            {
-                new MOCKProduct { ProductName = "Sports Bra", Price = "$29.99", ImageSource = "/Assets/sportsBra.jpg" },
-                new MOCKProduct { ProductName = "Logo T-shirt", Price = "$19.99", ImageSource = "https://i.pinimg.com/736x/cd/0f/f5/cd0ff5c42be631ecaaa065d69c84255b.jpg" },
-                new MOCKProduct { ProductName = "Running Shoes", Price = "$79.99", ImageSource = "https://i.pinimg.com/736x/e7/20/f3/e720f38675e34aca5325c084a4d7efa6.jpg" }
-            };
+
+            _productService = productService; 
+            _wishlistService = wishlistService;
+            _cartService = cartService;
+            this.product = product;
+            this.AvailableColors = new ObservableCollection<string>();
+            this.AvailableSizes = new ObservableCollection<string>();
+            this.AvailableQuantities = new ObservableCollection<string>();
+            this.RecommendedProducts = new ObservableCollection<IProduct>();
+            LoadProductDetails();
+            
+
+            
         }
 
-
-
-        private void LoadColors()
+        private void LoadProductDetails()
         {
-            // Simulating fetching colors from a database
-
-            AvailableColors = new ObservableCollection<string>();
-            List<string> colors = product.Colors.Split(",").ToList();
-            for (int i = 0; i < colors.Count; i++)
+            if (product is ClothesProduct clothesProduct)
             {
-                AvailableColors.Add(colors[i]);
+                LoadColors(clothesProduct.Attributes);
+                LoadSizes(clothesProduct.Size);
+            }
+            if (product is FoodProduct foodProduct)
+            {
+                LoadSizes(foodProduct.Size);
+            }
+            LoadQuantities();
+            LoadRecommendedProducts();
+        }
+
+        private void LoadColors(string colorData)
+        {
+            AvailableColors.Clear();
+            var colors = colorData.Split(',').Select(c => c.Trim()).ToList();
+            foreach (var color in colors)
+            {
+                AvailableColors.Add(color);
             }
         }
 
-        private void LoadSizes()
+        private void LoadSizes(string sizeData)
         {
-            // Simulating fetching sizes from a database
-            AvailableSizes = new ObservableCollection<string>();
-            List<string> sizes = product.Sizes.Split(",").ToList();
-            for (int i = 0; i < sizes.Count; i++)
+            AvailableSizes.Clear();
+            var sizes = sizeData.Split(',').Select(s => s.Trim()).ToList();
+            foreach (var size in sizes)
             {
-                AvailableSizes.Add(sizes[i]);
+                AvailableSizes.Add(size);
             }
         }
 
         private void LoadQuantities()
         {
-            // Simulating fetching quantities from a database
-            AvailableQuantities = new ObservableCollection<string>();
-            int quantity = Convert.ToInt32(product.Quantity);
-            for (int i = 1; i <= quantity; i++)
+            AvailableQuantities.Clear();
+            for (int i = 1; i <= product.Stock; i++)
             {
                 AvailableQuantities.Add(i.ToString());
             }
         }
 
-
+        private void LoadRecommendedProducts()
+        {
+            RecommendedProducts.Clear();
+            var similarProducts = _productService.GetRecommendedProducts(product.ID);
+            foreach (var product in similarProducts)
+            {
+                RecommendedProducts.Add(product);
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

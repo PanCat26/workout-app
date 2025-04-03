@@ -14,9 +14,9 @@ namespace WorkoutApp.Models
         public long ProductId { get; set; }
         public long Quantity { get; set; }
 
-        public Product GetProduct(ProductRepository repo)
+        public IProduct GetProduct(ProductRepository repo)
         {
-            return repo.GetProductById((int)ProductId);
+            return repo.GetById((int) ProductId);
         }
     }
 }

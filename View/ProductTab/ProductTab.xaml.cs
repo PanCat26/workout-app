@@ -12,6 +12,9 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WorkoutApp.Models;
+using WorkoutApp.Repository;
+using WorkoutApp.Service;
 using WorkoutApp.ViewModel;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -21,12 +24,25 @@ namespace WorkoutApp.View.ProductTab
 {
     public sealed partial class ProductTab : UserControl
     {
-        public ProductDetailsViewModel ViewModel { get; set; } = new ProductDetailsViewModel();
+        public ProductDetailsViewModel ViewModel { get; set; }
+        private readonly ProductService productService;
+        private readonly WishlistService wishlistService;
+        private readonly CartService cartService;
+        private IProduct product;
 
-        public ProductTab()
+        public ProductTab(IProduct product)
         {
             this.InitializeComponent();
+            CartItemRepository cartItemRepository = new CartItemRepository();
+            ProductRepository productRepository = new ProductRepository();
+            WishlistItemRepository wishlistRepository = new WishlistItemRepository();
+            this.cartService = new CartService(cartItemRepository, productRepository);
+            this.wishlistService = new  WishlistService(wishlistRepository, productRepository);
+            this.productService = new ProductService(productRepository);
+            this.product = product;
 
+
+            ViewModel = new ProductDetailsViewModel(productService, wishlistService, cartService, product);
             DataContext = ViewModel;
             PopulateColorFlyout();
         }
@@ -60,13 +76,26 @@ namespace WorkoutApp.View.ProductTab
 
         private void AddToCartButton_Checked(object sender, RoutedEventArgs e)
         {
-            // Add the product to the cart
-            // For example, add the product to a collection or database
-            // Example: Cart.Add(product);
-            // Show a success message
-            AddToCartSuccessMessage();
 
-        }
+            try
+            {
+                cartService.AddToCart(ViewModel.ProductID, int.Parse(ViewModel.SelectedQuantity));
+                AddToCartSuccessMessage();
+            }
+            catch (Exception ex)
+            {
+                var message = new ContentDialog()
+                {
+                    Title = "Error",
+                    Content = $"Could not add to Cart: {ex.Message}",
+                    CloseButtonText = "OK"
+                };
+                message.XamlRoot = this.XamlRoot;
+                _ = message.ShowAsync();
+            }
+
+
+            }
 
         public void AddToCartSuccessMessage()
         {
@@ -100,7 +129,22 @@ namespace WorkoutApp.View.ProductTab
             // For example, add the product to a collection or database
             // Example: Wishlist.Add(product);
             // Show a success message
-            AddToWishListSuccessMessage();
+            try
+            {
+                wishlistService.addToWishlist(ViewModel.ProductID);
+                AddToWishListSuccessMessage();
+            }
+            catch (Exception ex)
+            {
+                var message = new ContentDialog()
+                {
+                    Title = "Error",
+                    Content = $"Could not add to wishlist: {ex.Message}",
+                    CloseButtonText = "OK"
+                };
+                message.XamlRoot = this.XamlRoot;
+                _ = message.ShowAsync();
+            }
         }
 
         public void AddToWishListSuccessMessage()
@@ -115,18 +159,31 @@ namespace WorkoutApp.View.ProductTab
             message.XamlRoot = this.XamlRoot;
             _ = message.ShowAsync();
         }
+
+        public void AddToWishListError()
+        {
+            //message with error
+            var message = new ContentDialog()
+            {
+                Title = "Error",
+                Content = "The product could not be added to your wishlist",
+                CloseButtonText = "Ok"
+            };
+            message.XamlRoot = this.XamlRoot;
+            _ = message.ShowAsync();
+        }
+
         private void View_Button(object sender, RoutedEventArgs e)
         {
-            // Show the product details
-            //navigate to a new ProductPage containing the product details
-            // For example, navigate to a new page with the product details
+            // ProductTab productTab = new ProductTab(recomended Item from where???);
+           // productTab.Activate(); nu merge off :< Help...
 
 
         }
 
         private void UpdateButton_Checked(object sender, RoutedEventArgs e)
         {
-            UpdateWindow updateWindow = new UpdateWindow();
+            UpdateWindow updateWindow = new UpdateWindow(this.product);
             updateWindow.Activate();
             //uncheck the button
             ((ToggleButton)sender).IsChecked = false;
@@ -146,9 +203,8 @@ namespace WorkoutApp.View.ProductTab
 
             if (result == ContentDialogResult.Primary)
             {
-                // Delete the product
-                // Example: ProductCollection.Remove(product);
 
+                productService.DeleteProduct(ViewModel.ProductID);
                 // Show success message
                 var successDialog = new ContentDialog()
                 {

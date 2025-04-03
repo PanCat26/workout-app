@@ -46,5 +46,10 @@ namespace WorkoutApp.Service
         {
             cartItemRepository.DeleteById(cartItem.Id);
         }
+
+        public void AddToCart(int productId, int quantity)
+        {
+            cartItemRepository.AddCartItem(productId, quantity);
+        }
     }
 }

@@ -12,6 +12,9 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WorkoutApp.Repository;
+using WorkoutApp.Service;
+using WorkoutApp.Models;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -23,9 +26,15 @@ namespace WorkoutApp.View.ProductTab
     /// </summary>
     public sealed partial class UpdateWindow : Window
     {
-        public UpdateWindow()
+
+        private ProductService productService;
+        private IProduct product;
+        public UpdateWindow(IProduct product)
         {
             this.InitializeComponent();
+            ProductRepository productRepository = new ProductRepository();
+            this.productService = new ProductService(productRepository);
+            this.product = product;
         }
 
 
@@ -37,9 +46,27 @@ namespace WorkoutApp.View.ProductTab
             string updatedSizes = SizesTextBox.Text;
             string updatedColors = ColorsTextBox.Text;
             string updatedQuantity = QuantityTextBox.Text;
+            try
+            {
+                if (!float.TryParse(updatedProductPrice, out float price))
+                {
+                    throw new Exception("The price must be a numerical value!");
+                }
 
-            // You can add logic to save the updated product here
+                if (!int.TryParse(updatedQuantity, out int quantity))
+                {
+                    throw new Exception("The quantity must be a numerical value!");
+                }
 
+
+                this.productService.UpdateProduct(product.ID, updatedProductName, price, quantity, product.CategoryID, updatedDescription, product.FileUrl, updatedColors, updatedSizes);
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            
 
             this.Close();
 

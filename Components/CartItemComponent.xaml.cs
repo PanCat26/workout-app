@@ -46,8 +46,8 @@ namespace WorkoutApp.Components
 
         private void setDataContext()
         {
-            Product product = cartItem.GetProduct(new ProductRepository());
-            this.DataContext = new CartItemViewModel(product.Name, product.Image, product.Price.ToString(), cartItem.Quantity.ToString());
+            IProduct product = cartItem.GetProduct(new ProductRepository());
+            this.DataContext = new CartItemViewModel(product.Name, product.FileUrl, product.Price.ToString(), cartItem.Quantity.ToString());
         }
 
         private void deacreaseQuantityButton_Click(object sender, RoutedEventArgs e)
