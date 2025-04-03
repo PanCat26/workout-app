@@ -1,3 +1,4 @@
+// MainWindow.xaml.cs
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -15,17 +16,12 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using WorkoutApp.Models;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace WorkoutApp.View
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private List<Product> allProducts = new List<Product>();
+        private List<IProduct> allProducts = new List<IProduct>();
+
         public MainWindow()
         {
             this.InitializeComponent();
@@ -34,37 +30,157 @@ namespace WorkoutApp.View
 
         private void LoadProducts()
         {
-
-            var products = new List<Product>
+            allProducts = new List<IProduct>
             {
-                new Product { Name = "Bra", Price = "$29.99", Image = "bra_image.jpg" },
-                new Product { Name = "Leggings", Price = "$49.99", Image = "leggings_image.jpg" },
-                new Product { Name = "Shorts", Price = "$19.99", Image = "shorts_image.jpg" },
-                new Product { Name = "Bra", Price = "$29.99", Image = "bra_image.jpg" },
-                new Product { Name = "Leggings", Price = "$49.99", Image = "leggings_image.jpg" },
-                new Product { Name = "Shorts", Price = "$19.99", Image = "shorts_image.jpg" },
-                new Product { Name = "Bra", Price = "$29.99", Image = "bra_image.jpg" },
-                new Product { Name = "Leggings", Price = "$49.99", Image = "leggings_image.jpg" },
-                new Product { Name = "Shorts", Price = "$19.99", Image = "shorts_image.jpg" },
-                new Product { Name = "Bra", Price = "$29.99", Image = "bra_image.jpg" },
-                new Product { Name = "Leggings", Price = "$49.99", Image = "leggings_image.jpg" },
-                new Product { Name = "Shorts", Price = "$19.99", Image = "shorts_image.jpg" },
+                new ClothesProduct(1, "Bra", 29.99, 10, 1, "Black", "S", "Comfortable sports bra", "bra_image.jpg", true),
+                new ClothesProduct(2, "Leggings", 49.99, 15, 1, "Red", "M", "High-waisted leggings", "leggings_image.jpg", true),
+                new ClothesProduct(3, "Shorts", 19.99, 20, 1, "Blue", "L", "Breathable gym shorts", "shorts_image.jpg", true),
+                new ClothesProduct(4, "Tank Top", 24.99, 12, 1, "White", "M", "Lightweight tank top", "tanktop_image.jpg", true),
+                new ClothesProduct(5, "Jacket", 89.99, 5, 1, "Black", "L", "Warm gym jacket", "jacket_image.jpg", true),
+                new ClothesProduct(6, "Sports Tights", 39.99, 18, 1, "Blue", "S", "Flexible sports tights", "tight_image.jpg", true),
+                new ClothesProduct(7, "Hoodie", 59.99, 8, 1, "Red", "XL", "Cozy training hoodie", "hoodie_image.jpg", true),
+                new ClothesProduct(8, "Shorts", 21.99, 25, 1, "Black", "M", "Mesh training shorts", "shorts2_image.jpg", true),
+
+                // Food
+                new FoodProduct(9, "Whey Protein", 49.99, 40, 2, "1kg", "Vanilla flavored whey protein", "whey_image.jpg", true),
+                new FoodProduct(10, "Protein Bar", 2.99, 100, 2, "20g", "Chocolate protein snack", "bar_image.jpg", true),
+                new FoodProduct(11, "Creatine Powder", 19.99, 30, 2, "300g", "Micronized creatine powder", "creatine_image.jpg", true),
+                new FoodProduct(12, "BCAA", 34.99, 22, 2, "500g", "Amino acids for recovery", "bcaa_image.jpg", true),
+
+                // Accessories
+                new AccessoryProduct(13, "Gym Bag", 39.99, 12, 3, "Spacious gym bag", "bag_image.jpg", true),
+                new AccessoryProduct(14, "Wrist Straps", 14.99, 50, 3, "Lifting support straps", "straps_image.jpg", true),
+                new AccessoryProduct(15, "Water Bottle", 9.99, 80, 3, "Shatterproof bottle", "bottle_image.jpg", true)
+
 
             };
-            ProductsGridView.ItemsSource = products;
-            allProducts = products;
+            ProductsGridView.ItemsSource = allProducts;
+        }
+
+        private void OnFilterClick(object sender, RoutedEventArgs e)
+        {
+            FilterOptionsPanel.Children.Clear();
+            FilterOptionsPanel.Visibility = Visibility.Visible;
+
+            var categorySelector = new ComboBox { Width = 160, Margin = new Thickness(0, 0, 0, 10) };
+            categorySelector.Items.Add(new ComboBoxItem { Content = "Clothes", Tag = 1 });
+            categorySelector.Items.Add(new ComboBoxItem { Content = "Food", Tag = 2 });
+            categorySelector.Items.Add(new ComboBoxItem { Content = "Accessories", Tag = 3 });
+            categorySelector.SelectionChanged += CategorySelector_SelectionChanged;
+
+            FilterOptionsPanel.Children.Add(new TextBlock
+            {
+                Text = "Category",
+                Foreground = new SolidColorBrush(Colors.White)
+            });
+            FilterOptionsPanel.Children.Add(categorySelector);
+        }
+
+        private void CategorySelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selected && selected.Tag is int categoryId)
+            {
+                ProductsGridView.ItemsSource = allProducts.Where(p => p.CategoryID == categoryId).ToList();
+                BuildCategoryFilters(categoryId);
+            }
+        }
+
+        private void BuildCategoryFilters(int categoryId)
+        {
+            while (FilterOptionsPanel.Children.Count > 2)
+                FilterOptionsPanel.Children.RemoveAt(2);
+
+            switch (categoryId)
+            {
+                case 1: // Clothes
+                    AddFilterCombo("Size", new List<string> { "S", "M", "L", "XL" }, categoryId);
+                    AddFilterCombo("Color", new List<string> { "Black", "Red", "Blue", "White" }, categoryId);
+                    break;
+
+                case 2: // Food
+                    AddFilterCombo("Size", new List<string> { "20g", "100g", "250g", "500g", "1kg" }, categoryId);
+                    break;
+
+                case 3: // Accessories
+                    //future
+                    break;
+            }
+
+            var clearButton = new Button
+            {
+                Content = "Clear Filters",
+                Margin = new Thickness(0, 20, 0, 0),
+                Width = 140,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            clearButton.Click += (s, e) =>
+            {
+                ProductsGridView.ItemsSource = allProducts;
+                FilterOptionsPanel.Visibility = Visibility.Collapsed;
+            };
+            FilterOptionsPanel.Children.Add(clearButton);
+        }
+
+        private void AddFilterCombo(string tag, List<string> options, int categoryId)
+        {
+            FilterOptionsPanel.Children.Add(new TextBlock
+            {
+                Text = tag,
+                Foreground = new SolidColorBrush(Colors.White),
+                Margin = new Thickness(0, 10, 0, 2)
+            });
+
+            var combo = new ComboBox { Tag = tag, Width = 140 };
+            foreach (var option in options)
+                combo.Items.Add(new ComboBoxItem { Content = option });
+
+            combo.SelectionChanged += (s, e) => ApplyCategoryFilter(categoryId);
+            FilterOptionsPanel.Children.Add(combo);
+        }
+
+        private void ApplyCategoryFilter(int categoryId)
+        {
+            Dictionary<string, string> selectedFilters = new();
+
+            foreach (var child in FilterOptionsPanel.Children)
+            {
+                if (child is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selectedItem && comboBox.Tag is string tag)
+                {
+                    selectedFilters[tag] = selectedItem.Content.ToString();
+                }
+            }
+
+            IEnumerable<IProduct> filtered = allProducts.Where(p => p.CategoryID == categoryId);
+
+            switch (categoryId)
+            {
+                case 1: // Clothes
+                    filtered = filtered.OfType<ClothesProduct>().Where(p =>
+                        (!selectedFilters.ContainsKey("Size") || p.Size.Equals(selectedFilters["Size"], StringComparison.OrdinalIgnoreCase)) &&
+                        (!selectedFilters.ContainsKey("Color") || p.Attributes.Equals(selectedFilters["Color"], StringComparison.OrdinalIgnoreCase)));
+                    break;
+
+                case 2: // Food
+                    filtered = filtered.OfType<FoodProduct>().Where(p =>
+                        (!selectedFilters.ContainsKey("Size") || p.Size.Equals(selectedFilters["Size"], StringComparison.OrdinalIgnoreCase)));
+                    break;
+
+                case 3: // Accessories
+                    break;
+            }
+
+            ProductsGridView.ItemsSource = filtered.ToList();
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             AddProductWindow addProductWindow = new AddProductWindow();
 
-
             addProductWindow.ProductAdded += (newProduct) =>
             {
                 if (newProduct != null)
                 {
-                    var products = ProductsGridView.ItemsSource as List<Product>;
+                    var products = ProductsGridView.ItemsSource as List<IProduct>;
                     if (products != null)
                     {
                         products.Add(newProduct);
@@ -75,245 +191,6 @@ namespace WorkoutApp.View
             };
 
             addProductWindow.Activate();
-        }
-
-        private void BuildDynamicFilters(string category)
-        {
-            FilterOptionsPanel.Children.Clear();
-            FilterOptionsPanel.Visibility = Visibility.Visible;
-
-            if (category == "clothing")
-            {
-                // Size Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Size", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox sizeCombo = new ComboBox();
-                sizeCombo.Items.Add(new ComboBoxItem { Content = "S" });
-                sizeCombo.Items.Add(new ComboBoxItem { Content = "M" });
-                sizeCombo.Items.Add(new ComboBoxItem { Content = "L" });
-                sizeCombo.Items.Add(new ComboBoxItem { Content = "XL" });
-                sizeCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("clothing");
-                FilterOptionsPanel.Children.Add(sizeCombo);
-
-                // Color Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Color", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox colorCombo = new ComboBox();
-                colorCombo.Items.Add(new ComboBoxItem { Content = "Black" });
-                colorCombo.Items.Add(new ComboBoxItem { Content = "Red" });
-                colorCombo.Items.Add(new ComboBoxItem { Content = "Blue" });
-                colorCombo.Items.Add(new ComboBoxItem { Content = "White" });
-                colorCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("clothing");
-                FilterOptionsPanel.Children.Add(colorCombo);
-            }
-            else if (category == "creatine")
-            {
-                // Brand Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Brand", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox brandCombo = new ComboBox();
-                brandCombo.Items.Add(new ComboBoxItem { Content = "Optimum" });
-                brandCombo.Items.Add(new ComboBoxItem { Content = "MyProtein" });
-                brandCombo.Items.Add(new ComboBoxItem { Content = "Bulk" });
-                brandCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("creatine");
-
-                brandCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("creatine");
-                FilterOptionsPanel.Children.Add(brandCombo);
-
-                // Weight Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Weight", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox weightCombo = new ComboBox();
-                weightCombo.Items.Add(new ComboBoxItem { Content = "100g" });
-                weightCombo.Items.Add(new ComboBoxItem { Content = "300g" });
-                weightCombo.Items.Add(new ComboBoxItem { Content = "500g" });
-                weightCombo.Items.Add(new ComboBoxItem { Content = "1kg" });
-                weightCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("creatine");
-
-                FilterOptionsPanel.Children.Add(weightCombo);
-
-                // Form Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Form", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox formCombo = new ComboBox();
-                formCombo.Items.Add(new ComboBoxItem { Content = "Powder" });
-                formCombo.Items.Add(new ComboBoxItem { Content = "Capsules" });
-                formCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("creatine");
-                FilterOptionsPanel.Children.Add(formCombo);
-            }
-            else if (category == "protein")
-            {
-                // Flavor Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Flavor", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox flavorCombo = new ComboBox();
-                flavorCombo.Items.Add(new ComboBoxItem { Content = "Vanilla" });
-                flavorCombo.Items.Add(new ComboBoxItem { Content = "Chocolate" });
-                flavorCombo.Items.Add(new ComboBoxItem { Content = "Strawberry" });
-                flavorCombo.Items.Add(new ComboBoxItem { Content = "Unflavored" });
-                flavorCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("protein");
-
-                FilterOptionsPanel.Children.Add(flavorCombo);
-
-                // Type Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Type", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox typeCombo = new ComboBox();
-                typeCombo.Items.Add(new ComboBoxItem { Content = "Whey" });
-                typeCombo.Items.Add(new ComboBoxItem { Content = "Isolate" });
-                typeCombo.Items.Add(new ComboBoxItem { Content = "Casein" });
-                typeCombo.Items.Add(new ComboBoxItem { Content = "Plant-Based" });
-                typeCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("protein");
-
-                FilterOptionsPanel.Children.Add(typeCombo);
-            }
-            else if (category == "accessories")
-            {
-                // Type Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Type", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox accTypeCombo = new ComboBox();
-                accTypeCombo.Items.Add(new ComboBoxItem { Content = "Bag" });
-                accTypeCombo.Items.Add(new ComboBoxItem { Content = "Bottle" });
-                accTypeCombo.Items.Add(new ComboBoxItem { Content = "Strap" });
-                accTypeCombo.Items.Add(new ComboBoxItem { Content = "Mat" });
-                accTypeCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("accessories");
-
-                FilterOptionsPanel.Children.Add(accTypeCombo);
-
-                // Color Filter
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Color", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox accColorCombo = new ComboBox();
-                accColorCombo.Items.Add(new ComboBoxItem { Content = "Black" });
-                accColorCombo.Items.Add(new ComboBoxItem { Content = "Blue" });
-                accColorCombo.Items.Add(new ComboBoxItem { Content = "Pink" });
-                accColorCombo.Items.Add(new ComboBoxItem { Content = "Camo" });
-                accColorCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("accessories");
-
-                FilterOptionsPanel.Children.Add(accColorCombo);
-            }
-            else
-            {
-                // Default or All Products
-                FilterOptionsPanel.Children.Add(new TextBlock { Text = "Sort By", Margin = new Thickness(0, 10, 0, 2), Foreground = new SolidColorBrush(Colors.White) });
-                ComboBox sortCombo = new ComboBox();
-                sortCombo.Items.Add(new ComboBoxItem { Content = "Price: Low to High" });
-                sortCombo.Items.Add(new ComboBoxItem { Content = "Price: High to Low" });
-                sortCombo.Items.Add(new ComboBoxItem { Content = "Name A-Z" });
-                sortCombo.SelectionChanged += (s, e) => OnFilterOptionChanged("accessories");
-
-                FilterOptionsPanel.Children.Add(sortCombo);
-            }
-        }
-
-        private void OnFilterOptionChanged(string category)
-        {
-            // Create a dictionary to collect selected values
-            Dictionary<string, string> selectedFilters = new Dictionary<string, string>();
-
-            foreach (var child in FilterOptionsPanel.Children)
-            {
-                if (child is ComboBox comboBox &&
-                    comboBox.SelectedItem is ComboBoxItem selectedItem &&
-                    comboBox.Tag is string tag)
-                {
-                    selectedFilters[tag] = selectedItem.Content.ToString();
-                }
-            }
-
-            // Filter logic depending on category
-            var filtered = allProducts.AsEnumerable();
-
-            switch (category)
-            {
-                case "clothing":
-                    filtered = filtered.Where(p =>
-                        (p.Name.ToLower().Contains("bra") || p.Name.ToLower().Contains("leggings") || p.Name.ToLower().Contains("shorts")) &&
-                        (selectedFilters.ContainsKey("Size") ? p.Name.ToLower().Contains(selectedFilters["Size"].ToLower()) : true) &&
-                        (selectedFilters.ContainsKey("Color") ? p.Name.ToLower().Contains(selectedFilters["Color"].ToLower()) : true));
-                    break;
-
-                case "creatine":
-                    filtered = filtered.Where(p =>
-                        p.Name.ToLower().Contains("creatine") &&
-                        (selectedFilters.ContainsKey("Brand") ? p.Name.ToLower().Contains(selectedFilters["Brand"].ToLower()) : true) &&
-                        (selectedFilters.ContainsKey("Weight") ? p.Name.ToLower().Contains(selectedFilters["Weight"].ToLower()) : true) &&
-                        (selectedFilters.ContainsKey("Form") ? p.Name.ToLower().Contains(selectedFilters["Form"].ToLower()) : true));
-                    break;
-
-                case "protein":
-                    filtered = filtered.Where(p =>
-                        p.Name.ToLower().Contains("protein") &&
-                        (selectedFilters.ContainsKey("Flavor") ? p.Name.ToLower().Contains(selectedFilters["Flavor"].ToLower()) : true) &&
-                        (selectedFilters.ContainsKey("Type") ? p.Name.ToLower().Contains(selectedFilters["Type"].ToLower()) : true));
-                    break;
-
-                case "accessories":
-                    filtered = filtered.Where(p =>
-                        (p.Name.ToLower().Contains("bag") || p.Name.ToLower().Contains("bottle") || p.Name.ToLower().Contains("strap") || p.Name.ToLower().Contains("mat")) &&
-                        (selectedFilters.ContainsKey("Type") ? p.Name.ToLower().Contains(selectedFilters["Type"].ToLower()) : true) &&
-                        (selectedFilters.ContainsKey("Color") ? p.Name.ToLower().Contains(selectedFilters["Color"].ToLower()) : true));
-                    break;
-
-                default:
-                    // Apply generic filtering or sorting if needed
-                    break;
-            }
-
-            ProductsGridView.ItemsSource = filtered.ToList();
-        }
-
-        private void OnFilterAllProducts(object sender, RoutedEventArgs e)
-        {
-            BuildDynamicFilters("product");
-
-            var filtered = allProducts
-                .Where(p => p.Name.ToLower().Contains("bra") || p.Name.ToLower().Contains("leggings") || p.Name.ToLower().Contains("shorts"))
-                .ToList();
-
-            ProductsGridView.ItemsSource = filtered;
-        }
-        private void OnFilterCreatine(object sender, RoutedEventArgs e)
-        {
-            BuildDynamicFilters("creatine");
-
-            var filtered = allProducts
-                .Where(p => p.Name.ToLower().Contains("bra") || p.Name.ToLower().Contains("leggings") || p.Name.ToLower().Contains("shorts"))
-                .ToList();
-
-            ProductsGridView.ItemsSource = filtered;
-        }
-        private void OnFilterProtein(object sender, RoutedEventArgs e)
-        {
-            BuildDynamicFilters("protein");
-
-            var filtered = allProducts
-                .Where(p => p.Name.ToLower().Contains("bra") || p.Name.ToLower().Contains("leggings") || p.Name.ToLower().Contains("shorts"))
-                .ToList();
-
-            ProductsGridView.ItemsSource = filtered;
-        }
-        private void OnFilterVitamins(object sender, RoutedEventArgs e)
-        {
-            BuildDynamicFilters("vitamins");
-
-            var filtered = allProducts
-                .Where(p => p.Name.ToLower().Contains("bra") || p.Name.ToLower().Contains("leggings") || p.Name.ToLower().Contains("shorts"))
-                .ToList();
-
-            ProductsGridView.ItemsSource = filtered;
-        }
-        private void OnFilterClothing(object sender, RoutedEventArgs e)
-        {
-            BuildDynamicFilters("clothing");
-
-            var filtered = allProducts
-                .Where(p => p.Name.ToLower().Contains("bra") || p.Name.ToLower().Contains("leggings") || p.Name.ToLower().Contains("shorts"))
-                .ToList();
-
-            ProductsGridView.ItemsSource = filtered;
-        }
-        private void OnFilterAccessories(object sender, RoutedEventArgs e)
-        {
-            BuildDynamicFilters("accessories");
-
-            var filtered = allProducts
-                .Where(p => p.Name.ToLower().Contains("bra") || p.Name.ToLower().Contains("leggings") || p.Name.ToLower().Contains("shorts"))
-                .ToList();
-
-            ProductsGridView.ItemsSource = filtered;
         }
     }
 }

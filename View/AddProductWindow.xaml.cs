@@ -29,8 +29,8 @@ namespace WorkoutApp.View
             this.InitializeComponent();
         }
 
-        public event Action<Product> ProductAdded;
-        Product newProduct { get; set; }
+        public event Action<IProduct> ProductAdded;
+        IProduct newProduct { get; set; }
 
         private void ProductTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -54,26 +54,42 @@ namespace WorkoutApp.View
         {
             string selectedType = (ProductTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
-            newProduct = new Product
-            {
-                Name = NameTextBox.Text,
-                Price = PriceTextBox.Text,
-                Image = ImageTextBox.Text,
-                Type = selectedType
-            };
-
             if (selectedType == "Clothes")
             {
-                newProduct.Colors = ColorsTextBox.Text.Split(',').Select(c => c.Trim()).ToList();
-                newProduct.Sizes = SizesTextBox.Text.Split(',').Select(s => s.Trim()).ToList();
+                newProduct = new ClothesProduct
+                (
+                    id: 0, // you can auto-generate or set later
+                    name: NameTextBox.Text,
+                    price: double.TryParse(PriceTextBox.Text, out double price) ? price : 0,
+                    stock: 0,
+                    categoryId: 1,
+                    color: ColorsTextBox.Text.Split(',')[0].Trim(),
+                    size: SizesTextBox.Text.Split(',')[0].Trim(),
+                    description: "",
+                    fileUrl: ImageTextBox.Text,
+                    isActive: true
+                );
             }
             else if (selectedType == "Food")
             {
-                newProduct.Weights = WeightsTextBox.Text.Split(',').Select(w => w.Trim()).ToList();
+                // create a FoodProduct instead if you have that class
+                newProduct = new FoodProduct
+                (
+                    id: 0,
+                    name: NameTextBox.Text,
+                    price: double.TryParse(PriceTextBox.Text, out double price) ? price : 0,
+                    stock: 0,
+                    categoryId: 2,
+                    size: WeightsTextBox.Text.Split(',')[0].Trim(),
+                    description: "",
+                    fileUrl: ImageTextBox.Text,
+                    isActive: true
+                );
             }
 
             ProductAdded?.Invoke(newProduct);
             this.Close();
         }
+
     }
 }
