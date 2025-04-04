@@ -7,7 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="MainWindow">
+    Title="MainWindow"
+    >
 
     <Grid Background="Red">
         <Grid.RowDefinitions>
@@ -26,8 +27,10 @@
         </CommandBar>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Background="Black">
-            <MenuBar BorderThickness="2">
+            <!-- <MenuBar BorderThickness="2">
+               
                 <MenuBarItem  Title="Recommendations"/>
+                
                 <MenuBarItem Title="Clothes">
                     <MenuFlyoutItem Text="Bras"/>
                     <MenuFlyoutItem Text="Leggings"/>
@@ -48,16 +51,29 @@
                     <MenuFlyoutItem Text="Sport Equipment"/>
                 </MenuBarItem>
             </MenuBar>
-
-            <MenuBar BorderThickness="2" Margin="300,0,0,0">
+            -->
+            <MenuBar BorderThickness="2" Margin="0,0,0,0">
                 <MenuBarItem Title="Filter" Tapped="OnFilterClick"/>
-                <MenuBarItem Title="Wishlist"/>
-                <MenuBarItem Title="Cart"/>
+                <MenuBarItem Title="Wishlist">
+                    <MenuBarItem.Items>
+                        <MenuFlyoutItem Text="Open Wishlist" Click="WishList_Click"/>
+                    </MenuBarItem.Items>
+                </MenuBarItem>
+                <MenuBarItem Title="Cart">
+                    <MenuBarItem.Items>
+                        <MenuFlyoutItem Text="Open Cart" Click="CartMenu_Click"/>
+                    </MenuBarItem.Items>
+                </MenuBarItem>
             </MenuBar>
         </StackPanel>
 
         <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,10,0,10" Background="Black">
-            <AutoSuggestBox PlaceholderText="Type a control name" QueryIcon="Find" Width="300"/>
+            <!--<AutoSuggestBox PlaceholderText="Type a control name" QueryIcon="Find" Width="300"/> -->
+            <AutoSuggestBox x:Name="SearchBox"
+            PlaceholderText="Cauta produs..."
+            Width="300"
+            QueryIcon="Find"
+            TextChanged="SearchBox_TextChanged"/>
         </StackPanel>
 
         <Grid Grid.Row="3" Background="Black">
@@ -78,11 +94,12 @@
                 <StackPanel x:Name="FilterOptionsPanel"
                     Grid.Column="0"
                     Visibility="Collapsed"
-                    Background="#FF6961"
+                    Background="Red"
                     Margin="10"
                     Padding="10"
                     Width="200"/>
 
+               
                 <GridView x:Name="ProductsGridView"
                   Grid.Column="1"
                   Margin="20"
@@ -91,13 +108,24 @@
                     <GridView.ItemTemplate>
                         <DataTemplate x:DataType="local:Product">
                             <StackPanel Orientation="Vertical" Padding="10" Background="LightGray" CornerRadius="10">
-                                <Image Source="{Binding Image}" Height="100" Width="100" Stretch="Uniform"/>
-                                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <Image Source="{Binding FileUrl}" Height="100" Width="100" Stretch="Uniform"/>
+                                <TextBlock Text="{Binding Name}" Tapped="SeeProduct_Click" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding Price}" FontSize="14" Foreground="Green" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
                     </GridView.ItemTemplate>
                 </GridView>
+                 <!--
+                <GridView x:Name="ProductsGridView"
+                  Grid.Column="1"
+                  Margin="20"
+                  HorizontalAlignment="Center"
+                  Width="400">
+                    <StackPanel x:Name="ProductsStackPanel" Margin="10">
+                        Posts will be dynamically added here 
+                    </StackPanel>
+                </GridView>
+                -->
             </Grid>
 
             <!-- RIGHT SIDE: Offers -->

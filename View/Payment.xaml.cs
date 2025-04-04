@@ -1,3 +1,4 @@
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -39,12 +40,12 @@ namespace WorkoutApp.View
 
         private void FirstNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            SummaryName.Text = FirstNameTextBox.Text + LastNameTextBox.Text;
+            SummaryName.Text = FirstNameTextBox.Text +  ' ' + LastNameTextBox.Text;
         }
 
         private void LastNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            SummaryName.Text = FirstNameTextBox.Text + LastNameTextBox.Text;
+            SummaryName.Text = FirstNameTextBox.Text + ' ' + LastNameTextBox.Text;
         }
 
         private void PhoneNumberTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -71,6 +72,17 @@ namespace WorkoutApp.View
 
         private void SendOrderButtonClick(object sender, RoutedEventArgs e)
         {
+            if (PaymentMethodCard.IsChecked == false)
+                return;
+            if (FirstNameTextBox.Text.IsNullOrEmpty() == true)
+                return;
+            if (LastNameTextBox.Text.IsNullOrEmpty() == true)
+                return;
+            if(CityTextBox.Text.IsNullOrEmpty() == true) 
+                return;
+            if(RegionComboBox.SelectedItem == null) 
+                return;
+
             OrderService orderService = new OrderService();
             orderService.SendOrder(TotalAmount);
             Window main = new MainWindow();

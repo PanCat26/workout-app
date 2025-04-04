@@ -43,9 +43,8 @@
                             <DataTemplate >
                                 <StackPanel Orientation="Vertical" Padding="10" Background="LightGray" BorderBrush="Gray" BorderThickness="1" CornerRadius="10" Margin="10" Width="150">
                                     <Image Source="{Binding FileUrl}" Height="100" Width="100" Stretch="Uniform" Margin="0,0,0,5"/>
-                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5"/>
+                                    <TextBlock Text="{Binding Name}" Tapped="TextBlock_Tapped" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5"/>
                                     <TextBlock Text="{Binding Price}" FontSize="14" Foreground="Red" HorizontalAlignment="Center" Margin="0,5"/>
-                                    <Button  Content="View" HorizontalAlignment="Center" Margin="0,5" Click="View_Button"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridView.ItemTemplate>
@@ -58,12 +57,12 @@
 
         <!-- Product Details Section -->
         <StackPanel Grid.Column="1" Padding="20">
-
+            <Button Content="Back" Click="BackButton_Click"/>
             <TextBlock Text="{Binding ProductName}" FontSize="24" FontWeight="Bold"/>
             <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Height="40" Margin="5"/>
 
             <!-- Size Selection -->
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Name="SizeStackPanel" Orientation="Horizontal">
                 <TextBlock Text="Sizes: " FontWeight="Bold" Margin="5"/>
 
                 <ItemsControl ItemsSource="{Binding AvailableSizes}">
@@ -99,7 +98,7 @@
 
             <!-- Color Selection -->
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Colors: " FontWeight="Bold" Margin="5"/>
+                <TextBlock Name="ColorTextBlock"  Text="Colors: " FontWeight="Bold" Margin="5"/>
 
                 <SplitButton x:Name="ColorSplitButton" Width="150" Margin="5" Content="{Binding SelectedColor}">
                     <SplitButton.Flyout>

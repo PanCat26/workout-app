@@ -29,8 +29,8 @@ namespace WorkoutApp.View.ProductTab
         private readonly WishlistService wishlistService;
         private readonly CartService cartService;
         private IProduct product;
-
-        public ProductTab(IProduct product)
+        private Window parent { get; set; }
+        public ProductTab(IProduct product, Window parent)
         {
             this.InitializeComponent();
             CartItemRepository cartItemRepository = new CartItemRepository();
@@ -40,11 +40,22 @@ namespace WorkoutApp.View.ProductTab
             this.wishlistService = new  WishlistService(wishlistRepository, productRepository);
             this.productService = new ProductService(productRepository);
             this.product = product;
-
+            this.parent = parent;
 
             ViewModel = new ProductDetailsViewModel(productService, wishlistService, cartService, product);
             DataContext = ViewModel;
             PopulateColorFlyout();
+
+
+            if(product.CategoryID == 2 || product.CategoryID == 3)
+            {
+                ColorSplitButton.Visibility = Visibility.Collapsed;
+                ColorTextBlock.Visibility = Visibility.Collapsed;
+            }
+            if(product.CategoryID == 3)
+            {
+                SizeStackPanel.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void PopulateColorFlyout()
@@ -173,21 +184,15 @@ namespace WorkoutApp.View.ProductTab
             _ = message.ShowAsync();
         }
 
-        private void View_Button(object sender, RoutedEventArgs e)
-        {
-            // ProductTab productTab = new ProductTab(recomended Item from where???);
-           // productTab.Activate(); nu merge off :< Help...
-
-
-        }
-
         private void UpdateButton_Checked(object sender, RoutedEventArgs e)
         {
             UpdateWindow updateWindow = new UpdateWindow(this.product);
             updateWindow.Activate();
             //uncheck the button
             ((ToggleButton)sender).IsChecked = false;
+            parent.Close();
         }
+
         private async void DeleteButton_Checked(object sender, RoutedEventArgs e)
         {
             var deleteConfirmationDialog = new ContentDialog()
@@ -215,7 +220,25 @@ namespace WorkoutApp.View.ProductTab
                 };
                 await successDialog.ShowAsync(); // Wait before closing
             }
+            MainWindow main = new MainWindow();
+            parent.Close();
+            main.Activate();
         }
 
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow main = new MainWindow();
+            parent.Close();
+            main.Activate();
+        }
+
+        private void TextBlock_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var textBlock = sender as TextBlock;
+            string ProductName = textBlock.Text;
+
+            ProductRepository productRepository = new ProductRepository();
+            parent.Content = new ProductTab(productRepository.GetAll().Where(p => p.Name.Equals(ProductName)).First(), parent);
+        }
     }
 }

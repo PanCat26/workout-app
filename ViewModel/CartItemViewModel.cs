@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Design.Internal;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -20,10 +21,10 @@ namespace WorkoutApp.ViewModel
         public CartItemViewModel() { }  
         public CartItemViewModel(string ProductName, string ImageSource, double Price, long Quantity) { 
             this.ProductName = ProductName;
-            this.Price = Price.ToString() + "$";
+            this.Price = "$"+string.Format("{0:0.##}", Price);
             this.ImageSource = ImageSource;
             this.Quantity = Quantity.ToString();
-            TotalPrice = (Price * Quantity).ToString();
+            TotalPrice = "$" + string.Format("{0:0.##}", Price * Quantity);
 
         }
 

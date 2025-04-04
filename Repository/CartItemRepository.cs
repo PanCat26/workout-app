@@ -90,6 +90,7 @@ namespace WorkoutApp.Repository
 
         public void AddCartItem(int productId, int quantity)
         {
+            int cartId = GetActiveCartId();
             connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(
@@ -101,7 +102,7 @@ namespace WorkoutApp.Repository
             int newId = (int)getMaxIdCommand.ExecuteScalar();
 
             insertCommand.Parameters.AddWithValue("@Id", newId);
-            insertCommand.Parameters.AddWithValue("@CartId", this.GetActiveCartId());
+            insertCommand.Parameters.AddWithValue("@CartId", cartId);
             insertCommand.Parameters.AddWithValue("@ProductId", productId);
             insertCommand.Parameters.AddWithValue("@Quantity", quantity);
             insertCommand.Parameters.AddWithValue("@IsActive", true);

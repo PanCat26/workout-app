@@ -83,5 +83,12 @@ namespace WorkoutApp.View
             window.Activate();
             this.Close();
         }
+        private void BackButton(object sender, RoutedEventArgs e)
+        {
+            Window window = new MainWindow();
+            window.Activate();
+            this.Close();
+        }
+        
     }
 }

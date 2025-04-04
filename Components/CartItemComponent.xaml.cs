@@ -50,6 +50,7 @@ namespace WorkoutApp.Components
         private void setDataContext()
         {
             IProduct product = cartItem.GetProduct(new ProductRepository());
+
             this.DataContext = new CartItemViewModel(product.Name, product.FileUrl, product.Price, cartItem.Quantity);
             //this.DataContext = new CartItemViewModel("product.Name", "product.FileUrl", "product.Price.ToString()", cartItem.Quantity.ToString());
         }
@@ -63,6 +64,7 @@ namespace WorkoutApp.Components
             {
                 cartService.RemoveCartItem(cartItem);
                 parent.Children.Remove(this);
+                callBack();
                 return;
             }
             

@@ -24,9 +24,17 @@ namespace WorkoutApp.View
 {
     public sealed partial class WishListTab : UserControl
     {
+        private Window parent {  get; set; }
         public WishListTab()
         {
             this.InitializeComponent();
+            LoadProducts();
+        }
+
+        public WishListTab(Window parent)
+        {
+            this.InitializeComponent();
+            this.parent = parent;
             LoadProducts();
         }
 
@@ -41,7 +49,9 @@ namespace WorkoutApp.View
             List<IProduct> products = new List<IProduct>();
             foreach( var wishlistItem in WishListItems)
             {
-                products.Add(productRepository.GetById(wishlistItem.ProductID));
+                var product = productRepository.GetById(wishlistItem.ProductID);
+                if(product != null)
+                    products.Add(productRepository.GetById(wishlistItem.ProductID));
             }
 
             ProductsGridView.ItemsSource = products;
@@ -50,7 +60,9 @@ namespace WorkoutApp.View
 
         private void BackToMainPageButton(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            MainWindow main = new MainWindow();
+            parent.Close();
+            main.Activate();
         }
     }
 }

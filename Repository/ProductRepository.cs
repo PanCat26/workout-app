@@ -140,6 +140,50 @@ namespace WorkoutApp.Repository
             LoadData();
         }
 
+        public void AddProduct(IProduct product)
+        {
+            connection.Open();
+
+            SqlCommand insertCommand = new SqlCommand(
+                "INSERT INTO Product(Name, Price, Stock, CategoryID, Atributes, Size, Description, FileUrl, IsActive) VALUES " +
+                "(@Name, @Price, @Stock, @CategoryID, @Atributes, @Size, @Description, @FileUrl, @IsActive)",
+                connection
+            );
+
+            insertCommand.Parameters.AddWithValue("@Name", product.Name);
+            insertCommand.Parameters.AddWithValue("@Price", product.Price);
+            insertCommand.Parameters.AddWithValue("@Stock", product.Stock);
+            insertCommand.Parameters.AddWithValue("@CategoryID", product.CategoryID);
+            if (product.CategoryID == 1)
+            {
+                insertCommand.Parameters.AddWithValue("@Atributes", ((ClothesProduct)product).Attributes);
+            }
+            else
+            {
+                insertCommand.Parameters.AddWithValue("@Atributes", "");
+            }
+            if (product.CategoryID == 1)
+            {
+                insertCommand.Parameters.AddWithValue("@Size", ((ClothesProduct)product).Size);
+            } 
+            else if (product.CategoryID == 2)
+            {
+                insertCommand.Parameters.AddWithValue("@Size", ((FoodProduct)product).Size);
+            } 
+            else
+            {
+                insertCommand.Parameters.AddWithValue("@Size", "");
+            }
+
+            insertCommand.Parameters.AddWithValue("@Description", product.Description);
+            insertCommand.Parameters.AddWithValue("@FileUrl", product.FileUrl);
+            insertCommand.Parameters.AddWithValue("@IsActive", 1);
+
+            insertCommand.ExecuteNonQuery();
+
+            connection.Close();
+            LoadData();
+        }
         public List<IProduct> GetAll()
         {
             return this.products;

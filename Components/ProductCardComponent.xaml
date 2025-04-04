@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="WorkoutApp.Components.ProductCardComponent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WorkoutApp.ViewModel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <UserControl.DataContext>
+        <local:CartItemViewModel/>
+    </UserControl.DataContext>
+
+    <Grid>
+        <StackPanel Orientation="Vertical" Padding="10" Background="LightGray" CornerRadius="10">
+            <Image Source="{Binding ImageSource}" Height="100" Width="100" Stretch="Uniform"/>
+            <TextBlock Text="{Binding ProductName}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding Price}" FontSize="14" Foreground="Green" HorizontalAlignment="Center"/>
+            <Button Content="See product" Click="SeeProduct_Click"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -19,17 +19,16 @@
         <TextBlock Text="Product Price:" Margin="10"/>
         <TextBox Name="ProductPriceTextBox" Margin="10" />
 
-        <TextBlock Text="Sizes" Margin="10"/>
+        <TextBlock Name="SizesTextBlock" Text="Sizes" Margin="10"/>
         <TextBox Name="SizesTextBox" Margin="10" />
 
-        <TextBlock Text="Colors" Margin="10"/>
+        <TextBlock Name ="ColorsTextBlock" Text="Colors" Margin="10"/>
         <TextBox Name="ColorsTextBox" Margin="10"/>
 
-        <TextBlock Text="Quantity" Margin="10"/>
-        <TextBox Name="QuantityTextBox" Margin="10"/>
 
-
-
+         
         <Button Content="Save" HorizontalAlignment="Center" Margin="10" Click="SaveButton_Click"/>
+        <Button Content="Cancel" HorizontalAlignment="Center" Margin="10" Click="CancelButton_Click"/>
+
     </StackPanel>
 </Window>
