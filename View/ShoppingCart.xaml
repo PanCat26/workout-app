@@ -7,23 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="ShoppingCart">
-
-    <!--
-    <Window.Resources>
-        <DataTemplate x:Key="ProductCardTemplate">
-            <Border BorderThickness="1" BorderBrush="Gray" Padding="10" Margin="5" Background="White">
-                <StackPanel>
-                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold"/>
-                    <TextBlock Text="{Binding Price, StringFormat='Price: {0:C}'}" FontSize="14"/>
-                    <Button Content="Remove" Background="Red" Foreground="White"
-                    Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                    CommandParameter="{Binding}"/>
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-    </Window.Resources>
-    -->
+    Title="ShoppingCart"
+    >
 
     <Grid x:Name="main">
         <Grid.ColumnDefinitions>
@@ -70,14 +55,15 @@
 
 
         <!-- Right Content (30%) -->
-        <StackPanel Grid.Column="1" Margin="10" Background="White">
+        <StackPanel Grid.Column="1" Margin="10" Background="Gray">
             <TextBlock Text="Subtotal" FontSize="30" FontWeight="Bold" Margin="0,100,10,10" HorizontalAlignment="Center"/>
             <StackPanel>
-                <TextBlock Text="Total amount:" FontSize="18"/>
-                <TextBlock Text="Total cost:" FontSize="18" Margin="0,10,0,0"/>
+                <TextBlock x:Name="TotalAmountTextBlock" Text="  Total amount:" FontSize="18"/>
+                <TextBlock x:Name="TotalCostTextBlock" Text="  Total cost:" FontSize="18" Margin="0,10,0,0"/>
             </StackPanel>
 
             <Button Content="Proceed to checkout" Click="proceedToCheckoutButton" Height="40" Margin="0,15,0,0" HorizontalAlignment="Center" Background="Green" Foreground="White" FontSize="18"/>
+            <Button Content="Back" Click="BackButton" Height="40" Margin="0,15,0,0" HorizontalAlignment="Center" Background="Gray" Foreground="White" FontSize="18"/>
         </StackPanel>
     </Grid>
 </Window>

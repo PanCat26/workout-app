@@ -56,7 +56,7 @@
 
         <StackPanel x:Name="FoodPanel" Grid.Row="11" Visibility="Collapsed">
             <TextBlock Text="Available Weights (grams):" HorizontalAlignment="Center"/>
-            <TextBox x:Name="WeightsTextBox" PlaceholderText="500, 1000, 1500" Width="500"/>
+            <TextBox x:Name="WeightsTextBox" PlaceholderText="ex: 500g" Width="500"/>
         </StackPanel>
 
         <Button Content="Add Product" Grid.Row="13" Margin="0,20,0,0" Click="Add_Click" HorizontalAlignment="Center"></Button>

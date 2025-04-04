@@ -16,6 +16,7 @@ namespace WorkoutApp.Models
 
         public IProduct GetProduct(ProductRepository repo)
         {
+            repo.LoadData();
             return repo.GetById((int) ProductId);
         }
     }

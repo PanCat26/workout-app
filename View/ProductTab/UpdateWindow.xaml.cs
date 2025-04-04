@@ -35,6 +35,29 @@ namespace WorkoutApp.View.ProductTab
             ProductRepository productRepository = new ProductRepository();
             this.productService = new ProductService(productRepository);
             this.product = product;
+
+            ProductNameTextBox.Text = product.Name;
+            ProductPriceTextBox.Text = product.Price.ToString();
+            DescriptionTextBox.Text = product.Description;
+
+            if(product.CategoryID == 1)
+            {
+                SizesTextBox.Text = ((ClothesProduct)product).Size;
+                ColorsTextBox.Text = ((ClothesProduct)product).Attributes;
+            }
+            if (product.CategoryID == 2)
+            {
+                SizesTextBox.Text = ((FoodProduct)product).Size;
+                ColorsTextBlock.Visibility = Visibility.Collapsed;
+                ColorsTextBox.Visibility = Visibility.Collapsed;
+            }
+            if (product.CategoryID == 3)
+            {
+                ColorsTextBlock.Visibility = Visibility.Collapsed;
+                ColorsTextBox.Visibility = Visibility.Collapsed;
+                SizesTextBlock.Visibility = Visibility.Collapsed; 
+                SizesTextBox.Visibility = Visibility.Collapsed;
+            }
         }
 
 
@@ -45,7 +68,6 @@ namespace WorkoutApp.View.ProductTab
             string updatedDescription = DescriptionTextBox.Text;
             string updatedSizes = SizesTextBox.Text;
             string updatedColors = ColorsTextBox.Text;
-            string updatedQuantity = QuantityTextBox.Text;
             try
             {
                 if (!float.TryParse(updatedProductPrice, out float price))
@@ -53,24 +75,29 @@ namespace WorkoutApp.View.ProductTab
                     throw new Exception("The price must be a numerical value!");
                 }
 
-                if (!int.TryParse(updatedQuantity, out int quantity))
-                {
-                    throw new Exception("The quantity must be a numerical value!");
-                }
 
 
-                this.productService.UpdateProduct(product.ID, updatedProductName, price, quantity, product.CategoryID, updatedDescription, product.FileUrl, updatedColors, updatedSizes);
+                this.productService.UpdateProduct(product.ID, updatedProductName, price, 15, product.CategoryID, updatedDescription, product.FileUrl, updatedColors, updatedSizes);
                 
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
-            
 
+
+            MainWindow main = new MainWindow();
             this.Close();
+            main.Activate();
 
 
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow main = new MainWindow();
+            this.Close();
+            main.Activate();
         }
 
     }

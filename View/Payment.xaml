@@ -30,9 +30,48 @@
 
             <TextBlock Text="Region:" FontSize="14" Margin="10,5,0,0"/>
             <ComboBox x:Name="RegionComboBox" SelectionChanged="Address_TextChanged">
-                <ComboBoxItem Content="Hunedoara"/>
-                <ComboBoxItem Content="Cluj"/>
+                <ComboBoxItem Content="Alba"/>
+                <ComboBoxItem Content="Arad"/>
+                <ComboBoxItem Content="Arges"/>
+                <ComboBoxItem Content="Bacau"/>
+                <ComboBoxItem Content="Bihor"/>
+                <ComboBoxItem Content="Bistrita-Nasaud"/>
+                <ComboBoxItem Content="Botosani"/>
+                <ComboBoxItem Content="Brasov"/>
+                <ComboBoxItem Content="Braila"/>
                 <ComboBoxItem Content="Bucuresti"/>
+                <ComboBoxItem Content="Buzau"/>
+                <ComboBoxItem Content="Caras-Severin"/>
+                <ComboBoxItem Content="Calarasi"/>
+                <ComboBoxItem Content="Cluj"/>
+                <ComboBoxItem Content="Constanta"/>
+                <ComboBoxItem Content="Covasna"/>
+                <ComboBoxItem Content="Dambovita"/>
+                <ComboBoxItem Content="Dolj"/>
+                <ComboBoxItem Content="Galati"/>
+                <ComboBoxItem Content="Giurgiu"/>
+                <ComboBoxItem Content="Gorj"/>
+                <ComboBoxItem Content="Harghita"/>
+                <ComboBoxItem Content="Hunedoara"/>
+                <ComboBoxItem Content="Ialomita"/>
+                <ComboBoxItem Content="Iasi"/>
+                <ComboBoxItem Content="Ilfov"/>
+                <ComboBoxItem Content="Maramures"/>
+                <ComboBoxItem Content="Mehedinti"/>
+                <ComboBoxItem Content="Mures"/>
+                <ComboBoxItem Content="Neamt"/>
+                <ComboBoxItem Content="Olt"/>
+                <ComboBoxItem Content="Prahova"/>
+                <ComboBoxItem Content="Satu Mare"/>
+                <ComboBoxItem Content="Salaj"/>
+                <ComboBoxItem Content="Sibiu"/>
+                <ComboBoxItem Content="Suceava"/>
+                <ComboBoxItem Content="Teleorman"/>
+                <ComboBoxItem Content="Timis"/>
+                <ComboBoxItem Content="Tulcea"/>
+                <ComboBoxItem Content="Vaslui"/>
+                <ComboBoxItem Content="Valcea"/>
+                <ComboBoxItem Content="Vrancea"/>
             </ComboBox>
 
             <TextBlock Text="City:" FontSize="14" Margin="10,5,0,0"/>
@@ -49,7 +88,7 @@
         </StackPanel>
 
         <!-- Right Side: Summary Section -->
-        <StackPanel Grid.Column="1" Margin="20" Background="#F5F5F5" Padding="15" CornerRadius="10">
+        <StackPanel Grid.Column="1" Margin="20" Background="Gray" Padding="15" CornerRadius="10">
             <TextBlock Text="Summary" FontSize="18" FontWeight="Bold"/>
             <TextBlock Text="Name: " FontSize="14" Margin="5,10,0,0"/>
             <TextBlock x:Name="SummaryName" FontSize="14" FontWeight="Bold"/>

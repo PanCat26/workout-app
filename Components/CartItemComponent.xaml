@@ -15,7 +15,7 @@
     <Grid>
         <StackPanel Orientation="Horizontal" Padding="5" Background="LightGray" CornerRadius="10" Margin="10">
             <Image Source="{Binding ImageSource}" Height="100" Width="100" Stretch="Uniform"/>
-            <StackPanel Orientation="Vertical" Padding="5" Background="LightGray" CornerRadius="10" Margin="10">
+            <StackPanel Orientation="Vertical" Width="200" Padding="5" Background="LightGray" CornerRadius="10" Margin="10">
                 <TextBlock Text="{Binding ProductName}" FontSize="16" FontWeight="Bold" Margin="10" HorizontalAlignment="Center"/>
                 <TextBlock Text="{Binding Price}" FontSize="14" Foreground="Green" Margin="10" HorizontalAlignment="Center"/>
             </StackPanel>
@@ -27,7 +27,7 @@
                     <Button Content="+" Width="40" Click="increaseQuantityButton_Click"/>
                 </StackPanel>
             </StackPanel>
-            <Button Content="Remove" Click="removeProductButton_Click"/>
+            <Button Content="Remove" Background="Gray" Click="removeProductButton_Click"/>
         </StackPanel>
     </Grid>
 </UserControl>

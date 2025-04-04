@@ -14,6 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Components\CartItemComponent.xaml" />
+    <None Remove="Components\ProductCardComponent.xaml" />
     <None Remove="View\AddProductWindow.xaml" />
     <None Remove="View\MainWindow.xaml" />
     <None Remove="View\Payment.xaml" />
@@ -23,6 +24,7 @@
     <None Remove="View\ProductTab\ProductTab.xaml" />
     <None Remove="View\ProductTab\UpdateWindow.xaml" />
     <None Remove="View\ShoppingCart.xaml" />
+    <None Remove="View\WishListTab.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,6 +61,16 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Components\ProductCardComponent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="View\WishListTab.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="View\MainWindow.xaml">

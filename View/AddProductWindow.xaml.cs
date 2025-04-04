@@ -12,7 +12,9 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.WebUI;
 using WorkoutApp.Models;
+using WorkoutApp.Repository;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -61,34 +63,53 @@ namespace WorkoutApp.View
                     id: 0, // you can auto-generate or set later
                     name: NameTextBox.Text,
                     price: double.TryParse(PriceTextBox.Text, out double price) ? price : 0,
-                    stock: 0,
+                    stock: 15,
                     categoryId: 1,
-                    color: ColorsTextBox.Text.Split(',')[0].Trim(),
-                    size: SizesTextBox.Text.Split(',')[0].Trim(),
-                    description: "",
+                    color: ColorsTextBox.Text,
+                    size: SizesTextBox.Text,
+                    description: DescriptionTextBox.Text,
                     fileUrl: ImageTextBox.Text,
                     isActive: true
                 );
             }
             else if (selectedType == "Food")
             {
-                // create a FoodProduct instead if you have that class
+                
                 newProduct = new FoodProduct
                 (
                     id: 0,
                     name: NameTextBox.Text,
                     price: double.TryParse(PriceTextBox.Text, out double price) ? price : 0,
-                    stock: 0,
+                    stock: 15,
                     categoryId: 2,
-                    size: WeightsTextBox.Text.Split(',')[0].Trim(),
-                    description: "",
+                    size: WeightsTextBox.Text,
+                    description: DescriptionTextBox.Text,
+                    fileUrl: ImageTextBox.Text,
+                    isActive: true
+                );
+            } 
+            else if(selectedType == "Accessories")
+            {
+                newProduct = new AccessoryProduct
+                (
+                    id: 0,
+                    name: NameTextBox.Text,
+                    price: double.TryParse(PriceTextBox.Text, out double price) ? price : 0,
+                    stock: 15,
+                    categoryId: 3,
+                    description: DescriptionTextBox.Text,
                     fileUrl: ImageTextBox.Text,
                     isActive: true
                 );
             }
 
-            ProductAdded?.Invoke(newProduct);
+            ProductRepository productRepository = new ProductRepository();
+            productRepository.AddProduct( newProduct );
+
+            //ProductAdded?.Invoke(newProduct);
+            MainWindow main = new MainWindow();
             this.Close();
+            main.Activate();
         }
 
     }
