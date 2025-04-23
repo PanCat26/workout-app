@@ -15,7 +15,7 @@ namespace WorkoutApp.Repository
 {
     public class ProductRepository
     {
-       private string loginString= @"Data Source=FLORIN;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
+       private string loginString= @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
 
         private SqlConnection connection;
         private List<IProduct> products;

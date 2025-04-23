@@ -10,7 +10,7 @@ namespace WorkoutApp.Repository
 {
     public class CartItemRepository
     {
-        private string connectionString = @"Data Source=FLORIN;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
+        private string connectionString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
         private SqlConnection connection;
 
         public CartItemRepository()
