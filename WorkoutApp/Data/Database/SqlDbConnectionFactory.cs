@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace WorkoutApp.Data.Database
 {
-    class SqlDbConnectionFactory: DbConnectionFactory
+    public class SqlDbConnectionFactory: DbConnectionFactory
     {
         public SqlDbConnectionFactory(string connectionString)
         : base(connectionString)

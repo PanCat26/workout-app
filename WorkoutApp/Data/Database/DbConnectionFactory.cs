@@ -10,10 +10,14 @@ namespace WorkoutApp.Data.Database
     public abstract class DbConnectionFactory
     {
         protected readonly string _connectionString;
-        public DbConnectionFactory(string connectionString)
+
+
+        // Protected ctor prevents external instantiation
+        protected DbConnectionFactory(string connectionString)
         {
             _connectionString = connectionString;
         }
+
         public abstract IDbConnection CreateConnection();
     }
 }
