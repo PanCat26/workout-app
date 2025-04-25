@@ -17,6 +17,10 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using WorkoutApp.View.ProductTab;
 using WorkoutApp.View;
+using System.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using WorkoutApp.Data.Database;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -27,24 +31,32 @@ namespace WorkoutApp
     /// </summary>
     public partial class App : Application
     {
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
+        public static IServiceProvider Services { get; private set; }
+
+        private IHost _host;
+
         public App()
         {
             this.InitializeComponent();
+
+            string connString = ConfigurationManager.ConnectionStrings["DefaultConnection"]?.ConnectionString;
+
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    services.AddSingleton<DbConnectionFactory>(sp =>
+                        new SqlDbConnectionFactory(connString));
+
+                    //services.AddSingleton<UserRepository>();
+                })
+                .Build();
+
+            Services = _host.Services;
         }
 
-        /// <summary>
-        /// Invoked when the application is launched.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            //m_window = new MainWindow();
             m_window = new MainWindow();
-           // m_window.Content = new WishListTab();
             m_window.Activate();
         }
 
