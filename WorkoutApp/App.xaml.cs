@@ -1,65 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using WorkoutApp.View.ProductTab;
-using WorkoutApp.View;
-using System.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using WorkoutApp.Data.Database;
-// To learn more about WinUI, the WinUI project structure,
+﻿// To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace WorkoutApp
 {
+    using System;
+    using System.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.UI.Xaml;
+    using WorkoutApp.Data.Database;
+    using WorkoutApp.View;
+
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
     public partial class App : Application
     {
-        public static IServiceProvider Services { get; private set; }
+        private Window? window; // Moved field above properties to resolve SA1201
+        private IHost host;
 
-        private IHost _host;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="App"/> class.
+        /// </summary>
         public App()
         {
             this.InitializeComponent();
 
-            string connString = ConfigurationManager.ConnectionStrings["DefaultConnection"]?.ConnectionString;
+            string? connString = ConfigurationManager.ConnectionStrings["DefaultConnection"]?.ConnectionString;
 
-            _host = Host.CreateDefaultBuilder()
+            if (string.IsNullOrEmpty(connString))
+            {
+                throw new InvalidOperationException("The connection string 'DefaultConnection' is not configured or is null.");
+            }
+
+            this.host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<DbConnectionFactory>(sp =>
                         new SqlDbConnectionFactory(connString));
-
-                    //services.AddSingleton<UserRepository>();
                 })
                 .Build();
 
-            Services = _host.Services;
+            Services = this.host.Services;
         }
 
+        /// <summary>
+        /// Gets the service provider for dependency injection.
+        /// </summary>
+        public static IServiceProvider Services { get; private set; }
+
+        /// <summary>
+        /// Invoked when the application is launched.
+        /// </summary>
+        /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new MainWindow();
-            m_window.Activate();
+            this.window = new MainWindow();
+            this.window.Activate();
         }
-
-        private Window? m_window;
     }
 }
