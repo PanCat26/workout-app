@@ -18,6 +18,7 @@
   <ItemGroup>
     <None Remove="Components\CartItemComponent.xaml" />
     <None Remove="Components\ProductCardComponent.xaml" />
+    <None Remove="stylecop.json" />
     <None Remove="View\AddProductWindow.xaml" />
     <None Remove="View\MainWindow.xaml" />
     <None Remove="View\Payment.xaml" />
@@ -28,6 +29,9 @@
     <None Remove="View\ProductTab\UpdateWindow.xaml" />
     <None Remove="View\ShoppingCart.xaml" />
     <None Remove="View\WishListTab.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
