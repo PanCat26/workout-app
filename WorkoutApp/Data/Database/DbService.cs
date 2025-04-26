@@ -1,4 +1,8 @@
-﻿namespace WorkoutApp.Data.Database
+﻿// <copyright file="DbService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace WorkoutApp.Data.Database
 {
     using System;
     using System.Collections.Generic;
