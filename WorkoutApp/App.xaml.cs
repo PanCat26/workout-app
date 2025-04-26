@@ -15,7 +15,7 @@ namespace WorkoutApp
     /// </summary>
     public partial class App : Application
     {
-        private Window? window; // Moved field above properties to resolve SA1201
+        private Window? window;
         private IHost host;
 
         /// <summary>
@@ -25,18 +25,18 @@ namespace WorkoutApp
         {
             this.InitializeComponent();
 
-            string? connString = ConfigurationManager.ConnectionStrings["DefaultConnection"]?.ConnectionString;
+            string? connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"]?.ConnectionString;
 
-            if (string.IsNullOrEmpty(connString))
+            if (string.IsNullOrEmpty(connectionString))
             {
                 throw new InvalidOperationException("The connection string 'DefaultConnection' is not configured or is null.");
             }
 
             this.host = Host.CreateDefaultBuilder()
-                .ConfigureServices((context, services) =>
+                .ConfigureServices((services) =>
                 {
-                    services.AddSingleton<DbConnectionFactory>(sp =>
-                        new SqlDbConnectionFactory(connString));
+                    services.AddSingleton<DbConnectionFactory>(_ =>
+                        new SqlDbConnectionFactory(connectionString));
                 })
                 .Build();
 

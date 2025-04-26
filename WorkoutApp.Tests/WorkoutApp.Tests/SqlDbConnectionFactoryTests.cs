@@ -17,8 +17,8 @@ namespace WorkoutApp.Tests
         public void CreateConnection_ReturnsSqlConnection_WithCorrectConnectionString()
         {
             // Arrange
-            var testConnStr = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
-            var factory = new SqlDbConnectionFactory(testConnStr);
+            var testConnectionString = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
+            var factory = new SqlDbConnectionFactory(testConnectionString);
 
             // Act
             var connection = factory.CreateConnection();
@@ -26,15 +26,15 @@ namespace WorkoutApp.Tests
             // Assert
             Assert.NotNull(connection);
             Assert.IsType<SqlConnection>(connection);
-            Assert.Equal(testConnStr, connection.ConnectionString);
+            Assert.Equal(testConnectionString, connection.ConnectionString);
         }
 
         [Fact]
         public async Task CreateConnection_OpensConnectionSuccessfully()
         {
             // Arrange
-            var connStr = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
-            var factory = new SqlDbConnectionFactory(connStr);
+            var connectionString = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
+            var factory = new SqlDbConnectionFactory(connectionString);
 
             using var connection = factory.CreateConnection();
 
