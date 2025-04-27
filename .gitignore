@@ -364,3 +364,5 @@ FodyWeavers.xsd
 /CoverageReports
 /App.config
 /WorkoutApp/App.config
+/WorkoutApp.Tests/WorkoutApp.Tests/App.config
+/WorkoutApp.Tests/WorkoutApp.Tests/testhost.dll.config
