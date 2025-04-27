@@ -1,173 +1,212 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WorkoutApp.Models;
+﻿// <copyright file="CartItemRepository.cs" company="WorkoutApp">
+// Copyright (c) WorkoutApp. All rights reserved.
+// </copyright>
 
 namespace WorkoutApp.Repository
 {
-    public class CartItemRepository
-    {
-        private string connectionString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-        private SqlConnection connection;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Microsoft.Data.SqlClient;
+    using WorkoutApp.Models;
 
+    /// <summary>
+    /// Provides CRUD operations for cart items in the database.
+    /// </summary>
+    public class CartItemRepository : IRepository<CartItem>
+    {
+        private readonly string connectionString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
+        private readonly SqlConnection connection;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CartItemRepository"/> class.
+        /// </summary>
         public CartItemRepository()
         {
-            this.connection = new SqlConnection(connectionString);
+            this.connection = new SqlConnection(this.connectionString);
         }
 
-        private int GetActiveCartId()
+        /// <inheritdoc/>
+        public async Task<IEnumerable<CartItem>> GetAllAsync()
         {
-            if (connection.State == System.Data.ConnectionState.Closed)
-                connection.Open();
+            int cartId = this.GetActiveCartId();
+            var cartItems = new List<CartItem>();
 
-            SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) FROM Cart", connection);
-            int newId = (int)getMaxIdCommand.ExecuteScalar();
-
-            connection.Close();
-            
-            return newId;
-        }
-
-        public List<CartItem> GetAll()
-        {
-            int cartId = GetActiveCartId();
-
-            connection.Open();
-            List<CartItem> cartItems = new List<CartItem>();
-
-            SqlCommand selectCommand = new SqlCommand("SELECT * FROM CartItem Where IsActive = 1 and CartId = " + cartId.ToString(), connection);
-            SqlDataReader reader = selectCommand.ExecuteReader();
-
-            while (reader.Read())
+            this.connection.Open();
+            using (SqlCommand selectCommand = new SqlCommand(
+                "SELECT * FROM CartItem WHERE IsActive = 1 AND CartId = @CartId",
+                this.connection))
             {
-                CartItem cartItem = new CartItem
+                selectCommand.Parameters.AddWithValue("@CartId", cartId);
+
+                using (SqlDataReader reader = await selectCommand.ExecuteReaderAsync())
                 {
-                    Id = reader.GetInt32(reader.GetOrdinal("ID")),
-                    CartId = reader.GetInt32(reader.GetOrdinal("CartId")),
-                    ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
-                    Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
-                };
-                cartItems.Add(cartItem);
+                    while (await reader.ReadAsync())
+                    {
+                        CartItem cartItem = new CartItem
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("ID")),
+                            CartId = reader.GetInt32(reader.GetOrdinal("CartId")),
+                            ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
+                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                        };
+                        cartItems.Add(cartItem);
+                    }
+                }
             }
 
-            reader.Close();
-            connection.Close();
-
+            this.connection.Close();
             return cartItems;
         }
 
-        public void ResetCart()
+        /// <inheritdoc/>
+        public async Task<CartItem> GetByIdAsync(long id)
         {
-            List<CartItem> cartItems = GetAll();
+            int cartId = this.GetActiveCartId();
 
-            foreach(CartItem cartItem in cartItems)
+            this.connection.Open();
+            using (SqlCommand selectCommand = new SqlCommand(
+                "SELECT * FROM CartItem WHERE IsActive = 1 AND CartId = @CartId AND ID = @Id",
+                this.connection))
             {
-                DeleteById(cartItem.Id);
+                selectCommand.Parameters.AddWithValue("@CartId", cartId);
+                selectCommand.Parameters.AddWithValue("@Id", id);
+
+                using (SqlDataReader reader = await selectCommand.ExecuteReaderAsync())
+                {
+                    if (!await reader.ReadAsync())
+                    {
+                        this.connection.Close();
+                        return null;
+                    }
+
+                    CartItem cartItem = new CartItem
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("ID")),
+                        CartId = reader.GetInt32(reader.GetOrdinal("CartId")),
+                        ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
+                        Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                    };
+
+                    this.connection.Close();
+                    return cartItem;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CartItem> CreateAsync(CartItem entity)
+        {
+            int cartId = this.GetActiveCartId();
+
+            this.connection.Open();
+
+            SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) + 1 FROM CartItem", this.connection);
+            int newId = (int)await getMaxIdCommand.ExecuteScalarAsync();
+
+            using (SqlCommand insertCommand = new SqlCommand(
+                "INSERT INTO CartItem (Id, CartId, ProductId, Quantity, IsActive) VALUES (@Id, @CartId, @ProductId, @Quantity, @IsActive)",
+                this.connection))
+            {
+                insertCommand.Parameters.AddWithValue("@Id", newId);
+                insertCommand.Parameters.AddWithValue("@CartId", cartId);
+                insertCommand.Parameters.AddWithValue("@ProductId", entity.ProductId);
+                insertCommand.Parameters.AddWithValue("@Quantity", entity.Quantity);
+                insertCommand.Parameters.AddWithValue("@IsActive", true);
+
+                await insertCommand.ExecuteNonQueryAsync();
             }
 
-            int newId = GetActiveCartId();
-            
-            connection.Open();
-
-            SqlCommand insertCommand = new SqlCommand(
-                "INSERT INTO Cart (Id, CustomerID, CreatedAt, IsActive) VALUES (@Id, 1, GETDATE(), 1)",
-                connection
-            );
-            insertCommand.Parameters.AddWithValue("@Id", newId + 1);
-            insertCommand.ExecuteNonQuery();
-
-            SqlCommand updateCommand = new SqlCommand(
-                "UPDATE Cart SET IsActive = 0 WHERE Id = " + newId.ToString(),
-                connection
-            );
-            updateCommand.ExecuteNonQuery();
-            connection.Close();
-
+            this.connection.Close();
+            return entity;
         }
 
-        public void AddCartItem(int productId, int quantity)
+        /// <inheritdoc/>
+        public async Task<CartItem> UpdateAsync(CartItem entity)
         {
-            int cartId = GetActiveCartId();
-            connection.Open();
-
-            SqlCommand insertCommand = new SqlCommand(
-                "INSERT INTO CartItem (Id, CartId, ProductId, Quantity, IsActive) VALUES (@Id, @CartId, @ProductId, @Quantity, @IsActive)",
-                connection
-            );
-
-            SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) + 1 FROM CartItem", connection);
-            int newId = (int)getMaxIdCommand.ExecuteScalar();
-
-            insertCommand.Parameters.AddWithValue("@Id", newId);
-            insertCommand.Parameters.AddWithValue("@CartId", cartId);
-            insertCommand.Parameters.AddWithValue("@ProductId", productId);
-            insertCommand.Parameters.AddWithValue("@Quantity", quantity);
-            insertCommand.Parameters.AddWithValue("@IsActive", true);
-
-            insertCommand.ExecuteNonQuery();
-
-            connection.Close();
-        }
-
-        public void UpdateById(long id, long newQuantity)
-        {
-            connection.Open();
-
-            SqlCommand updateCommand = new SqlCommand(
+            this.connection.Open();
+            using (SqlCommand updateCommand = new SqlCommand(
                 "UPDATE CartItem SET Quantity = @Quantity WHERE Id = @Id",
-                connection
-            );
+                this.connection))
+            {
+                updateCommand.Parameters.AddWithValue("@Id", entity.Id);
+                updateCommand.Parameters.AddWithValue("@Quantity", entity.Quantity);
 
-            updateCommand.Parameters.AddWithValue("@Id", id);
-            updateCommand.Parameters.AddWithValue("@Quantity", newQuantity);
+                await updateCommand.ExecuteNonQueryAsync();
+            }
 
-            updateCommand.ExecuteNonQuery();
-
-            connection.Close();
+            this.connection.Close();
+            return entity;
         }
 
-        public void DeleteById(long id)
+        /// <inheritdoc/>
+        public async Task<bool> DeleteAsync(long id)
         {
-            connection.Open();
-
-            SqlCommand updateCommand = new SqlCommand(
+            this.connection.Open();
+            using (SqlCommand updateCommand = new SqlCommand(
                 "UPDATE CartItem SET IsActive = 0 WHERE ID = @Id",
-                connection
-            );
+                this.connection))
+            {
+                updateCommand.Parameters.AddWithValue("@Id", id);
+                await updateCommand.ExecuteNonQueryAsync();
+            }
 
-            updateCommand.Parameters.AddWithValue("@Id", id);
-
-            updateCommand.ExecuteNonQuery();
-
-            connection.Close();
+            this.connection.Close();
+            return true;
         }
 
-        public CartItem GetItemById(long id)
-        {            
-            int cartId = GetActiveCartId();
+        /// <summary>
+        /// Resets the cart by deleting all active items and creating a new cart.
+        /// </summary>
+        public void ResetCart()
+        {
+            IEnumerable<CartItem> cartItems = this.GetAllAsync().Result;
 
-            connection.Open();
+            foreach (CartItem cartItem in cartItems)
+            {
+                this.DeleteAsync(cartItem.Id).Wait();
+            }
 
+            int newId = this.GetActiveCartId();
 
-            SqlCommand selectCommand = new SqlCommand("SELECT * FROM CartItem Where IsActive = 1 and CartId = " + cartId.ToString() + " and ID = " + id.ToString(), connection);
-            SqlDataReader reader = selectCommand.ExecuteReader();
+            this.connection.Open();
 
-            reader.Read();
-            CartItem cartItem = new CartItem
-                {
-                    Id = reader.GetInt32(reader.GetOrdinal("ID")),
-                    CartId = reader.GetInt32(reader.GetOrdinal("CartId")),
-                    ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
-                    Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
-                };
+            using (SqlCommand insertCommand = new SqlCommand(
+                "INSERT INTO Cart (Id, CustomerID, CreatedAt, IsActive) VALUES (@Id, 1, GETDATE(), 1)",
+                this.connection))
+            {
+                insertCommand.Parameters.AddWithValue("@Id", newId + 1);
+                insertCommand.ExecuteNonQuery();
+            }
 
-            reader.Close();
-            connection.Close();
+            using (SqlCommand updateCommand = new SqlCommand(
+                "UPDATE Cart SET IsActive = 0 WHERE Id = @Id",
+                this.connection))
+            {
+                updateCommand.Parameters.AddWithValue("@Id", newId);
+                updateCommand.ExecuteNonQuery();
+            }
 
-            return cartItem;
+            this.connection.Close();
+        }
+
+        /// <summary>
+        /// Retrieves the ID of the active cart.
+        /// </summary>
+        /// <returns>The ID of the active cart.</returns>
+        private int GetActiveCartId()
+        {
+            if (this.connection.State == System.Data.ConnectionState.Closed)
+            {
+                this.connection.Open();
+            }
+
+            using (SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) FROM Cart", this.connection))
+            {
+                int newId = (int)getMaxIdCommand.ExecuteScalar();
+                this.connection.Close();
+                return newId;
+            }
         }
     }
 }
