@@ -20,7 +20,7 @@ namespace WorkoutApp.Data.Database
     /// Initializes a new instance of the <see cref="DbService"/> class with a <see cref="DbConnectionFactory"/> factory.
     /// </remarks>
     /// <param name="dbConnectionFactory">The database connection factory.</param>
-    internal class DbService(DbConnectionFactory dbConnectionFactory)
+    public class DbService(DbConnectionFactory dbConnectionFactory)
     {
         private readonly DbConnectionFactory dbConnectionFactory = dbConnectionFactory;
 
@@ -46,6 +46,7 @@ namespace WorkoutApp.Data.Database
             catch (Exception exception)
             {
                 Debug.WriteLine($"Error executing query: {exception.Message}");
+                throw;
             }
 
             return dataTable;
