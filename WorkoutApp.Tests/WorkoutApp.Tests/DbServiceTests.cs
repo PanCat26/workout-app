@@ -55,12 +55,12 @@ namespace WorkoutApp.Tests
         }
         
         [Fact]
-        public void ExecuteSelect_ValidQueryNoParameters_ReturnsDataTable()
+        public async Task ExecuteSelect_ValidQueryNoParameters_ReturnsDataTable()
         {
             // Arrange
             string query = "SELECT * FROM [Order]";
             // Act
-            DataTable result = dbService.ExecuteSelect(query, []);
+            DataTable result = await dbService.ExecuteSelectAsync(query, []);
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Rows.Count);
@@ -77,7 +77,7 @@ namespace WorkoutApp.Tests
         }
 
         [Fact]
-        public void ExecuteSelect_ValidQueryWithParameters_ReturnsDataTable()
+        public async Task ExecuteSelect_ValidQueryWithParameters_ReturnsDataTable()
         {
             // Arrange
             string query = "SELECT * FROM [Order] WHERE ID = @Id";
@@ -86,7 +86,7 @@ namespace WorkoutApp.Tests
                 new SqlParameter("@ID", 1)
             ];
             // Act
-            DataTable result = dbService.ExecuteSelect(query, parameters);
+            DataTable result = await dbService.ExecuteSelectAsync(query, parameters);
             // Assert
             Assert.NotNull(result);
             Assert.Equal(1, result.Rows.Count);
@@ -98,28 +98,28 @@ namespace WorkoutApp.Tests
         }
 
         [Fact]
-        public void ExecuteSelect_InvalidQuery_ThrowsSqlException()
+        public async Task ExecuteSelect_InvalidQuery_ThrowsSqlException()
         {
             // Arrange
             string query = "SELECT * FROM NonExistentTable";
             // Act & Assert
-            Assert.Throws<SqlException>(() => dbService.ExecuteSelect(query, []));
+            await Assert.ThrowsAsync<SqlException>(async () => await dbService.ExecuteSelectAsync(query, []));
         }
 
         [Fact]
-        public void ExecuteQuery_ValidQueryNoParameters_ReturnsAffectedRows()
+        public async Task ExecuteQuery_ValidQueryNoParameters_ReturnsAffectedRows()
         {
             // Arrange
             string query = "DELETE FROM [Order];";
             List<SqlParameter> parameters = [];
             // Act
-            int affectedRows = dbService.ExecuteQuery(query, parameters);
+            int affectedRows = await dbService.ExecuteQueryAsync(query, parameters);
             // Assert
             Assert.Equal(2, affectedRows);
         }
 
         [Fact]
-        public void ExecuteQuery_ValidQueryWithParameters_ReturnsAffectedRows()
+        public async Task ExecuteQuery_ValidQueryWithParameters_ReturnsAffectedRows()
         {
             // Arrange
             string query = "DELETE FROM [Order] WHERE ID = @Id";
@@ -128,19 +128,19 @@ namespace WorkoutApp.Tests
                 new SqlParameter("@ID", 1)
             ];
             // Act
-            int affectedRows = dbService.ExecuteQuery(query, parameters);
+            int affectedRows = await dbService.ExecuteQueryAsync(query, parameters);
             // Assert
             Assert.Equal(1, affectedRows);
         }
 
         [Fact]
-        public void ExecuteQuery_InvalidQuery_ReturnsNegativeValue()
+        public async Task ExecuteQuery_InvalidQuery_ReturnsNegativeValue()
         {
             // Arrange
             string query = "DELETE FROM NonExistentTable";
             List<SqlParameter> parameters = [];
             // Act
-            int affectedRows = dbService.ExecuteQuery(query, parameters);
+            int affectedRows = await dbService.ExecuteQueryAsync(query, parameters);
             // Assert
             Assert.Equal(-1, affectedRows);
         }

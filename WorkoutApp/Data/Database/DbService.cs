@@ -30,7 +30,7 @@ namespace WorkoutApp.Data.Database
         /// <param name="query">The SQL Select query to be run.</param>
         /// <param name="parameters">The parameters of the SQL Select query to be run.</param>
         /// <returns>A DataTable containing the results of the query.</returns>
-        public DataTable ExecuteSelect(string query, List<SqlParameter> parameters)
+        public async Task<DataTable> ExecuteSelectAsync(string query, List<SqlParameter> parameters)
         {
             using SqlConnection connection = (SqlConnection)this.dbConnectionFactory.CreateConnection();
             using SqlCommand command = new (query, connection);
@@ -40,8 +40,9 @@ namespace WorkoutApp.Data.Database
 
             try
             {
-                connection.Open();
-                adapter.Fill(dataTable);
+                await connection.OpenAsync();
+                using SqlDataReader reader = await command.ExecuteReaderAsync();
+                dataTable.Load(reader);
             }
             catch (Exception exception)
             {
@@ -58,15 +59,15 @@ namespace WorkoutApp.Data.Database
         /// <param name="query">The SQL Select query to be run.</param>
         /// <param name="parameters">The parameters of the SQL Select query to be run.</param>
         /// <returns>Number of rows affected or -1 if an error occured.</returns>
-        public int ExecuteQuery(string query, List<SqlParameter> parameters)
+        public async Task<int> ExecuteQueryAsync(string query, List<SqlParameter> parameters)
         {
             using SqlConnection connection = (SqlConnection)this.dbConnectionFactory.CreateConnection();
             using SqlCommand command = new (query, connection);
             command.Parameters.AddRange([.. parameters]);
             try
             {
-                connection.Open();
-                return command.ExecuteNonQuery();
+                await connection.OpenAsync();
+                return await command.ExecuteNonQueryAsync();
             }
             catch (Exception exception)
             {
