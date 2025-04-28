@@ -18,7 +18,7 @@ namespace WorkoutApp.Repository
         /// <param name="options"></param>
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=WinUiSqlAppDb;Trusted_Connection=True;"); //Aici trebuie connection string-ul
+            options.UseSqlServer(@"Data Source=DESKTOP-KAKG16I;Initial Catalog=ShopDB;Integrated Security=True"); //Aici trebuie connection string-ul
         }
 
 
