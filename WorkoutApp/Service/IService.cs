@@ -24,7 +24,7 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="id">The ID of the entity.</param>
         /// <returns>A task representing the asynchronous operation with the entity.</returns>
-        Task<T> GetByIdAsync(long id);
+        Task<T> GetByIdAsync(int id);
 
         /// <summary>
         /// Creates a new entity asynchronously.
@@ -45,6 +45,6 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="id">The ID of the entity to delete.</param>
         /// <returns>A task representing the asynchronous operation with a boolean indicating success.</returns>
-        Task<bool> DeleteAsync(long id);
+        Task<bool> DeleteAsync(int id);
     }
 }

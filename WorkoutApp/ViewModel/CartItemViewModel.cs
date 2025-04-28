@@ -19,7 +19,7 @@ namespace WorkoutApp.ViewModel
         public string TotalPrice { get; set; }
 
         public CartItemViewModel() { }  
-        public CartItemViewModel(string ProductName, string ImageSource, double Price, long Quantity) { 
+        public CartItemViewModel(string ProductName, string ImageSource, double Price, int Quantity) { 
             this.ProductName = ProductName;
             this.Price = "$"+string.Format("{0:0.##}", Price);
             this.ImageSource = ImageSource;
