@@ -21,24 +21,25 @@ namespace WorkoutApp.Service
 
         public List<WishlistItem> GetWishlistItems()
         {
-            return wishlistItemRepository.GetAll();
+            //return wishlistItemRepository.GetAll();
+            return [];
         }
 
 
         public void addToWishlist(int productId)
         {
-            List<WishlistItem> wishlistitems = this.wishlistItemRepository.GetAll();
+            /*List<WishlistItem> wishlistitems = this.wishlistItemRepository.GetAll();
             if (wishlistitems.Find(item => item.ProductID == productId) == null)
                 this.wishlistItemRepository.AddWishlistItem(productId);
             else
-                throw new Exception("This product is already in the wishlist!");
+                throw new Exception("This product is already in the wishlist!");*/
 
         }
 
 
         public void RemoveWishlistItem(WishlistItem wishlistItem)
         {
-            wishlistItemRepository.DeleteById(wishlistItem.ID);
+            //wishlistItemRepository.DeleteById(wishlistItem.ID);
         }
     }
 }

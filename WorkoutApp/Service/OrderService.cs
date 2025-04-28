@@ -22,7 +22,7 @@ namespace WorkoutApp.Service
 
         public void SendOrder(double TotalAmount)
         {
-            connection.Open();
+            /*connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(
                 "INSERT INTO [Order] (ID, CustomerId, OrderDate, TotalAmount, IsActive) VALUES (@ID, @CustomerId, GETDATE(), @TotalAmount, @IsActive)",
@@ -51,7 +51,7 @@ namespace WorkoutApp.Service
                 addOrderDetail(newId, (int) cartItem.ProductId, (int) cartItem.Quantity, cartItem.GetProduct(productRepository).Price);
             }
 
-            cartItemRepository.ResetCart();
+            cartItemRepository.ResetCart();*/
         }
 
         private void addOrderDetail(int OrderID, int ProductID, int Quantity, double Price)

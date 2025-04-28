@@ -20,36 +20,38 @@ namespace WorkoutApp.Service
 
         public List<CartItem> GetCartItems()
         {
-            return cartItemRepository.GetAll();
+            //return cartItemRepository.GetAll();
+            return [];
         }
 
 
         public CartItem GetCartItemById(int id)
         {
-            return cartItemRepository.GetItemById(id);
+            //return cartItemRepository.GetItemById(id);
+            return new CartItem();
         }
 
         public void IncreaseQuantity(CartItem cartItem)
         {
-            cartItemRepository.UpdateById(cartItem.Id, cartItem.Quantity + 1);
+            //cartItemRepository.UpdateById(cartItem.Id, cartItem.Quantity + 1);
         }
 
         public void DecreaseQuantity(CartItem cartItem)
         {
-            if(cartItem.Quantity > 0) 
+            /*if(cartItem.Quantity > 0) 
                 cartItemRepository.UpdateById(cartItem.Id, cartItem.Quantity - 1);
             else 
-                cartItemRepository.DeleteById(cartItem.Id);
+                cartItemRepository.DeleteById(cartItem.Id);*/
         }
 
         public void RemoveCartItem(CartItem cartItem)
         {
-            cartItemRepository.DeleteById(cartItem.Id);
+            //cartItemRepository.DeleteById(cartItem.Id);
         }
 
         public void AddToCart(int productId, int quantity)
         {
-            cartItemRepository.AddCartItem(productId, quantity);
+            //cartItemRepository.AddCartItem(productId, quantity);
         }
     }
 }
