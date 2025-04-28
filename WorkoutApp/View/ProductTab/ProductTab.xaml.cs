@@ -35,9 +35,9 @@ namespace WorkoutApp.View.ProductTab
             this.InitializeComponent();
             CartItemRepository cartItemRepository = new CartItemRepository();
             ProductRepository productRepository = new ProductRepository();
-            WishlistItemRepository wishlistRepository = new WishlistItemRepository();
-            this.cartService = new CartService(cartItemRepository, productRepository);
-            this.wishlistService = new  WishlistService(wishlistRepository, productRepository);
+            //WishlistItemRepository wishlistRepository = new WishlistItemRepository();
+            //this.cartService = new CartService(cartItemRepository, productRepository);
+            //this.wishlistService = new  WishlistService(wishlistRepository, productRepository);
             this.productService = new ProductService(productRepository);
             this.product = product;
             this.parent = parent;
@@ -142,7 +142,7 @@ namespace WorkoutApp.View.ProductTab
             // Show a success message
             try
             {
-                wishlistService.addToWishlist(ViewModel.ProductID);
+                //wishlistService.addToWishlist(ViewModel.ProductID);
                 AddToWishListSuccessMessage();
             }
             catch (Exception ex)
