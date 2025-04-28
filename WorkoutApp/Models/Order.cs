@@ -12,6 +12,23 @@ namespace WorkoutApp.Models
     public class Order
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="Order"/> class.
+        /// </summary>
+        /// <param name="iD">The unique identifier for the order.</param>
+        /// <param name="customerID">The ID of the customer who placed the order.</param>
+        /// <param name="orderDate">The date the order was placed.</param>
+        /// <param name="totalAmount">The total amount of the order.</param>
+        /// <param name="isActive">A value indicating whether the order is active.</param>
+        public Order(int iD, int customerID, DateTime orderDate, double totalAmount, bool isActive)
+        {
+            this.ID = iD;
+            this.CustomerID = customerID;
+            this.OrderDate = orderDate;
+            this.TotalAmount = totalAmount;
+            this.IsActive = isActive;
+        }
+
+        /// <summary>
         /// Gets or sets the unique identifier for the order.
         /// </summary>
         public int ID { get; set; }

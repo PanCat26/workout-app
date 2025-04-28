@@ -1,12 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WorkoutApp.Models;
-using WorkoutApp.Repository;
 
 namespace WorkoutApp.Service
 {
@@ -22,6 +14,9 @@ namespace WorkoutApp.Service
 
         public void SendOrder(double TotalAmount)
         {
+            //call CreateAsync(new Order)
+
+
             /*connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(
@@ -56,6 +51,7 @@ namespace WorkoutApp.Service
 
         private void addOrderDetail(int OrderID, int ProductID, int Quantity, double Price)
         {
+            //call creasteAsync(OrderDetail)
             connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(
