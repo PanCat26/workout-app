@@ -118,6 +118,7 @@ namespace WorkoutApp.Service
         {
             try
             {
+                cartItem.Quantity = 0;
                 await this.cartItemRepository.DeleteAsync(cartItem.Id);
             }
             catch (Exception ex)
