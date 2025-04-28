@@ -8,7 +8,10 @@ namespace WorkoutApp
     using Microsoft.Extensions.Hosting;
     using Microsoft.UI.Xaml;
     using WorkoutApp.Data.Database;
+    using WorkoutApp.Models;
+    using WorkoutApp.Repository;
     using WorkoutApp.View;
+    using WorkoutApp.View.ProductTab;
 
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -37,6 +40,14 @@ namespace WorkoutApp
                 {
                     services.AddSingleton<DbConnectionFactory>(_ =>
                         new SqlDbConnectionFactory(connectionString));
+                    services.AddTransient<IDbService, DbService>();
+
+                    //services.AddTransient<IRepository<WishlistItem>, WishlistItemRepository>();
+                    services.AddTransient<IRepository<CartItem>, CartItemRepository>();
+                    services.AddTransient<ShoppingCart>();
+                    services.AddSingleton<ProductTab>();
+                    services.AddSingleton<WishListTab>();
+
                 })
                 .Build();
 
