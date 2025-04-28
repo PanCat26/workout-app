@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WorkoutApp.Data.Database;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
 using WorkoutApp.Service;
@@ -33,7 +34,9 @@ namespace WorkoutApp.View.ProductTab
         public ProductTab(IProduct product, Window parent)
         {
             this.InitializeComponent();
-            CartItemRepository cartItemRepository = new CartItemRepository();
+            SqlDbConnectionFactory dbConnectionFactory = App.Services.GetService(typeof(SqlDbConnectionFactory)) as SqlDbConnectionFactory;
+            DbService dbService = new DbService(dbConnectionFactory);
+            CartItemRepository cartItemRepository = new CartItemRepository(dbService);
             ProductRepository productRepository = new ProductRepository();
             WishlistItemRepository wishlistRepository = new WishlistItemRepository();
             this.cartService = new CartService(cartItemRepository, productRepository);
@@ -85,12 +88,12 @@ namespace WorkoutApp.View.ProductTab
             return Windows.UI.Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
         }
 
-        private void AddToCartButton_Checked(object sender, RoutedEventArgs e)
+        private async void AddToCartButton_Checked(object sender, RoutedEventArgs e)
         {
 
             try
             {
-                cartService.AddToCart(ViewModel.ProductID, int.Parse(ViewModel.SelectedQuantity));
+                await this.cartService.AddToCartAsync(ViewModel.ProductID, int.Parse(ViewModel.SelectedQuantity));
                 AddToCartSuccessMessage();
             }
             catch (Exception ex)
@@ -142,7 +145,7 @@ namespace WorkoutApp.View.ProductTab
             // Show a success message
             try
             {
-                wishlistService.addToWishlist(ViewModel.ProductID);
+                wishlistService.addToWishlistAsync(ViewModel.ProductID);
                 AddToWishListSuccessMessage();
             }
             catch (Exception ex)

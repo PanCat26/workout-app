@@ -38,13 +38,13 @@ namespace WorkoutApp.View
             LoadProducts();
         }
 
-        private void LoadProducts()
+        private async void LoadProducts()
         {
             WishlistItemRepository wishlistItemRepository = new WishlistItemRepository();
             ProductRepository productRepository = new ProductRepository();
             productRepository.LoadData();
 
-            var WishListItems = wishlistItemRepository.GetAll();
+            var WishListItems = await wishlistItemRepository.GetAllAsync();
 
             List<IProduct> products = new List<IProduct>();
             foreach( var wishlistItem in WishListItems)

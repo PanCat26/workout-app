@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using WorkoutApp.Components;
@@ -28,33 +29,29 @@ namespace WorkoutApp.View
     public sealed partial class ShoppingCart : Window
     {
         private double TotalAmount {  get; set; }
-        public ShoppingCart()
+        private readonly CartService cartService;
+        private readonly ProductRepository productRepository;
+        public ShoppingCart(CartService cartService, ProductRepository productRepository)
         {
             this.InitializeComponent();
+            this.cartService = cartService;
             LoadProducts();
             computeCost();
+            this.productRepository = productRepository;
         }
 
-        private void LoadProducts()
+        private async Task LoadProducts()
         {
-            CartItemRepository cartItemRepository = new CartItemRepository();
-            ProductRepository productRepository = new ProductRepository();
-            CartService cartService = new CartService(cartItemRepository, productRepository);
-
-            var cartItems = cartService.GetCartItems();
+            var cartItems = await cartService.GetCartItemAsync();
             foreach (var cartItem in cartItems)
             {
-                ProductsStackPanel.Children.Add(new CartItemComponent(cartItem, ProductsStackPanel, computeCost));
+                ProductsStackPanel.Children.Add(new CartItemComponent(cartService));
             }
         }
         
-        private int computeCost()
+        private async Task computeCost()
         {
-            CartItemRepository cartItemRepository = new CartItemRepository();
-            ProductRepository productRepository = new ProductRepository();
-            CartService cartService = new CartService(cartItemRepository, productRepository);
-
-            var cartItems = cartService.GetCartItems();
+            var cartItems = await cartService.GetCartItemAsync();
 
             double cost = 0;
             foreach (var cartItem in cartItems)
@@ -74,7 +71,6 @@ namespace WorkoutApp.View
                 TotalAmount = cost + 20;
             }
 
-            return 0;
         }
 
         private void proceedToCheckoutButton(object sender, RoutedEventArgs e)
