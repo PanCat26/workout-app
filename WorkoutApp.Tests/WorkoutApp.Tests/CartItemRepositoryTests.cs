@@ -45,7 +45,7 @@ public class CartItemRepositoryTests
     }
 
 
-    public async Task InitializeAsync()
+    private async Task InitializeAsync()
     {
         // Clear existing data (important to avoid duplicates)
         await dbService.ExecuteQueryAsync("DELETE FROM OrderDetail", new List<SqlParameter>());
