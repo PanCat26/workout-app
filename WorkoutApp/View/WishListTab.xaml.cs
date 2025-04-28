@@ -38,7 +38,7 @@ namespace WorkoutApp.View
             LoadProducts();
         }
 
-        private void LoadProducts()
+        private async void LoadProducts()
         {
             WishlistItemRepository wishlistItemRepository = new WishlistItemRepository();
             ProductRepository productRepository = new ProductRepository();

@@ -1,13 +1,15 @@
-﻿// <copyright file="CartItemRepository.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+﻿// <copyright file="CartItemRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.Repository
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
+    using WorkoutApp.Data.Database;
     using WorkoutApp.Models;
 
     /// <summary>
@@ -15,198 +17,246 @@ namespace WorkoutApp.Repository
     /// </summary>
     public class CartItemRepository : IRepository<CartItem>
     {
-        private readonly string connectionString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-        private readonly SqlConnection connection;
+        private readonly DbService databaseService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CartItemRepository"/> class.
         /// </summary>
-        public CartItemRepository()
+        /// <param name="dBService">The database service used for database operations.</param>
+        public CartItemRepository(DbService dBService)
         {
-            this.connection = new SqlConnection(this.connectionString);
+            this.databaseService = dBService;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Retrieves all cart items asynchronously.
+        /// </summary>
+        /// <returns>A collection of cart items.</returns>
         public async Task<IEnumerable<CartItem>> GetAllAsync()
         {
-            int cartId = this.GetActiveCartId();
-            var cartItems = new List<CartItem>();
+            int cartId = await this.GetActiveCartId();
+            List<CartItem> cartItems = new List<CartItem>();
 
-            this.connection.Open();
-            using (SqlCommand selectCommand = new SqlCommand(
-                "SELECT * FROM CartItem WHERE IsActive = 1 AND CartId = @CartId",
-                this.connection))
+            try
             {
-                selectCommand.Parameters.AddWithValue("@CartId", cartId);
+                var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
+                    "SELECT * FROM CartItem WHERE IsActive = 1 AND CartId = @CartId",
+                    new List<SqlParameter> { new SqlParameter("@CartId", cartId) });
 
-                using (SqlDataReader reader = await selectCommand.ExecuteReaderAsync())
+                foreach (DataRow row in selectQueryResult.Rows)
                 {
-                    while (await reader.ReadAsync())
-                    {
-                        CartItem cartItem = new CartItem
-                        {
-                            Id = reader.GetInt32(reader.GetOrdinal("ID")),
-                            CartId = reader.GetInt32(reader.GetOrdinal("CartId")),
-                            ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
-                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
-                        };
-                        cartItems.Add(cartItem);
-                    }
-                }
-            }
-
-            this.connection.Close();
-            return cartItems;
-        }
-
-        /// <inheritdoc/>
-        public async Task<CartItem> GetByIdAsync(long id)
-        {
-            int cartId = this.GetActiveCartId();
-
-            this.connection.Open();
-            using (SqlCommand selectCommand = new SqlCommand(
-                "SELECT * FROM CartItem WHERE IsActive = 1 AND CartId = @CartId AND ID = @Id",
-                this.connection))
-            {
-                selectCommand.Parameters.AddWithValue("@CartId", cartId);
-                selectCommand.Parameters.AddWithValue("@Id", id);
-
-                using (SqlDataReader reader = await selectCommand.ExecuteReaderAsync())
-                {
-                    if (!await reader.ReadAsync())
-                    {
-                        this.connection.Close();
-                        return null;
-                    }
-
                     CartItem cartItem = new CartItem
                     {
-                        Id = reader.GetInt32(reader.GetOrdinal("ID")),
-                        CartId = reader.GetInt32(reader.GetOrdinal("CartId")),
-                        ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
-                        Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                        Id = Convert.ToInt32(row["ID"]),
+                        CartId = Convert.ToInt32(row["CartId"]),
+                        ProductId = Convert.ToInt32(row["ProductID"]),
+                        Quantity = Convert.ToInt32(row["Quantity"]),
                     };
-
-                    this.connection.Close();
-                    return cartItem;
+                    cartItems.Add(cartItem);
                 }
+
+                return cartItems;
             }
-        }
-
-        /// <inheritdoc/>
-        public async Task<CartItem> CreateAsync(CartItem entity)
-        {
-            int cartId = this.GetActiveCartId();
-
-            this.connection.Open();
-
-            SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) + 1 FROM CartItem", this.connection);
-            int newId = (int)await getMaxIdCommand.ExecuteScalarAsync();
-
-            using (SqlCommand insertCommand = new SqlCommand(
-                "INSERT INTO CartItem (Id, CartId, ProductId, Quantity, IsActive) VALUES (@Id, @CartId, @ProductId, @Quantity, @IsActive)",
-                this.connection))
+            catch (Exception exception)
             {
-                insertCommand.Parameters.AddWithValue("@Id", newId);
-                insertCommand.Parameters.AddWithValue("@CartId", cartId);
-                insertCommand.Parameters.AddWithValue("@ProductId", entity.ProductId);
-                insertCommand.Parameters.AddWithValue("@Quantity", entity.Quantity);
-                insertCommand.Parameters.AddWithValue("@IsActive", true);
-
-                await insertCommand.ExecuteNonQueryAsync();
+                throw new Exception($"Error retrieving cart items: {exception.Message}");
             }
-
-            this.connection.Close();
-            return entity;
         }
 
-        /// <inheritdoc/>
-        public async Task<CartItem> UpdateAsync(CartItem entity)
+        /// <summary>
+        /// Retrieves a cart item by its ID asynchronously.
+        /// </summary>
+        /// <param name="id">The ID of the cart item.</param>
+        /// <returns>The cart item with the specified ID.</returns>
+        public async Task<CartItem> GetByIdAsync(long id)
         {
-            this.connection.Open();
-            using (SqlCommand updateCommand = new SqlCommand(
-                "UPDATE CartItem SET Quantity = @Quantity WHERE Id = @Id",
-                this.connection))
+            int cartId = await this.GetActiveCartId();
+
+            try
             {
-                updateCommand.Parameters.AddWithValue("@Id", entity.Id);
-                updateCommand.Parameters.AddWithValue("@Quantity", entity.Quantity);
+                var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
+                    "SELECT * FROM CartItem WHERE IsActive = 1 AND CartId = @CartId AND ID = @Id",
+                    new List<SqlParameter>
+                    {
+                            new SqlParameter("@CartId", cartId),
+                            new SqlParameter("@Id", id),
+                    });
 
-                await updateCommand.ExecuteNonQueryAsync();
+                if (selectQueryResult.Rows.Count == 0)
+                {
+                    throw new Exception("Cart item not found.");
+                }
+
+                DataRow row = selectQueryResult.Rows[0];
+                CartItem cartItem = new CartItem
+                {
+                    Id = Convert.ToInt32(row["ID"]),
+                    CartId = Convert.ToInt32(row["CartId"]),
+                    ProductId = Convert.ToInt32(row["ProductID"]),
+                    Quantity = Convert.ToInt32(row["Quantity"]),
+                };
+
+                return cartItem;
             }
-
-            this.connection.Close();
-            return entity;
+            catch (Exception exception)
+            {
+                throw new Exception($"Error retrieving cart item: {exception.Message}");
+            }
         }
 
-        /// <inheritdoc/>
-        public async Task<bool> DeleteAsync(long id)
+        /// <summary>
+        /// Creates a new cart item asynchronously.
+        /// </summary>
+        /// <param name="productId">The product ID of the cart item.</param>
+        /// <param name="quantity">The quantity of the cart item.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task CreateAsync(int productId, int quantity)
         {
-            this.connection.Open();
-            using (SqlCommand updateCommand = new SqlCommand(
+            int cartId = await this.GetActiveCartId();
+
+            int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
+                "INSERT INTO CartItem (CartId, ProductId, Quantity, IsActive) VALUES (@CartId, @ProductId, @Quantity, @IsActive)",
+                new List<SqlParameter>
+                {
+                        new SqlParameter("@CartId", cartId),
+                        new SqlParameter("@ProductId", productId),
+                        new SqlParameter("@Quantity", quantity),
+                        new SqlParameter("@IsActive", true),
+                });
+
+            if (insertQueryResult < 0)
+            {
+                throw new Exception($"Error inserting cart item with product id: {productId}");
+            }
+
+            return;
+        }
+
+        /// <summary>
+        /// Updates an existing cart item asynchronously.
+        /// </summary>
+        /// <param name="cartItem">The cart item to update.</param>
+        /// <returns>The updated cart item.</returns>
+        public async Task<CartItem> UpdateAsync(CartItem cartItem)
+        {
+            bool isActive = cartItem.Quantity > 0;
+            int updateQueryResult = await this.databaseService.ExecuteQueryAsync(
+                "UPDATE CartItem SET Quantity = @Quantity, isActive = @isActive WHERE Id = @Id",
+                new List<SqlParameter>
+                {
+                        new SqlParameter("@Id", cartItem.Id),
+                        new SqlParameter("@isActive", isActive),
+                        new SqlParameter("@Quantity", cartItem.Quantity),
+                });
+
+            if (updateQueryResult < 0)
+            {
+                throw new Exception($"Error updating cart item with id: {cartItem.Id}");
+            }
+
+            return cartItem;
+        }
+
+        /// <summary>
+        /// Deletes a cart item asynchronously.
+        /// </summary>
+        /// <param name="itemId">The ID of the cart item to delete.</param>
+        /// <returns>A boolean indicating whether the deletion was successful.</returns>
+        public async Task<bool> DeleteAsync(long itemId)
+        {
+            int deleteQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "UPDATE CartItem SET IsActive = 0 WHERE ID = @Id",
-                this.connection))
+                new List<SqlParameter> { new SqlParameter("@Id", itemId) });
+
+            if (deleteQueryResult < 0)
             {
-                updateCommand.Parameters.AddWithValue("@Id", id);
-                await updateCommand.ExecuteNonQueryAsync();
+                return false;
             }
 
-            this.connection.Close();
             return true;
         }
 
         /// <summary>
-        /// Resets the cart by deleting all active items and creating a new cart.
+        /// Resets the cart by deleting all active items and creating a new cart asynchronously.
         /// </summary>
-        public void ResetCart()
+        /// <returns>A boolean indicating whether the reset was successful.</returns>
+        public async Task<bool> ResetCart()
         {
-            IEnumerable<CartItem> cartItems = this.GetAllAsync().Result;
+            IEnumerable<CartItem> cartItems = await this.GetAllAsync();
 
             foreach (CartItem cartItem in cartItems)
             {
                 this.DeleteAsync(cartItem.Id).Wait();
             }
 
-            int newId = this.GetActiveCartId();
+            int newId = await this.GetActiveCartId();
 
-            this.connection.Open();
+            var insertQueryResult = await this.databaseService.ExecuteQueryAsync(
+                "INSERT INTO Cart (CustomerID, CreatedAt, IsActive) VALUES (1, GETDATE(), 1)",
+                new List<SqlParameter> { new SqlParameter("@Id", newId + 1) });
 
-            using (SqlCommand insertCommand = new SqlCommand(
-                "INSERT INTO Cart (Id, CustomerID, CreatedAt, IsActive) VALUES (@Id, 1, GETDATE(), 1)",
-                this.connection))
+            if (insertQueryResult < 0)
             {
-                insertCommand.Parameters.AddWithValue("@Id", newId + 1);
-                insertCommand.ExecuteNonQuery();
+                throw new Exception($"Error inserting new cart with id: {newId + 1}");
             }
 
-            using (SqlCommand updateCommand = new SqlCommand(
+            var updateQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "UPDATE Cart SET IsActive = 0 WHERE Id = @Id",
-                this.connection))
+                new List<SqlParameter> { new SqlParameter("@Id", newId) });
+
+            if (updateQueryResult < 0)
             {
-                updateCommand.Parameters.AddWithValue("@Id", newId);
-                updateCommand.ExecuteNonQuery();
+                throw new Exception($"Error updating cart with id: {newId}");
             }
 
-            this.connection.Close();
+            return true;
         }
 
         /// <summary>
-        /// Retrieves the ID of the active cart.
+        /// Creates a new cart item asynchronously.
         /// </summary>
-        /// <returns>The ID of the active cart.</returns>
-        private int GetActiveCartId()
+        /// <param name="entity">The cart item to create.</param>
+        /// <returns>The created cart item.</returns>
+        public async Task<CartItem> CreateAsync(CartItem entity)
         {
-            if (this.connection.State == System.Data.ConnectionState.Closed)
+            int cartId = await this.GetActiveCartId();
+
+            int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
+                "INSERT INTO CartItem (CartId, ProductId, Quantity, IsActive) VALUES (@CartId, @ProductId, @Quantity, @IsActive)",
+                new List<SqlParameter>
+                {
+                        new SqlParameter("@CartId", entity.CartId),
+                        new SqlParameter("@ProductId", entity.ProductId),
+                        new SqlParameter("@Quantity", entity.Quantity),
+                        new SqlParameter("@IsActive", true),
+                });
+
+            if (insertQueryResult < 0)
             {
-                this.connection.Open();
+                throw new Exception($"Error inserting cart item with product id: {entity.ProductId}");
             }
 
-            using (SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) FROM Cart", this.connection))
+            return entity;
+        }
+
+        /// <summary>
+        /// Retrieves the ID of the active cart asynchronously.
+        /// </summary>
+        /// <returns>The ID of the active cart.</returns>
+        private async Task<int> GetActiveCartId()
+        {
+            var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
+                "SELECT TOP 1 ID FROM Cart WHERE IsActive = 1 ORDER BY ID DESC",
+                new List<SqlParameter>());
+
+            if (selectQueryResult.Rows.Count == 0)
             {
-                int newId = (int)getMaxIdCommand.ExecuteScalar();
-                this.connection.Close();
-                return newId;
+                throw new Exception("No active cart found.");
             }
+
+            int cartId = Convert.ToInt32(selectQueryResult.Rows[0][0]);
+
+            return cartId;
         }
     }
 }

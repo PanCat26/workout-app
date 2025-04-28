@@ -21,12 +21,14 @@ using System.Xml.Schema;
 using WorkoutApp.View.ProductTab;
 using System.Diagnostics;
 using WorkoutApp.Components;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WorkoutApp.View
 {
     public sealed partial class MainWindow : Window
     {
         private List<IProduct> allProducts = new List<IProduct>();
+
 
         public MainWindow()
         {
@@ -195,7 +197,7 @@ namespace WorkoutApp.View
 
         private void CartMenu_Click(object sender, RoutedEventArgs e)
         {
-            Window cart = new ShoppingCart();
+            Window cart = App.Services.GetRequiredService<ShoppingCart>();
             cart.Activate();
             this.Close();
         }

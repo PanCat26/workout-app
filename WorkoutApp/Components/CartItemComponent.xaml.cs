@@ -30,9 +30,10 @@ namespace WorkoutApp.Components
 
         private Func<int> callBack {  get; set; }
 
-        public CartItemComponent()
+        public CartItemComponent(CartService cartService)
         {
             this.InitializeComponent();
+            this.cartService = cartService;
         }
 
         public CartItemComponent(CartItem cartItem, StackPanel parent, Func<int> callBack)
@@ -40,7 +41,6 @@ namespace WorkoutApp.Components
             this.InitializeComponent();
 
             this.cartItem = cartItem;
-            this.cartService = new CartService(new CartItemRepository(), new ProductRepository());
             this.parent = parent;
             this.callBack = callBack;
 
@@ -55,14 +55,14 @@ namespace WorkoutApp.Components
             //this.DataContext = new CartItemViewModel("product.Name", "product.FileUrl", "product.Price.ToString()", cartItem.Quantity.ToString());
         }
 
-        private void deacreaseQuantityButton_Click(object sender, RoutedEventArgs e)
+        private async void deacreaseQuantityButton_Click(object sender, RoutedEventArgs e)
         {
-            cartService.DecreaseQuantity(cartItem);
-            cartItem = cartService.GetCartItemById((int)cartItem.Id);
+            await cartService.DecreaseQuantityAsync(cartItem);
+            cartItem = await cartService.GetCartItemByIdAsync((int)cartItem.Id);
             
             if(cartItem.Quantity == 0)
             {
-                cartService.RemoveCartItem(cartItem);
+                await cartService.RemoveCartItemAsync(cartItem);
                 parent.Children.Remove(this);
                 callBack();
                 return;
@@ -72,17 +72,17 @@ namespace WorkoutApp.Components
             callBack();
         }
 
-        private void increaseQuantityButton_Click(object sender, RoutedEventArgs e)
+        private async void increaseQuantityButton_Click(object sender, RoutedEventArgs e)
         {
-            cartService.IncreaseQuantity(cartItem);
-            cartItem = cartService.GetCartItemById((int)cartItem.Id);
+            await cartService.IncreaseQuantityAsync(cartItem);
+            cartItem = await cartService.GetCartItemByIdAsync((int)cartItem.Id);
             setDataContext();
             callBack();
         }
 
-        private void removeProductButton_Click(object sender, RoutedEventArgs e)
+        private async void removeProductButton_Click(object sender, RoutedEventArgs e)
         {
-            cartService.RemoveCartItem(cartItem);
+            await cartService.RemoveCartItemAsync(cartItem);
             parent.Children.Remove(this);
             callBack();
         }
