@@ -20,7 +20,7 @@ namespace WorkoutApp.Data.Database
     /// Initializes a new instance of the <see cref="DbService"/> class with a <see cref="DbConnectionFactory"/> factory.
     /// </remarks>
     /// <param name="dbConnectionFactory">The database connection factory.</param>
-    public class DbService(DbConnectionFactory dbConnectionFactory)
+    public class DbService(DbConnectionFactory dbConnectionFactory) : IDbService
     {
         private readonly DbConnectionFactory dbConnectionFactory = dbConnectionFactory;
 
