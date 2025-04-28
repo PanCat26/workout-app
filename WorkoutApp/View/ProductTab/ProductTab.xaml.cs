@@ -1,17 +1,10 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
 using WorkoutApp.Service;
@@ -31,7 +24,7 @@ namespace WorkoutApp.View.ProductTab
         private IProduct product;
         private Window parent { get; set; }
         public ProductTab(IProduct product, Window parent)
-        {
+        {/*
             this.InitializeComponent();
             CartItemRepository cartItemRepository = new CartItemRepository();
             ProductRepository productRepository = new ProductRepository();
@@ -55,7 +48,7 @@ namespace WorkoutApp.View.ProductTab
             if(product.CategoryID == 3)
             {
                 SizeStackPanel.Visibility = Visibility.Collapsed;
-            }
+            }*/
         }
 
         private void PopulateColorFlyout()
@@ -106,7 +99,7 @@ namespace WorkoutApp.View.ProductTab
             }
 
 
-            }
+        }
 
         public void AddToCartSuccessMessage()
         {
@@ -142,7 +135,7 @@ namespace WorkoutApp.View.ProductTab
             // Show a success message
             try
             {
-                wishlistService.addToWishlist(ViewModel.ProductID);
+                //wishlistService.addToWishlist(ViewModel.ProductID);
                 AddToWishListSuccessMessage();
             }
             catch (Exception ex)
