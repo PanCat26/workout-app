@@ -44,15 +44,15 @@ namespace WorkoutApp.View
             ProductRepository productRepository = new ProductRepository();
             productRepository.LoadData();
 
-            var WishListItems = await wishlistItemRepository.GetAllAsync();
+            //var WishListItems = wishlistItemRepository.GetAll();
 
             List<IProduct> products = new List<IProduct>();
-            foreach( var wishlistItem in WishListItems)
+            /*foreach( var wishlistItem in WishListItems)
             {
                 var product = productRepository.GetById(wishlistItem.ProductID);
                 if(product != null)
                     products.Add(productRepository.GetById(wishlistItem.ProductID));
-            }
+            }*/
 
             ProductsGridView.ItemsSource = products;
 
