@@ -31,7 +31,7 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<IEnumerable<OrderDetail>> GetAllAsync()
         {
-            const string query = "SELECT * FROM OrderDetail WHERE IsActive = 1";
+            const string query = "SELECT * FROM OrderDetail";
             var parameters = new List<SqlParameter>();
 
             DataTable result = await this.dbService.ExecuteSelectAsync(query, parameters);
@@ -54,7 +54,7 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<OrderDetail> GetByIdAsync(long id)
         {
-            const string query = "SELECT * FROM OrderDetail WHERE ID = @ID AND IsActive = 1";
+            const string query = "SELECT * FROM OrderDetail WHERE ID = @ID";
             var parameters = new List<SqlParameter>
             {
                 new SqlParameter("@ID", id),

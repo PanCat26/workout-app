@@ -31,7 +31,7 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            const string query = "SELECT * FROM [Order] WHERE IsActive = 1";
+            const string query = "SELECT * FROM [Order]";
             var parameters = new List<SqlParameter>();
 
             DataTable result = await this.dbService.ExecuteSelectAsync(query, parameters);
@@ -53,7 +53,7 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<Order> GetByIdAsync(long id)
         {
-            const string query = "SELECT * FROM [Order] WHERE ID = @ID AND IsActive = 1";
+            const string query = "SELECT * FROM [Order] WHERE ID = @ID";
             var parameters = new List<SqlParameter>
             {
                 new SqlParameter("@ID", id),
@@ -90,7 +90,6 @@ namespace WorkoutApp.Repository
                 new SqlParameter("@TotalAmount", entity.TotalAmount),
                 new SqlParameter("@IsActive", entity.IsActive),
             };
-
             await this.dbService.ExecuteQueryAsync(query, parameters);
             return entity;
         }
@@ -98,23 +97,19 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<Order> UpdateAsync(Order entity)
         {
-            const string query = @"
-                UPDATE [Order] 
-                SET CustomerID = @CustomerID,
+            const string query = @" UPDATE [Order] 
+                SET CustomerID = @CustomerID
                     OrderDate = @OrderDate,
                     TotalAmount = @TotalAmount,
                     IsActive = @IsActive
                 WHERE ID = @ID";
-
             var parameters = new List<SqlParameter>
             {
-                new SqlParameter("@ID", entity.ID),
                 new SqlParameter("@CustomerID", entity.CustomerID),
                 new SqlParameter("@OrderDate", entity.OrderDate),
                 new SqlParameter("@TotalAmount", entity.TotalAmount),
                 new SqlParameter("@IsActive", entity.IsActive),
             };
-
             await this.dbService.ExecuteQueryAsync(query, parameters);
             return entity;
         }
@@ -127,7 +122,6 @@ namespace WorkoutApp.Repository
             {
                 new SqlParameter("@ID", id),
             };
-
             int rowsAffected = await this.dbService.ExecuteQueryAsync(query, parameters);
             return rowsAffected > 0;
         }
