@@ -28,7 +28,10 @@ namespace WorkoutApp.Repository
             this.databaseService = dBService;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Retrieves all cart items asynchronously.
+        /// </summary>
+        /// <returns>A collection of cart items.</returns>
         public async Task<IEnumerable<CartItem>> GetAllAsync()
         {
             int cartId = await this.GetActiveCartId();
@@ -60,7 +63,11 @@ namespace WorkoutApp.Repository
             }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Retrieves a cart item by its ID asynchronously.
+        /// </summary>
+        /// <param name="id">The ID of the cart item.</param>
+        /// <returns>The cart item with the specified ID.</returns>
         public async Task<CartItem> GetByIdAsync(long id)
         {
             int cartId = await this.GetActiveCartId();
@@ -71,8 +78,8 @@ namespace WorkoutApp.Repository
                     "SELECT * FROM CartItem WHERE IsActive = 1 AND CartId = @CartId AND ID = @Id",
                     new List<SqlParameter>
                     {
-                        new SqlParameter("@CartId", cartId),
-                        new SqlParameter("@Id", id),
+                            new SqlParameter("@CartId", cartId),
+                            new SqlParameter("@Id", id),
                     });
 
                 if (selectQueryResult.Rows.Count == 0)
@@ -97,39 +104,49 @@ namespace WorkoutApp.Repository
             }
         }
 
-        /// <inheritdoc/>
-        public async Task<CartItem> CreateAsync(CartItem newCartItem)
+        /// <summary>
+        /// Creates a new cart item asynchronously.
+        /// </summary>
+        /// <param name="productId">The product ID of the cart item.</param>
+        /// <param name="quantity">The quantity of the cart item.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task CreateAsync(int productId, int quantity)
         {
             int cartId = await this.GetActiveCartId();
 
             int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
-                "INSERT INTO CartItem (Id, CartId, ProductId, Quantity, IsActive) VALUES (@Id, @CartId, @ProductId, @Quantity, @IsActive)",
+                "INSERT INTO CartItem (CartId, ProductId, Quantity, IsActive) VALUES (@CartId, @ProductId, @Quantity, @IsActive)",
                 new List<SqlParameter>
                 {
-                    new SqlParameter("@Id", newCartItem.Id),
-                    new SqlParameter("@CartId", cartId),
-                    new SqlParameter("@ProductId", newCartItem.ProductId),
-                    new SqlParameter("@Quantity", newCartItem.Quantity),
-                    new SqlParameter("@IsActive", true),
+                        new SqlParameter("@CartId", cartId),
+                        new SqlParameter("@ProductId", productId),
+                        new SqlParameter("@Quantity", quantity),
+                        new SqlParameter("@IsActive", true),
                 });
 
             if (insertQueryResult < 0)
             {
-               throw new Exception($"Error inserting cart item with id: {newCartItem.Id}");
+                throw new Exception($"Error inserting cart item with product id: {productId}");
             }
 
-            return newCartItem;
+            return;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Updates an existing cart item asynchronously.
+        /// </summary>
+        /// <param name="cartItem">The cart item to update.</param>
+        /// <returns>The updated cart item.</returns>
         public async Task<CartItem> UpdateAsync(CartItem cartItem)
         {
+            bool isActive = cartItem.Quantity > 0;
             int updateQueryResult = await this.databaseService.ExecuteQueryAsync(
-                "UPDATE CartItem SET Quantity = @Quantity WHERE Id = @Id",
+                "UPDATE CartItem SET Quantity = @Quantity, isActive = @isActive WHERE Id = @Id",
                 new List<SqlParameter>
                 {
-                    new SqlParameter("@Id", cartItem.Id),
-                    new SqlParameter("@Quantity", cartItem.Quantity),
+                        new SqlParameter("@Id", cartItem.Id),
+                        new SqlParameter("@isActive", isActive),
+                        new SqlParameter("@Quantity", cartItem.Quantity),
                 });
 
             if (updateQueryResult < 0)
@@ -140,7 +157,11 @@ namespace WorkoutApp.Repository
             return cartItem;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Deletes a cart item asynchronously.
+        /// </summary>
+        /// <param name="itemId">The ID of the cart item to delete.</param>
+        /// <returns>A boolean indicating whether the deletion was successful.</returns>
         public async Task<bool> DeleteAsync(long itemId)
         {
             int deleteQueryResult = await this.databaseService.ExecuteQueryAsync(
@@ -156,12 +177,12 @@ namespace WorkoutApp.Repository
         }
 
         /// <summary>
-        /// Resets the cart by deleting all active items and creating a new cart.
+        /// Resets the cart by deleting all active items and creating a new cart asynchronously.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <returns>A boolean indicating whether the reset was successful.</returns>
         public async Task<bool> ResetCart()
         {
-            IEnumerable<CartItem> cartItems = this.GetAllAsync().Result;
+            IEnumerable<CartItem> cartItems = await this.GetAllAsync();
 
             foreach (CartItem cartItem in cartItems)
             {
@@ -171,7 +192,7 @@ namespace WorkoutApp.Repository
             int newId = await this.GetActiveCartId();
 
             var insertQueryResult = await this.databaseService.ExecuteQueryAsync(
-                "INSERT INTO Cart (Id, CustomerID, CreatedAt, IsActive) VALUES (@Id, 1, GETDATE(), 1)",
+                "INSERT INTO Cart (CustomerID, CreatedAt, IsActive) VALUES (1, GETDATE(), 1)",
                 new List<SqlParameter> { new SqlParameter("@Id", newId + 1) });
 
             if (insertQueryResult < 0)
@@ -192,13 +213,40 @@ namespace WorkoutApp.Repository
         }
 
         /// <summary>
-        /// Retrieves the ID of the active cart.
+        /// Creates a new cart item asynchronously.
+        /// </summary>
+        /// <param name="entity">The cart item to create.</param>
+        /// <returns>The created cart item.</returns>
+        public async Task<CartItem> CreateAsync(CartItem entity)
+        {
+            int cartId = await this.GetActiveCartId();
+
+            int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
+                "INSERT INTO CartItem (CartId, ProductId, Quantity, IsActive) VALUES (@CartId, @ProductId, @Quantity, @IsActive)",
+                new List<SqlParameter>
+                {
+                        new SqlParameter("@CartId", entity.CartId),
+                        new SqlParameter("@ProductId", entity.ProductId),
+                        new SqlParameter("@Quantity", entity.Quantity),
+                        new SqlParameter("@IsActive", true),
+                });
+
+            if (insertQueryResult < 0)
+            {
+                throw new Exception($"Error inserting cart item with product id: {entity.ProductId}");
+            }
+
+            return entity;
+        }
+
+        /// <summary>
+        /// Retrieves the ID of the active cart asynchronously.
         /// </summary>
         /// <returns>The ID of the active cart.</returns>
         private async Task<int> GetActiveCartId()
         {
             var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                "SELECT ISNULL(MAX(ID), 0) FROM Cart",
+                "SELECT TOP 1 ID FROM Cart WHERE IsActive = 1 ORDER BY ID DESC",
                 new List<SqlParameter>());
 
             if (selectQueryResult.Rows.Count == 0)

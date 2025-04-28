@@ -4,6 +4,7 @@
 
 namespace WorkoutApp.Service
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using WorkoutApp.Models;
@@ -34,7 +35,15 @@ namespace WorkoutApp.Service
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation, containing a list of <see cref="CartItem"/>.</returns>
         public async Task<List<CartItem>> GetCartItemAsync()
         {
-            return (List<CartItem>)await this.cartItemRepository.GetAllAsync();
+            try
+            {
+                return (List<CartItem>)await this.cartItemRepository.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in {nameof(this.GetCartItemAsync)}: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -44,7 +53,15 @@ namespace WorkoutApp.Service
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation, containing the <see cref="CartItem"/>.</returns>
         public async Task<CartItem> GetCartItemByIdAsync(int id)
         {
-            return await this.cartItemRepository.GetByIdAsync(id);
+            try
+            {
+                return await this.cartItemRepository.GetByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in {nameof(this.GetCartItemByIdAsync)}: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -54,8 +71,16 @@ namespace WorkoutApp.Service
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task IncreaseQuantityAsync(CartItem cartItem)
         {
-            cartItem.Quantity += 1;
-            await this.cartItemRepository.UpdateAsync(cartItem);
+            try
+            {
+                cartItem.Quantity += 1;
+                await this.cartItemRepository.UpdateAsync(cartItem);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in {nameof(this.IncreaseQuantityAsync)}: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -65,14 +90,22 @@ namespace WorkoutApp.Service
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task DecreaseQuantityAsync(CartItem cartItem)
         {
-            if (cartItem.Quantity > 0)
+            try
             {
-                cartItem.Quantity -= 1;
-                await this.cartItemRepository.UpdateAsync(cartItem);
+                if (cartItem.Quantity > 0)
+                {
+                    cartItem.Quantity -= 1;
+                    await this.cartItemRepository.UpdateAsync(cartItem);
+                }
+                else
+                {
+                    await this.cartItemRepository.DeleteAsync(cartItem.Id);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await this.cartItemRepository.DeleteAsync(cartItem.Id);
+                Console.WriteLine($"Error in {nameof(this.DecreaseQuantityAsync)}: {ex.Message}");
+                throw;
             }
         }
 
@@ -83,7 +116,15 @@ namespace WorkoutApp.Service
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task RemoveCartItemAsync(CartItem cartItem)
         {
-            await this.cartItemRepository.DeleteAsync(cartItem.Id);
+            try
+            {
+                await this.cartItemRepository.DeleteAsync(cartItem.Id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in {nameof(this.RemoveCartItemAsync)}: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -94,7 +135,15 @@ namespace WorkoutApp.Service
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task AddToCartAsync(int productId, int quantity)
         {
-            await this.cartItemRepository.CreateAsync(productId, quantity);
+            try
+            {
+                await this.cartItemRepository.CreateAsync(productId, quantity);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in {nameof(this.AddToCartAsync)}: {ex.Message}");
+                throw;
+            }
         }
     }
 }
