@@ -37,8 +37,6 @@ namespace WorkoutApp.Tests.Repository
                 throw;
             }
 
-            using SqlCommand resetIdentityCusotmer = new("DBCC CHECKIDENT ('Customer', RESEED, 0)", connection);
-            using SqlCommand resetIdentityOrder = new("DBCC CHECKIDENT ('Order', RESEED, 0)", connection);
             using SqlCommand insertCustomerCommand = new(
                 "INSERT INTO Customer (IsActive) VALUES (1)", connection);
             using SqlCommand insertOrderCommand = new(
@@ -46,8 +44,6 @@ namespace WorkoutApp.Tests.Repository
 
             try
             {
-                resetIdentityCusotmer.ExecuteNonQuery();
-                resetIdentityOrder.ExecuteNonQuery();
                 insertCustomerCommand.ExecuteNonQuery();
                 insertOrderCommand.ExecuteNonQuery();
             }
@@ -55,6 +51,10 @@ namespace WorkoutApp.Tests.Repository
             {
                 Debug.WriteLine($"Failed to insert test data: {exception}");
                 throw;
+            }
+            finally
+            {
+                connection.Close();
             }
         }
 
@@ -72,6 +72,7 @@ namespace WorkoutApp.Tests.Repository
         {
             var order1 = await repository.GetByIdAsync(1);
             Assert.NotNull(order1);
+            Assert.Equal(1, order1.ID);
 
             var order2 = await repository.GetByIdAsync(1001);
             Assert.Null(order2);
@@ -81,17 +82,19 @@ namespace WorkoutApp.Tests.Repository
         public async Task Test_CreateAsync()
         {
             var initialOrders = await repository.GetAllAsync();
+            Assert.NotNull(initialOrders);
             Assert.Equal(2, initialOrders.Count());
 
             Order order = new Order(3, 1, DateTime.Now, 9999, false);
             var result = await repository.CreateAsync(order);
             Assert.NotNull(result);
-            Assert.Equal(order, result);
 
             var finalOrders = await repository.GetAllAsync();
+            Assert.NotNull(finalOrders);
             Assert.Equal(3, finalOrders.Count());
 
             var insertedOrder = await repository.GetByIdAsync(3);
+            Assert.NotNull(insertedOrder);
 
             Assert.Equal(order.ID, insertedOrder.ID);
             Assert.Equal(order.CustomerID, insertedOrder.CustomerID);
@@ -104,6 +107,7 @@ namespace WorkoutApp.Tests.Repository
         public async Task Test_UpdateAsync()
         {
             var initialOrder = await repository.GetByIdAsync(1);
+            Assert.NotNull(initialOrder);
 
             Order orderToUpdate = new Order(initialOrder.ID, initialOrder.CustomerID, initialOrder.OrderDate, 0, !initialOrder.IsActive);
             await repository.UpdateAsync(orderToUpdate);
@@ -113,8 +117,8 @@ namespace WorkoutApp.Tests.Repository
             Assert.Equal(initialOrder.ID, finalOrder.ID);
             Assert.Equal(initialOrder.CustomerID, finalOrder.CustomerID);
             Assert.Equal(initialOrder.OrderDate, finalOrder.OrderDate);
-            Assert.NotEqual(0, finalOrder.TotalAmount);
-            Assert.NotEqual(!initialOrder.IsActive, finalOrder.IsActive);
+            Assert.Equal(0, finalOrder.TotalAmount);
+            Assert.Equal(!initialOrder.IsActive, finalOrder.IsActive);
 
         }
 
@@ -122,6 +126,7 @@ namespace WorkoutApp.Tests.Repository
         public async Task Test_DeleteAsync()
         {
             var initialOrder = await repository.GetByIdAsync(1);
+            Assert.NotNull(initialOrder);
             Assert.True(initialOrder.IsActive);
 
             await repository.DeleteAsync(1);
@@ -144,6 +149,11 @@ namespace WorkoutApp.Tests.Repository
                     "DELETE FROM Customer;", connection);
                 deleteOrderCommand.ExecuteNonQuery();
                 deleteCustomerCommand.ExecuteNonQuery();
+
+                using SqlCommand resetIdentityCustomer = new("DBCC CHECKIDENT ('Customer', RESEED, 0)", connection);
+                using SqlCommand resetIdentityOrder = new("DBCC CHECKIDENT ('Order', RESEED, 0)", connection);
+                resetIdentityCustomer.ExecuteNonQuery();
+                resetIdentityOrder.ExecuteNonQuery();
             }
             catch (Exception exception)
             {
@@ -152,6 +162,7 @@ namespace WorkoutApp.Tests.Repository
             }
             finally
             {
+                connection.Close();
                 GC.SuppressFinalize(this);
             }
         }

@@ -98,13 +98,14 @@ namespace WorkoutApp.Repository
         public async Task<Order> UpdateAsync(Order entity)
         {
             const string query = @" UPDATE [Order] 
-                SET CustomerID = @CustomerID
+                SET CustomerID = @CustomerID,
                     OrderDate = @OrderDate,
                     TotalAmount = @TotalAmount,
                     IsActive = @IsActive
                 WHERE ID = @ID";
             var parameters = new List<SqlParameter>
             {
+                new SqlParameter("@ID", entity.ID),
                 new SqlParameter("@CustomerID", entity.CustomerID),
                 new SqlParameter("@OrderDate", entity.OrderDate),
                 new SqlParameter("@TotalAmount", entity.TotalAmount),
