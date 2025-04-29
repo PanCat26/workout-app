@@ -28,9 +28,9 @@ namespace WorkoutApp.View.ProductTab
             this.InitializeComponent();
             CartItemRepository cartItemRepository = new CartItemRepository();
             ProductRepository productRepository = new ProductRepository();
-            WishlistItemRepository wishlistRepository = new WishlistItemRepository();
+            //WishlistItemRepository wishlistRepository = new WishlistItemRepository();
             this.cartService = new CartService(cartItemRepository, productRepository);
-            this.wishlistService = new  WishlistService(wishlistRepository, productRepository);
+            //this.wishlistService = new  WishlistService(wishlistRepository, productRepository);
             this.productService = new ProductService(productRepository);
             this.product = product;
             this.parent = parent;

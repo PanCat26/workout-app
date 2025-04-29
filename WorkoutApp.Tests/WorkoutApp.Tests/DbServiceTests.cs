@@ -38,18 +38,30 @@ namespace WorkoutApp.Tests
                 Debug.WriteLine($"Failed to open SQL connection: {exception}");
                 throw;
             }
-            using SqlCommand insertCustomerCommand = new(
-                "INSERT INTO Customer (ID, IsActive) VALUES (1, 1)", connection);
-            using SqlCommand insertOrderCommand = new(
-                "INSERT INTO [Order] (ID, CustomerId, OrderDate, TotalAmount, IsActive) VALUES (1, 1, GETDATE(), 100, 1), (2, 1, GETDATE(), 200, 0)", connection);
+
             try
             {
-                insertCustomerCommand.ExecuteNonQuery();
+                using var insertCustomerCommand = new SqlCommand(
+                    "INSERT INTO Customer (IsActive) OUTPUT INSERTED.Id VALUES (1);",
+                    connection
+                );
+
+                int insertedCustomerId = (int)insertCustomerCommand.ExecuteScalar();
+
+                using var insertOrderCommand = new SqlCommand(
+                    @"INSERT INTO [Order] (CustomerId, OrderDate, TotalAmount, IsActive)
+                      VALUES 
+                      (@CustomerId, GETDATE(), 100, 1),
+                      (@CustomerId, GETDATE(), 200, 0);",
+                    connection
+                );
+
+                insertOrderCommand.Parameters.AddWithValue("@CustomerId", insertedCustomerId);
                 insertOrderCommand.ExecuteNonQuery();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to insert test data: {exception}");
+                Debug.WriteLine($"Failed to insert test data: {ex}");
                 throw;
             }
         }
@@ -65,14 +77,10 @@ namespace WorkoutApp.Tests
             Assert.NotNull(result);
             Assert.Equal(2, result.Rows.Count);
             DataRow firstRow = result.Rows[0];
-            Assert.Equal(1, (int)firstRow["ID"]);
-            Assert.Equal(1, (int)firstRow["CustomerId"]);
-            Assert.Equal(100m, Convert.ToDecimal(firstRow["TotalAmount"]));
+            Assert.Equal(100.0, firstRow["TotalAmount"]);
             Assert.True(Convert.ToBoolean(firstRow["IsActive"]));
             DataRow secondRow = result.Rows[1];
-            Assert.Equal(2, (int)secondRow["ID"]);
-            Assert.Equal(1, (int)secondRow["CustomerId"]);
-            Assert.Equal(200m, Convert.ToDecimal(secondRow["TotalAmount"]));
+            Assert.Equal(200.0, secondRow["TotalAmount"]);
             Assert.False(Convert.ToBoolean(secondRow["IsActive"]));
         }
 
@@ -80,10 +88,10 @@ namespace WorkoutApp.Tests
         public async Task ExecuteSelect_ValidQueryWithParameters_ReturnsDataTable()
         {
             // Arrange
-            string query = "SELECT * FROM [Order] WHERE ID = @Id";
+            string query = "SELECT * FROM [Order] WHERE TotalAmount = @TotalAmount";
             List<SqlParameter> parameters =
             [
-                new SqlParameter("@ID", 1)
+                new SqlParameter("@TotalAmount", 100.0)
             ];
             // Act
             DataTable result = await dbService.ExecuteSelectAsync(query, parameters);
@@ -91,9 +99,7 @@ namespace WorkoutApp.Tests
             Assert.NotNull(result);
             Assert.Equal(1, result.Rows.Count);
             DataRow row = result.Rows[0];
-            Assert.Equal(1, (int)row["ID"]);
-            Assert.Equal(1, (int)row["CustomerId"]);
-            Assert.Equal(100m, Convert.ToDecimal(row["TotalAmount"]));
+            Assert.Equal(100.0, row["TotalAmount"]);
             Assert.True(Convert.ToBoolean(row["IsActive"]));
         }
 
@@ -122,10 +128,10 @@ namespace WorkoutApp.Tests
         public async Task ExecuteQuery_ValidQueryWithParameters_ReturnsAffectedRows()
         {
             // Arrange
-            string query = "DELETE FROM [Order] WHERE ID = @Id";
+            string query = "DELETE FROM [Order] WHERE TotalAmount = @TotalAmount";
             List<SqlParameter> parameters =
             [
-                new SqlParameter("@ID", 1)
+                new SqlParameter("@TotalAmount", 100.0)
             ];
             // Act
             int affectedRows = await dbService.ExecuteQueryAsync(query, parameters);

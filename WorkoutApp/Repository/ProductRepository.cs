@@ -72,7 +72,7 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The ID of the product.</param>
         /// <returns>A task that represents the asynchronous operation. The task result is the <see cref="IProduct"/> with the specified ID, or null if not found.</returns>
-        public async Task<IProduct> GetByIdAsync(long id)
+        public async Task<IProduct> GetByIdAsync(int id)
         {
             return await Task.FromResult(this.products.Find(p => p.ID == id));
         }
@@ -300,7 +300,7 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The ID of the product to delete.</param>
         /// <returns>A task that represents the asynchronous operation. The task result is true if deletion is successful.</returns>
-        public async Task<bool> DeleteAsync(long id)
+        public async Task<bool> DeleteAsync(int id)
         {
             this.connection.Open();
 
