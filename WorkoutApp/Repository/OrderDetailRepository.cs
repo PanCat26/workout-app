@@ -52,7 +52,7 @@ namespace WorkoutApp.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<OrderDetail> GetByIdAsync(long id)
+        public async Task<OrderDetail> GetByIdAsync(int id)
         {
             const string query = "SELECT * FROM OrderDetail WHERE ID = @ID";
             var parameters = new List<SqlParameter>
@@ -125,7 +125,7 @@ namespace WorkoutApp.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<bool> DeleteAsync(long id)
+        public async Task<bool> DeleteAsync(int id)
         {
             const string query = "UPDATE OrderDetail SET IsActive = 0 WHERE ID = @ID";
             var parameters = new List<SqlParameter>
