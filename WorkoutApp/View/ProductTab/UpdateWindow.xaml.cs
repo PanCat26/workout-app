@@ -15,6 +15,7 @@ using Windows.Foundation.Collections;
 using WorkoutApp.Repository;
 using WorkoutApp.Service;
 using WorkoutApp.Models;
+using WorkoutApp.Data.Database;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,7 +33,13 @@ namespace WorkoutApp.View.ProductTab
         public UpdateWindow(IProduct product)
         {
             this.InitializeComponent();
-            ProductRepository productRepository = new ProductRepository();
+
+            // Create the connection + dbService manually
+            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
+            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
+            var dbService = new DbService(dbConnectionFactory);
+
+            ProductRepository productRepository = new ProductRepository(dbService);
             this.productService = new ProductService(productRepository);
             this.product = product;
 
@@ -40,7 +47,7 @@ namespace WorkoutApp.View.ProductTab
             ProductPriceTextBox.Text = product.Price.ToString();
             DescriptionTextBox.Text = product.Description;
 
-            if(product.CategoryID == 1)
+            if (product.CategoryID == 1)
             {
                 SizesTextBox.Text = ((ClothesProduct)product).Size;
                 ColorsTextBox.Text = ((ClothesProduct)product).Attributes;
@@ -55,13 +62,11 @@ namespace WorkoutApp.View.ProductTab
             {
                 ColorsTextBlock.Visibility = Visibility.Collapsed;
                 ColorsTextBox.Visibility = Visibility.Collapsed;
-                SizesTextBlock.Visibility = Visibility.Collapsed; 
+                SizesTextBlock.Visibility = Visibility.Collapsed;
                 SizesTextBox.Visibility = Visibility.Collapsed;
             }
         }
-
-
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             string updatedProductName = ProductNameTextBox.Text;
             string updatedProductPrice = ProductPriceTextBox.Text;
@@ -77,8 +82,9 @@ namespace WorkoutApp.View.ProductTab
 
 
 
-                this.productService.UpdateProduct(product.ID, updatedProductName, price, 15, product.CategoryID, updatedDescription, product.FileUrl, updatedColors, updatedSizes);
-                
+                await this.productService.UpdateProductAsync(product.ID, updatedProductName, price, 15, product.CategoryID, updatedDescription, product.FileUrl, updatedColors, updatedSizes);
+
+
             }
             catch (Exception ex)
             {

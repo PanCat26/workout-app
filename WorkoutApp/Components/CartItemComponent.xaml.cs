@@ -10,8 +10,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WorkoutApp.Data.Database;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
 using WorkoutApp.Service;
@@ -30,6 +32,8 @@ namespace WorkoutApp.Components
 
         private Func<int> callBack {  get; set; }
 
+        private DbService dbService { get; set; }
+
         public CartItemComponent()
         {
             this.InitializeComponent();
@@ -38,21 +42,25 @@ namespace WorkoutApp.Components
         public CartItemComponent(CartItem cartItem, StackPanel parent, Func<int> callBack)
         {
             this.InitializeComponent();
-
             this.cartItem = cartItem;
-            this.cartService = new CartService(new CartItemRepository(), new ProductRepository());
             this.parent = parent;
             this.callBack = callBack;
 
-            setDataContext();
+            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True"; // or use from config if you want
+            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
+            var dbService = new DbService(dbConnectionFactory);
+
+            this.cartService = new CartService(new CartItemRepository(), new ProductRepository(dbService));
+
+            setDataContext().GetAwaiter().GetResult();
         }
 
-        private void setDataContext()
+
+        private async Task setDataContext()
         {
-            IProduct product = cartItem.GetProduct(new ProductRepository());
+            IProduct product = await cartItem.GetProductAsync(new ProductRepository(dbService));
 
             this.DataContext = new CartItemViewModel(product.Name, product.FileUrl, product.Price, cartItem.Quantity);
-            //this.DataContext = new CartItemViewModel("product.Name", "product.FileUrl", "product.Price.ToString()", cartItem.Quantity.ToString());
         }
 
         private void deacreaseQuantityButton_Click(object sender, RoutedEventArgs e)

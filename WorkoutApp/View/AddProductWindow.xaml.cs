@@ -13,6 +13,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.WebUI;
+using WorkoutApp.Data.Database;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
 
@@ -52,7 +53,7 @@ namespace WorkoutApp.View
         }
 
 
-        private void Add_Click(object sender, RoutedEventArgs e)
+        private async void Add_Click(object sender, RoutedEventArgs e)
         {
             string selectedType = (ProductTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
@@ -60,7 +61,7 @@ namespace WorkoutApp.View
             {
                 newProduct = new ClothesProduct
                 (
-                    id: 0, // you can auto-generate or set later
+                    id: 0,
                     name: NameTextBox.Text,
                     price: double.TryParse(PriceTextBox.Text, out double price) ? price : 0,
                     stock: 15,
@@ -74,7 +75,6 @@ namespace WorkoutApp.View
             }
             else if (selectedType == "Food")
             {
-                
                 newProduct = new FoodProduct
                 (
                     id: 0,
@@ -87,8 +87,8 @@ namespace WorkoutApp.View
                     fileUrl: ImageTextBox.Text,
                     isActive: true
                 );
-            } 
-            else if(selectedType == "Accessories")
+            }
+            else if (selectedType == "Accessories")
             {
                 newProduct = new AccessoryProduct
                 (
@@ -103,10 +103,18 @@ namespace WorkoutApp.View
                 );
             }
 
-            ProductRepository productRepository = new ProductRepository();
-            productRepository.AddProduct( newProduct );
+            // 1. Create DbService
+            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
+            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
+            var dbService = new DbService(dbConnectionFactory);
 
-            //ProductAdded?.Invoke(newProduct);
+            // 2. Pass DbService into ProductRepository
+            var productRepository = new ProductRepository(dbService);
+
+            // 3. Create the product
+            await productRepository.CreateAsync(newProduct);
+
+            // 4. Close window and reopen main
             MainWindow main = new MainWindow();
             this.Close();
             main.Activate();

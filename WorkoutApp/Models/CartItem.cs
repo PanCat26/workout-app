@@ -14,10 +14,9 @@ namespace WorkoutApp.Models
         public long ProductId { get; set; }
         public long Quantity { get; set; }
 
-        public IProduct GetProduct(ProductRepository repo)
+        public async Task<IProduct> GetProductAsync(ProductRepository repo)
         {
-            repo.LoadData();
-            return repo.GetById((int) ProductId);
+            return await repo.GetByIdAsync(ProductId);
         }
     }
 }

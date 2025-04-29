@@ -138,15 +138,16 @@ namespace WorkoutApp.ViewModel
             }
         }
 
-        private void LoadRecommendedProducts()
+        private async Task LoadRecommendedProducts()
         {
             RecommendedProducts.Clear();
-            var similarProducts = _productService.GetRecommendedProducts(product.ID);
+            var similarProducts = await _productService.GetRecommendedProductsAsync(product.ID);
             foreach (var product in similarProducts)
             {
                 RecommendedProducts.Add(product);
             }
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

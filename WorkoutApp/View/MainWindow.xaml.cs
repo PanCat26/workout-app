@@ -21,6 +21,7 @@ using System.Xml.Schema;
 using WorkoutApp.View.ProductTab;
 using System.Diagnostics;
 using WorkoutApp.Components;
+using WorkoutApp.Data.Database;
 
 namespace WorkoutApp.View
 {
@@ -34,11 +35,19 @@ namespace WorkoutApp.View
             LoadProducts();
         }
 
-        private void LoadProducts()
+        private async void LoadProducts()
         {
+            // 1. Build DbService
+            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
+            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
+            var dbService = new DbService(dbConnectionFactory);
 
-            ProductRepository productRepository = new ProductRepository();
-            allProducts = productRepository.GetProducts();
+            // 2. Create ProductRepository
+            var productRepository = new ProductRepository(dbService);
+
+            // 3. Load products
+            var products = await productRepository.GetAllAsync();
+            allProducts = products.ToList();
             ProductsGridView.ItemsSource = allProducts;
         }
 

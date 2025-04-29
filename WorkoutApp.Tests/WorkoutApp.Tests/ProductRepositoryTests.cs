@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using WorkoutApp.Data.Database;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
 using Xunit;
 using System.Configuration;
+using WorkoutApp.Data.Database;
 
 namespace WorkoutApp.Tests.Repository
 {
@@ -15,12 +16,19 @@ namespace WorkoutApp.Tests.Repository
 
         public ProductRepositoryTests()
         {
-            // Assume connection string from config
             var connectionString = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
-            var connection = new SqlConnection(connectionString);
 
-            this.repository = new ProductRepository();
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("TestConnection string is missing or empty in config file.");
+            }
+
+            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
+            var dbService = new DbService(dbConnectionFactory);
+
+            this.repository = new ProductRepository(dbService);
         }
+
 
         [Fact]
         public async Task GetAllAsync_ShouldReturnProducts()
@@ -33,7 +41,7 @@ namespace WorkoutApp.Tests.Repository
         [Fact]
         public async Task GetByIdAsync_ShouldReturnNull_WhenProductDoesNotExist()
         {
-            var result = await this.repository.GetByIdAsync(999999); // Assume 999999 does not exist
+            var result = await this.repository.GetByIdAsync(999999);
 
             Assert.Null(result);
         }
@@ -41,9 +49,8 @@ namespace WorkoutApp.Tests.Repository
         [Fact]
         public async Task CreateAndDeleteProduct_ShouldWork()
         {
-            // Arrange
             var newProduct = new ClothesProduct(
-                id: 0, // id is ignored when inserting, DB will auto-generate
+                id: 0,
                 name: "Test Product",
                 price: 19.99,
                 stock: 10,
@@ -54,12 +61,13 @@ namespace WorkoutApp.Tests.Repository
                 fileUrl: "http://example.com/image.jpg",
                 isActive: true);
 
-            // Act - Create
-            var createdProduct = await this.repository.CreateAsync(newProduct);
+            await this.repository.CreateAsync(newProduct);
+
+            var allProducts = await this.repository.GetAllAsync();
+            var createdProduct = allProducts.FirstOrDefault(p => p.Name == newProduct.Name);
 
             Assert.NotNull(createdProduct);
 
-            // Act - Delete
             var deleteResult = await this.repository.DeleteAsync(createdProduct.ID);
 
             Assert.True(deleteResult);
@@ -68,7 +76,6 @@ namespace WorkoutApp.Tests.Repository
         [Fact]
         public async Task UpdateProduct_ShouldUpdateSuccessfully()
         {
-            // Arrange
             var newProduct = new ClothesProduct(
                 id: 0,
                 name: "Initial Product",
@@ -81,7 +88,12 @@ namespace WorkoutApp.Tests.Repository
                 fileUrl: "http://example.com/initial.jpg",
                 isActive: true);
 
-            var createdProduct = await this.repository.CreateAsync(newProduct);
+            await this.repository.CreateAsync(newProduct);
+
+            var allProducts = await this.repository.GetAllAsync();
+            var createdProduct = allProducts.FirstOrDefault(p => p.Name == newProduct.Name);
+
+            Assert.NotNull(createdProduct);
 
             // Update properties
             createdProduct.Name = "Updated Product";
@@ -90,25 +102,21 @@ namespace WorkoutApp.Tests.Repository
             ((ClothesProduct)createdProduct).Attributes = "Green";
             ((ClothesProduct)createdProduct).Size = "L";
 
-            // Act - Update
             var updatedProduct = await this.repository.UpdateAsync(createdProduct);
 
             Assert.NotNull(updatedProduct);
             Assert.Equal("Updated Product", updatedProduct.Name);
             Assert.Equal(25.00, updatedProduct.Price);
 
-            // Cleanup
             await this.repository.DeleteAsync(updatedProduct.ID);
         }
 
         [Fact]
         public async Task DeleteAsync_ShouldReturnFalse_WhenProductDoesNotExist()
         {
-            var result = await this.repository.DeleteAsync(999999); // Assume 999999 does not exist
+            var result = await this.repository.DeleteAsync(999999); // Try delete a non-existing product
 
-            // Deleting a non-existing product would still return true (since we mark IsActive=0), 
-            // but logically it should be treated carefully.
-            Assert.True(result);
+            Assert.False(result); 
         }
     }
 }
