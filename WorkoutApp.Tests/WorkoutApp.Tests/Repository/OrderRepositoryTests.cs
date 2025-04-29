@@ -7,6 +7,7 @@ using WorkoutApp.Repository;
 
 namespace WorkoutApp.Tests.Repository
 {
+    [Collection("DatabaseTests")]
     public class OrderRepositoryTests : IDisposable
     {
         // all tests are running on the assumption that all the tables are empty
@@ -143,15 +144,14 @@ namespace WorkoutApp.Tests.Repository
             try
             {
                 connection.Open();
-                using SqlCommand deleteOrderCommand = new(
-                    "DELETE FROM [Order];", connection);
-                using SqlCommand deleteCustomerCommand = new(
-                    "DELETE FROM Customer;", connection);
+                using SqlCommand deleteOrderCommand = new("DELETE FROM [Order]", connection);
+                using SqlCommand deleteCustomerCommand = new("DELETE FROM Customer", connection);
                 deleteOrderCommand.ExecuteNonQuery();
                 deleteCustomerCommand.ExecuteNonQuery();
 
-                using SqlCommand resetIdentityCustomer = new("DBCC CHECKIDENT ('Customer', RESEED, 0)", connection);
-                using SqlCommand resetIdentityOrder = new("DBCC CHECKIDENT ('Order', RESEED, 0)", connection);
+                // Use square brackets for consistency and correctness
+                using SqlCommand resetIdentityCustomer = new("DBCC CHECKIDENT ('[Customer]', RESEED, 0)", connection);
+                using SqlCommand resetIdentityOrder = new("DBCC CHECKIDENT ('[Order]', RESEED, 0)", connection);
                 resetIdentityCustomer.ExecuteNonQuery();
                 resetIdentityOrder.ExecuteNonQuery();
             }

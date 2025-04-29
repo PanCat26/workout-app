@@ -7,7 +7,7 @@ using WorkoutApp.Repository;
 
 namespace WorkoutApp.Tests.Repository
 {
-
+    [Collection("DatabaseTests")]
     public class OrderDetailRepositoryTests : IDisposable
     {
         // all tests are running on the assumption that all the tables are empty
@@ -155,16 +155,11 @@ namespace WorkoutApp.Tests.Repository
             try
             {
                 connection.Open();
-                using SqlCommand deleteOrderDetailCommand = new(
-                    "DELETE FROM OrderDetail", connection);
-                using SqlCommand deleteOrderCommand = new(
-                    "DELETE FROM [Order];", connection);
-                using SqlCommand deleteCustomerCommand = new(
-                    "DELETE FROM Customer;", connection);
-                using SqlCommand deleteProductCommand = new(
-                    "DELETE FROM Product;", connection);
-                using SqlCommand deleteCategoryCommand = new(
-                    "DELETE FROM Category;", connection);
+                using SqlCommand deleteOrderDetailCommand = new("DELETE FROM OrderDetail", connection);
+                using SqlCommand deleteOrderCommand = new("DELETE FROM [Order]", connection);
+                using SqlCommand deleteCustomerCommand = new("DELETE FROM Customer", connection);
+                using SqlCommand deleteProductCommand = new("DELETE FROM Product", connection);
+                using SqlCommand deleteCategoryCommand = new("DELETE FROM Category", connection);
 
                 deleteOrderDetailCommand.ExecuteNonQuery();
                 deleteOrderCommand.ExecuteNonQuery();
@@ -172,19 +167,18 @@ namespace WorkoutApp.Tests.Repository
                 deleteProductCommand.ExecuteNonQuery();
                 deleteCategoryCommand.ExecuteNonQuery();
 
-                using SqlCommand resetIdentityCategory = new("DBCC CHECKIDENT ('Category', RESEED, 0)", connection);
-                using SqlCommand resetIdentityProduct = new("DBCC CHECKIDENT ('Product', RESEED, 0)", connection);
-                using SqlCommand resetIdentityCusotmer = new("DBCC CHECKIDENT ('Customer', RESEED, 0)", connection);
-                using SqlCommand resetIdentityOrder = new("DBCC CHECKIDENT ('Order', RESEED, 0)", connection);
-                using SqlCommand resetIdentityOrderDetail = new("DBCC CHECKIDENT ('OrderDetail', RESEED, 0)", connection);
-
+                // Use square brackets for all table names for consistency and correctness
+                using SqlCommand resetIdentityCategory = new("DBCC CHECKIDENT ('[Category]', RESEED, 0)", connection);
+                using SqlCommand resetIdentityProduct = new("DBCC CHECKIDENT ('[Product]', RESEED, 0)", connection);
+                using SqlCommand resetIdentityCustomer = new("DBCC CHECKIDENT ('[Customer]', RESEED, 0)", connection);
+                using SqlCommand resetIdentityOrder = new("DBCC CHECKIDENT ('[Order]', RESEED, 0)", connection);
+                using SqlCommand resetIdentityOrderDetail = new("DBCC CHECKIDENT ('[OrderDetail]', RESEED, 0)", connection);
 
                 resetIdentityCategory.ExecuteNonQuery();
                 resetIdentityProduct.ExecuteNonQuery();
-                resetIdentityCusotmer.ExecuteNonQuery();
+                resetIdentityCustomer.ExecuteNonQuery();
                 resetIdentityOrder.ExecuteNonQuery();
                 resetIdentityOrderDetail.ExecuteNonQuery();
-
             }
             catch (Exception exception)
             {
