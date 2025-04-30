@@ -1,4 +1,4 @@
-﻿// <copyright file="WishlistService.cs" company="WorkoutApp">
+﻿/*// <copyright file="WishlistService.cs" company="WorkoutApp">
 // Copyright (c) WorkoutApp. All rights reserved.
 // </copyright>
 namespace WorkoutApp.Service
@@ -112,4 +112,4 @@ namespace WorkoutApp.Service
             await wishlistItemRepository.DeleteAsync(wishlistItem.ID);
         }
     }
-}
+}*/
