@@ -5,26 +5,37 @@ namespace WorkoutApp.Repository
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
+    using WorkoutApp.Data.Database;
     using WorkoutApp.Models;
 
     /// <summary>
     /// Repository class for managing Wishlist items in the database.
-    /// Implements the <see cref="IRepository{WishlistItem}"/> interface.
+    /// Implements the <see cref="IWishlistItemRepository"/> interface.
     /// </summary>
     public class WishlistItemRepository : IRepository<WishlistItem>
     {
-        private readonly string connectionString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-        private readonly SqlConnection connection;
+        private readonly DbService dbService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WishlistItemRepository"/> class.
-        /// Opens a new database connection.
         /// </summary>
-        public WishlistItemRepository()
+        /// <param name="dbService">The database service.</param>
+        public WishlistItemRepository(DbService dbService)
         {
-            this.connection = new SqlConnection(this.connectionString);
+            this.dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
+        }
+
+        /// <summary>
+        /// Retrieves all active wishlist items for the active customer.
+        /// </summary>
+        /// <returns>A list of <see cref="WishlistItem"/> objects.</returns>
+        public List<WishlistItem> GetAll()
+        {
+            var task = Task.Run(async () => await this.GetAllAsync());
+            return new List<WishlistItem>(task.Result);
         }
 
         /// <summary>
@@ -33,32 +44,29 @@ namespace WorkoutApp.Repository
         /// <returns>A collection of <see cref="WishlistItem"/> objects.</returns>
         public async Task<IEnumerable<WishlistItem>> GetAllAsync()
         {
-            this.connection.Open();
-            var wishListItems = new List<WishlistItem>();
-
             int customerId = this.GetActiveCustomerId();
 
-            var selectCommand = new SqlCommand(
-                "SELECT * FROM Wishlist WHERE IsActive = 1 AND CustomerID = @CustomerID",
-                this.connection);
-            selectCommand.Parameters.AddWithValue("@CustomerID", customerId);
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@CustomerID", customerId)
+            };
 
-            var reader = await selectCommand.ExecuteReaderAsync();
+            var query = "SELECT * FROM Wishlist WHERE IsActive = 1 AND CustomerID = @CustomerID";
 
-            while (await reader.ReadAsync())
+            DataTable dataTable = await this.dbService.ExecuteSelectAsync(query, parameters);
+            var wishListItems = new List<WishlistItem>();
+
+            foreach (DataRow row in dataTable.Rows)
             {
                 var item = new WishlistItem
                 {
-                    ID = reader.GetInt32(reader.GetOrdinal("ID")),
-                    ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
-                    CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                    ID = Convert.ToInt32(row["ID"]),
+                    ProductID = Convert.ToInt32(row["ProductID"]),
+                    CustomerID = Convert.ToInt32(row["CustomerID"]),
                 };
 
                 wishListItems.Add(item);
             }
-
-            reader.Close();
-            this.connection.Close();
 
             return wishListItems;
         }
@@ -68,33 +76,29 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The ID of the wishlist item.</param>
         /// <returns>A <see cref="WishlistItem"/> object if found, otherwise <c>null</c>.</returns>
-        public async Task<WishlistItem> GetByIdAsync(long id)
+        public async Task<WishlistItem> GetByIdAsync(int id)
         {
-            this.connection.Open();
-
-            var selectCommand = new SqlCommand(
-                "SELECT * FROM Wishlist WHERE IsActive = 1 AND ID = @ID",
-                this.connection);
-            selectCommand.Parameters.AddWithValue("@ID", id);
-
-            var reader = await selectCommand.ExecuteReaderAsync();
-
-            if (!await reader.ReadAsync())
+            var parameters = new List<SqlParameter>
             {
-                reader.Close();
-                this.connection.Close();
+                new SqlParameter("@ID", id)
+            };
+
+            var query = "SELECT * FROM Wishlist WHERE IsActive = 1 AND ID = @ID";
+
+            DataTable dataTable = await this.dbService.ExecuteSelectAsync(query, parameters);
+
+            if (dataTable.Rows.Count == 0)
+            {
                 return null;
             }
 
+            DataRow row = dataTable.Rows[0];
             var item = new WishlistItem
             {
-                ID = reader.GetInt32(reader.GetOrdinal("ID")),
-                ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
-                CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                ID = Convert.ToInt32(row["ID"]),
+                ProductID = Convert.ToInt32(row["ProductID"]),
+                CustomerID = Convert.ToInt32(row["CustomerID"]),
             };
-
-            reader.Close();
-            this.connection.Close();
 
             return item;
         }
@@ -106,22 +110,26 @@ namespace WorkoutApp.Repository
         /// <returns>The created <see cref="WishlistItem"/> object.</returns>
         public async Task<WishlistItem> CreateAsync(WishlistItem entity)
         {
-            this.connection.Open();
+            // First get the new ID
+            var getMaxIdQuery = "SELECT ISNULL(MAX(ID), 0) + 1 FROM Wishlist";
+            var maxIdTable = await this.dbService.ExecuteSelectAsync(getMaxIdQuery, new List<SqlParameter>());
+            int newId = Convert.ToInt32(maxIdTable.Rows[0][0]);
 
-            var insertCommand = new SqlCommand(
-                "INSERT INTO Wishlist (ID, ProductID, CustomerID, IsActive) VALUES (@ID, @ProductID, @CustomerID, @IsActive)",
-                this.connection);
-            var getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) + 1 FROM Wishlist", this.connection);
-            int newId = (int)await getMaxIdCommand.ExecuteScalarAsync();
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@ID", newId),
+                new SqlParameter("@ProductID", entity.ProductID),
+                new SqlParameter("@CustomerID", this.GetActiveCustomerId()),
+                new SqlParameter("@IsActive", 1)
+            };
 
-            insertCommand.Parameters.AddWithValue("@ID", newId);
-            insertCommand.Parameters.AddWithValue("@ProductID", entity.ProductID);
-            insertCommand.Parameters.AddWithValue("@CustomerID", this.GetActiveCustomerId());
-            insertCommand.Parameters.AddWithValue("@IsActive", 1);
+            var query = "INSERT INTO Wishlist (ID, ProductID, CustomerID, IsActive) VALUES (@ID, @ProductID, @CustomerID, @IsActive)";
 
-            await insertCommand.ExecuteNonQueryAsync();
+            await this.dbService.ExecuteQueryAsync(query, parameters);
 
-            this.connection.Close();
+            entity.ID = newId;
+            entity.CustomerID = this.GetActiveCustomerId();
+
             return entity;
         }
 
@@ -134,7 +142,7 @@ namespace WorkoutApp.Repository
         public async Task<WishlistItem> UpdateAsync(WishlistItem entity)
         {
             // Wishlist items don't have an update functionality.
-            return entity;
+            return await Task.FromResult(entity);
         }
 
         /// <summary>
@@ -143,19 +151,46 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The ID of the wishlist item to delete.</param>
         /// <returns><c>true</c> if the item was deleted successfully, otherwise <c>false</c>.</returns>
-        public async Task<bool> DeleteAsync(long id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            this.connection.Open();
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@ID", id)
+            };
 
-            var updateCommand = new SqlCommand(
-                "UPDATE Wishlist SET IsActive = 0 WHERE ID = @ID",
-                this.connection);
-            updateCommand.Parameters.AddWithValue("@ID", id);
+            var query = "UPDATE Wishlist SET IsActive = 0 WHERE ID = @ID";
 
-            await updateCommand.ExecuteNonQueryAsync();
+            int affectedRows = await this.dbService.ExecuteQueryAsync(query, parameters);
 
-            this.connection.Close();
-            return true;
+            return affectedRows > 0;
+        }
+
+        /// <summary>
+        /// Adds a new product to the wishlist.
+        /// </summary>
+        /// <param name="productId">The ID of the product to add to the wishlist.</param>
+        /// <returns>The added <see cref="WishlistItem"/> object.</returns>
+        public WishlistItem AddWishlistItem(int productId)
+        {
+            var wishlistItem = new WishlistItem
+            {
+                ProductID = productId,
+                CustomerID = this.GetActiveCustomerId()
+            };
+
+            var task = Task.Run(async () => await this.CreateAsync(wishlistItem));
+            return task.Result;
+        }
+
+        /// <summary>
+        /// Deletes a wishlist item by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the wishlist item to delete.</param>
+        /// <returns><c>true</c> if the item was deleted successfully, otherwise <c>false</c>.</returns>
+        public bool DeleteById(int id)
+        {
+            var task = Task.Run(async () => await this.DeleteAsync(id));
+            return task.Result;
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The identifier of the entity to retrieve.</param>
         /// <returns>A task representing the asynchronous operation, containing the entity if found.</returns>
-        Task<T> GetByIdAsync(long id);
+        Task<T> GetByIdAsync(int id);
 
         /// <summary>
         /// Creates a new entity asynchronously.
@@ -46,6 +46,6 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The identifier of the entity to delete.</param>
         /// <returns>A task representing the asynchronous operation, containing a boolean indicating success.</returns>
-        Task<bool> DeleteAsync(long id);
+        Task<bool> DeleteAsync(int id);
     }
 }
