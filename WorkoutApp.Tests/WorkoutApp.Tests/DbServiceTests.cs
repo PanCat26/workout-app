@@ -18,14 +18,14 @@ namespace WorkoutApp.Tests
 
         public DbServiceTests()
         {
-            string? connectionString = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
+            string? testConnectionString = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
 
-            if (string.IsNullOrWhiteSpace(connectionString))
+            if (string.IsNullOrWhiteSpace(testConnectionString))
             {
                 throw new InvalidOperationException("TestConnection string is missing or empty in config file.");
             }
 
-            connectionFactory = new TestDbConnectionFactory(connectionString);
+            connectionFactory = new DbConnectionFactory(testConnectionString);
             dbService = new DbService(connectionFactory);
 
             try
