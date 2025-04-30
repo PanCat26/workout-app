@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/CoverageReports
+/WorkoutApp/App.config
+/WorkoutApp.Tests/WorkoutApp.Tests/testhost.dll.config
+/App.config
