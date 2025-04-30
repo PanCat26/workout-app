@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,10 +38,10 @@ namespace WorkoutApp.Service
 
         public void DecreaseQuantity(CartItem cartItem)
         {
-            /*if(cartItem.Quantity > 0) 
+            *//*if(cartItem.Quantity > 0) 
                 cartItemRepository.UpdateById(cartItem.Id, cartItem.Quantity - 1);
             else 
-                cartItemRepository.DeleteById(cartItem.Id);*/
+                cartItemRepository.DeleteById(cartItem.Id);*//*
         }
 
         public void RemoveCartItem(CartItem cartItem)
@@ -55,3 +55,4 @@ namespace WorkoutApp.Service
         }
     }
 }
+*/
