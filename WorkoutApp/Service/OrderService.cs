@@ -1,23 +1,61 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using WorkoutApp.Models;
+using WorkoutApp.Repository;
 
 namespace WorkoutApp.Service
 {
-    public class OrderService
+    public class OrderService : IService<Order>
     {
-        private string connectionString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-        private SqlConnection connection;
+        private readonly IRepository<Order> orderRepository;
 
-        public OrderService()
+        public OrderService(IRepository<Order> orderRepository)
         {
-            this.connection = new SqlConnection(connectionString);
+            this.orderRepository = orderRepository;
         }
 
+        public async Task<Order> CreateAsync(Order entity)
+        {
+            return await this.orderRepository.CreateAsync(entity);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await this.orderRepository.DeleteAsync(id);
+        }
+
+        public async Task<IEnumerable<Order>> GetAllAsync()
+        {
+            return await this.orderRepository.GetAllAsync();
+        }
+
+        public async Task<Order> GetByIdAsync(int id)
+        {
+            return await this.orderRepository.GetByIdAsync(id);
+        }
+
+        public async Task<Order> UpdateAsync(Order entity)
+        {
+            return await this.orderRepository.UpdateAsync(entity);
+        }
+
+        public async void SendOrder(double totalAmount)
+        {
+            Order newOrder = new Order(0, 1, DateTime.Now, totalAmount, true);
+            await this.orderRepository.CreateAsync(newOrder);
+
+            // ?cartitemRepo??
+        }
+
+
+        /*
         public void SendOrder(double TotalAmount)
         {
             //call CreateAsync(new Order)
 
 
-            /*connection.Open();
+            connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(
                 "INSERT INTO [Order] (ID, CustomerId, OrderDate, TotalAmount, IsActive) VALUES (@ID, @CustomerId, GETDATE(), @TotalAmount, @IsActive)",
@@ -46,7 +84,7 @@ namespace WorkoutApp.Service
                 addOrderDetail(newId, (int) cartItem.ProductId, (int) cartItem.Quantity, cartItem.GetProduct(productRepository).Price);
             }
 
-            cartItemRepository.ResetCart();*/
+            cartItemRepository.ResetCart();
         }
 
         private void addOrderDetail(int OrderID, int ProductID, int Quantity, double Price)
@@ -72,6 +110,6 @@ namespace WorkoutApp.Service
             insertCommand.ExecuteNonQuery();
 
             connection.Close();
-        }
+        }*/
     }
 }
