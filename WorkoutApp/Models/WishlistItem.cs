@@ -10,9 +10,15 @@ namespace WorkoutApp.Models
     public class WishlistItem
     {
         /// <summary>
-        /// Gets or sets the unique identifier for the wishlist item.
+        ///  Initializes a new instance of the <see cref="WishlistItem"/> class.
         /// </summary>
-        public int ID { get; set; }
+        /// <param name="customerId">The unique identifier for the cusotmer.</param>
+        /// <param name="productId">The unique identifier for the product.</param>
+        public WishlistItem(int customerId, int productId)
+        {
+            this.CustomerID = customerId;
+            this.ProductID = productId;
+        }
 
         /// <summary>
         /// Gets or sets the identifier of the product associated with this wishlist item.
