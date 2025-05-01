@@ -1,21 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.WebUI;
-using WorkoutApp.Data.Database;
-using WorkoutApp.Models;
-using WorkoutApp.Repository;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,10 +15,10 @@ namespace WorkoutApp.View
         {
             this.InitializeComponent();
         }
-
-        public event Action<IProduct> ProductAdded;
-        IProduct newProduct { get; set; }
-
+        /*
+                public event Action<IProduct> ProductAdded;
+                IProduct newProduct { get; set; }
+        */
         private void ProductTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string selectedType = (ProductTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
@@ -53,15 +37,15 @@ namespace WorkoutApp.View
         }
 
 
-        private async void Add_Click(object sender, RoutedEventArgs e)
-        {
+        private void Add_Click(object sender, RoutedEventArgs e)
+        {/*
             string selectedType = (ProductTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
             if (selectedType == "Clothes")
             {
                 newProduct = new ClothesProduct
                 (
-                    id: 0,
+                    id: 0, // you can auto-generate or set later
                     name: NameTextBox.Text,
                     price: double.TryParse(PriceTextBox.Text, out double price) ? price : 0,
                     stock: 15,
@@ -75,6 +59,7 @@ namespace WorkoutApp.View
             }
             else if (selectedType == "Food")
             {
+
                 newProduct = new FoodProduct
                 (
                     id: 0,
@@ -103,21 +88,13 @@ namespace WorkoutApp.View
                 );
             }
 
-            // 1. Create DbService
-            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
-            var dbService = new DbService(dbConnectionFactory);
+            ProductRepository productRepository = new ProductRepository();
+            productRepository.AddProduct(newProduct);
 
-            // 2. Pass DbService into ProductRepository
-            var productRepository = new ProductRepository(dbService);
-
-            // 3. Create the product
-            await productRepository.CreateAsync(newProduct);
-
-            // 4. Close window and reopen main
+            //ProductAdded?.Invoke(newProduct);
             MainWindow main = new MainWindow();
             this.Close();
-            main.Activate();
+            main.Activate();*/
         }
 
     }

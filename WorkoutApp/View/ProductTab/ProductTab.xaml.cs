@@ -1,22 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using WorkoutApp.Data.Database;
-using WorkoutApp.Models;
-using WorkoutApp.Repository;
-using WorkoutApp.Service;
-using WorkoutApp.ViewModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -25,37 +10,29 @@ namespace WorkoutApp.View.ProductTab
 {
     public sealed partial class ProductTab : UserControl
     {
-        public ProductDetailsViewModel ViewModel { get; set; }
+        /*public ProductDetailsViewModel ViewModel { get; set; }
         private readonly ProductService productService;
         private readonly WishlistService wishlistService;
         private readonly CartService cartService;
         private IProduct product;
+        */
         private Window parent { get; set; }
-        public ProductTab(IProduct product, Window parent)
+        /*public ProductTab(IProduct product, Window parent)
         {
             this.InitializeComponent();
+            CartItemRepository cartItemRepository = new CartItemRepository();
+            ProductRepository productRepository = new ProductRepository();
+            //WishlistItemRepository wishlistRepository = new WishlistItemRepository();
+            this.cartService = new CartService(cartItemRepository, productRepository);
+            //this.wishlistService = new  WishlistService(wishlistRepository, productRepository);
+            this.productService = new ProductService(productRepository);
             this.product = product;
             this.parent = parent;
 
-            // Build DbService
-            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
-            var dbService = new DbService(dbConnectionFactory);
-
-            // Create repositories using dbService
-            CartItemRepository cartItemRepository = new CartItemRepository();
-            ProductRepository productRepository = new ProductRepository(dbService);
-            WishlistItemRepository wishlistRepository = new WishlistItemRepository(dbService);
-
-            // Create services using repositories
-            this.cartService = new CartService(cartItemRepository, productRepository);
-           // this.wishlistService = new WishlistService(wishlistRepository, productRepository);
-            this.productService = new ProductService(productRepository);
-
             ViewModel = new ProductDetailsViewModel(productService, wishlistService, cartService, product);
             DataContext = ViewModel;
-
             PopulateColorFlyout();
+
 
             if (product.CategoryID == 2 || product.CategoryID == 3)
             {
@@ -66,10 +43,11 @@ namespace WorkoutApp.View.ProductTab
             {
                 SizeStackPanel.Visibility = Visibility.Collapsed;
             }
-        }
+        }*/
 
         private void PopulateColorFlyout()
         {
+            /*
             ColorFlyout.Items.Clear();
 
             foreach (var color in ViewModel.AvailableColors)
@@ -87,6 +65,7 @@ namespace WorkoutApp.View.ProductTab
 
                 ColorFlyout.Items.Add(menuItem);
             }
+            */
         }
 
         private Windows.UI.Color ConvertStringToColor(string colorString)
@@ -97,7 +76,7 @@ namespace WorkoutApp.View.ProductTab
 
         private void AddToCartButton_Checked(object sender, RoutedEventArgs e)
         {
-
+            /*
             try
             {
                 cartService.AddToCart(ViewModel.ProductID, int.Parse(ViewModel.SelectedQuantity));
@@ -115,8 +94,8 @@ namespace WorkoutApp.View.ProductTab
                 _ = message.ShowAsync();
             }
 
-
-            }
+            */
+        }
 
         public void AddToCartSuccessMessage()
         {
@@ -152,7 +131,7 @@ namespace WorkoutApp.View.ProductTab
             // Show a success message
             try
             {
-                ///wishlistService.addToWishlist(ViewModel.ProductID);
+                //wishlistService.addToWishlist(ViewModel.ProductID);
                 AddToWishListSuccessMessage();
             }
             catch (Exception ex)
@@ -196,15 +175,17 @@ namespace WorkoutApp.View.ProductTab
 
         private void UpdateButton_Checked(object sender, RoutedEventArgs e)
         {
+            /*
             UpdateWindow updateWindow = new UpdateWindow(this.product);
             updateWindow.Activate();
             //uncheck the button
             ((ToggleButton)sender).IsChecked = false;
-            parent.Close();
+            parent.Close();*/
         }
 
         private async void DeleteButton_Checked(object sender, RoutedEventArgs e)
         {
+            /*
             var deleteConfirmationDialog = new ContentDialog()
             {
                 Title = "Confirm Delete",
@@ -219,7 +200,7 @@ namespace WorkoutApp.View.ProductTab
             if (result == ContentDialogResult.Primary)
             {
 
-              //  productService.DeleteProduct(ViewModel.ProductID);
+                productService.DeleteProduct(ViewModel.ProductID);
                 // Show success message
                 var successDialog = new ContentDialog()
                 {
@@ -232,7 +213,7 @@ namespace WorkoutApp.View.ProductTab
             }
             MainWindow main = new MainWindow();
             parent.Close();
-            main.Activate();
+            main.Activate();*/
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -244,15 +225,13 @@ namespace WorkoutApp.View.ProductTab
 
         private void TextBlock_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            /*
             var textBlock = sender as TextBlock;
             string ProductName = textBlock.Text;
 
-            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
-            var dbService = new DbService(dbConnectionFactory);
-
-            ProductRepository productRepository = new ProductRepository(dbService);
-            // parent.Content = new ProductTab(productRepository.GetAll().Where(p => p.Name.Equals(ProductName)).First(), parent);
+            ProductRepository productRepository = new ProductRepository();
+            parent.Content = new ProductTab(productRepository.GetAll().Where(p => p.Name.Equals(ProductName)).First(), parent);
+            */
         }
     }
 }

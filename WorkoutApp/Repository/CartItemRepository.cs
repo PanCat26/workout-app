@@ -1,4 +1,4 @@
-﻿// <copyright file="CartItemRepository.cs" company="WorkoutApp">
+﻿/*// <copyright file="CartItemRepository.cs" company="WorkoutApp">
 // Copyright (c) WorkoutApp. All rights reserved.
 // </copyright>
 
@@ -60,7 +60,7 @@ namespace WorkoutApp.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<CartItem> GetByIdAsync(long id)
+        public async Task<CartItem> GetByIdAsync(int id)
         {
             int cartId = this.GetActiveCartId();
 
@@ -140,7 +140,7 @@ namespace WorkoutApp.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<bool> DeleteAsync(long id)
+        public async Task<bool> DeleteAsync(int id)
         {
             this.connection.Open();
             using (SqlCommand updateCommand = new SqlCommand(
@@ -210,3 +210,4 @@ namespace WorkoutApp.Repository
         }
     }
 }
+*/

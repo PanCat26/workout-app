@@ -1,4 +1,4 @@
-﻿// <copyright file="WishlistService.cs" company="WorkoutApp">
+﻿/*// <copyright file="WishlistService.cs" company="WorkoutApp">
 // Copyright (c) WorkoutApp. All rights reserved.
 // </copyright>
 namespace WorkoutApp.Service
@@ -42,7 +42,7 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="id">The ID of the wishlist item.</param>
         /// <returns>A task representing the asynchronous operation with the wishlist item.</returns>
-        public async Task<WishlistItem> GetByIdAsync(long id)
+        public async Task<WishlistItem> GetByIdAsync(int id)
         {
             return await wishlistItemRepository.GetByIdAsync(id);
         }
@@ -72,7 +72,7 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="id">The ID of the wishlist item to delete.</param>
         /// <returns>A task representing the asynchronous operation with a boolean indicating success.</returns>
-        public async Task<bool> DeleteAsync(long id)
+        public async Task<bool> DeleteAsync(int id)
         {
             return await wishlistItemRepository.DeleteAsync(id);
         }
@@ -112,4 +112,4 @@ namespace WorkoutApp.Service
             await wishlistItemRepository.DeleteAsync(wishlistItem.ID);
         }
     }
-}
+}*/

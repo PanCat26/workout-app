@@ -1,4 +1,4 @@
-﻿// <copyright file="WishlistItemRepository.cs" company="WorkoutApp">
+﻿/*// <copyright file="WishlistItemRepository.cs" company="WorkoutApp">
 // Copyright (c) WorkoutApp. All rights reserved.
 // </copyright>
 namespace WorkoutApp.Repository
@@ -76,7 +76,7 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The ID of the wishlist item.</param>
         /// <returns>A <see cref="WishlistItem"/> object if found, otherwise <c>null</c>.</returns>
-        public async Task<WishlistItem> GetByIdAsync(long id)
+        public async Task<WishlistItem> GetByIdAsync(int id)
         {
             var parameters = new List<SqlParameter>
             {
@@ -151,7 +151,7 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The ID of the wishlist item to delete.</param>
         /// <returns><c>true</c> if the item was deleted successfully, otherwise <c>false</c>.</returns>
-        public async Task<bool> DeleteAsync(long id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var parameters = new List<SqlParameter>
             {
@@ -187,7 +187,7 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="id">The ID of the wishlist item to delete.</param>
         /// <returns><c>true</c> if the item was deleted successfully, otherwise <c>false</c>.</returns>
-        public bool DeleteById(long id)
+        public bool DeleteById(int id)
         {
             var task = Task.Run(async () => await this.DeleteAsync(id));
             return task.Result;
@@ -202,4 +202,4 @@ namespace WorkoutApp.Repository
             return 1; // In a real-world application, this should be dynamic, based on the currently logged-in user.
         }
     }
-}
+}*/

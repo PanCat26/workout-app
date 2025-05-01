@@ -2,32 +2,14 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using WorkoutApp.Models;
-using WorkoutApp.Service;
-using WorkoutApp.Repository;
-using System.Xml.Schema;
-using WorkoutApp.View.ProductTab;
-using System.Diagnostics;
-using WorkoutApp.Components;
-using WorkoutApp.Data.Database;
 
 namespace WorkoutApp.View
 {
     public sealed partial class MainWindow : Window
     {
-        private List<IProduct> allProducts = new List<IProduct>();
+        //private List<IProduct> allProducts = new List<IProduct>();
 
         public MainWindow()
         {
@@ -35,20 +17,13 @@ namespace WorkoutApp.View
             LoadProducts();
         }
 
-        private async void LoadProducts()
+        private void LoadProducts()
         {
-            // 1. Build DbService
-            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
-            var dbService = new DbService(dbConnectionFactory);
-
-            // 2. Create ProductRepository
-            var productRepository = new ProductRepository(dbService);
-
-            // 3. Load products
-            var products = await productRepository.GetAllAsync();
-            allProducts = products.ToList();
+            /*
+            ProductRepository productRepository = new ProductRepository();
+            allProducts = productRepository.GetProducts();
             ProductsGridView.ItemsSource = allProducts;
+            */
         }
 
         //private void LoadProducts()
@@ -101,15 +76,18 @@ namespace WorkoutApp.View
 
         private void CategorySelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            /*
             if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selected && selected.Tag is int categoryId)
             {
                 ProductsGridView.ItemsSource = allProducts.Where(p => p.CategoryID == categoryId).ToList();
                 BuildCategoryFilters(categoryId);
             }
+            */
         }
 
         private void BuildCategoryFilters(int categoryId)
         {
+            /*
             while (FilterOptionsPanel.Children.Count > 2)
                 FilterOptionsPanel.Children.RemoveAt(2);
 
@@ -142,6 +120,7 @@ namespace WorkoutApp.View
                 FilterOptionsPanel.Visibility = Visibility.Collapsed;
             };
             FilterOptionsPanel.Children.Add(clearButton);
+            */
         }
 
         private void AddFilterCombo(string tag, List<string> options, int categoryId)
@@ -163,6 +142,7 @@ namespace WorkoutApp.View
 
         private void ApplyCategoryFilter(int categoryId)
         {
+            /*
             Dictionary<string, string> selectedFilters = new();
 
             foreach (var child in FilterOptionsPanel.Children)
@@ -193,6 +173,7 @@ namespace WorkoutApp.View
             }
 
             ProductsGridView.ItemsSource = filtered.ToList();
+            */
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
@@ -215,12 +196,13 @@ namespace WorkoutApp.View
 
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
+            /*
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 string searchTerm = SearchBox.Text.Trim();
 
                 if (string.IsNullOrEmpty(searchTerm))
-                { 
+                {
                     ProductsGridView.ItemsSource = allProducts;
                 }
                 else
@@ -229,15 +211,15 @@ namespace WorkoutApp.View
                     IEnumerable<IProduct> filtered = allProducts.Where(p => p.Name.Contains(searchTerm));
                     ProductsGridView.ItemsSource = filtered;
                 }
-            }
+            }*/
         }
 
         private void SeeProduct_Click(object sender, RoutedEventArgs e)
-        {
+        {   /*
             var button = sender as TextBlock;
             string ProductName = button.Text;
             this.Content = new ProductTab.ProductTab(allProducts.Where(p => p.Name.Equals(ProductName)).First(), this);
-            //if (button?.Tag is Product selectedProduct)
+            *///if (button?.Tag is Product selectedProduct)
             //{
             //    this.Content = new ProductTab.ProductTab(allProducts[1]);
             //}

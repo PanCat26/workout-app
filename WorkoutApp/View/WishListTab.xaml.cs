@@ -1,19 +1,14 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System;
-using System.Collections.Generic;
-using WorkoutApp.Components;
-using WorkoutApp.Models;
-using WorkoutApp.Repository;
-using WorkoutApp.Service;
-using WorkoutApp.Data.Database;
+
+// To learn more about WinUI, the WinUI project structure,
+// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace WorkoutApp.View
 {
     public sealed partial class WishListTab : UserControl
     {
         private Window parent { get; set; }
-
         public WishListTab()
         {
             this.InitializeComponent();
@@ -27,31 +22,24 @@ namespace WorkoutApp.View
             LoadProducts();
         }
 
-        private async void LoadProducts()
+        private void LoadProducts()
         {
-            // Setup the dbService first
-            var connectionString = "Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-            var dbConnectionFactory = new SqlDbConnectionFactory(connectionString);
-            var dbService = new DbService(dbConnectionFactory);
+            //WishlistItemRepository wishlistItemRepository = new WishlistItemRepository();
+            //ProductRepository productRepository = new ProductRepository();
+            //productRepository.LoadData();
 
-            ProductRepository productRepository = new ProductRepository(dbService);
+            //var WishListItems = wishlistItemRepository.GetAll();
 
-            // Uncomment and use the repository
-            List<IProduct> products = new List<IProduct>();
-
-            /*
-            WishlistItemRepository wishlistItemRepository = new WishlistItemRepository(dbService);
-            var wishListItems = await wishlistItemRepository.GetAllAsync();
-
-            foreach (var wishlistItem in wishListItems)
+            //List<IProduct> products = new List<IProduct>();
+            /*foreach( var wishlistItem in WishListItems)
             {
-                var product = await productRepository.GetByIdAsync(wishlistItem.ProductID);
-                if (product != null)
-                    products.Add(product);
-            }
-            */
+                var product = productRepository.GetById(wishlistItem.ProductID);
+                if(product != null)
+                    products.Add(productRepository.GetById(wishlistItem.ProductID));
+            }*/
 
-            ProductsGridView.ItemsSource = products;
+            //ProductsGridView.ItemsSource = products;
+
         }
 
         private void BackToMainPageButton(object sender, RoutedEventArgs e)
