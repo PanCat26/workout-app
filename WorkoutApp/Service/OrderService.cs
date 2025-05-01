@@ -1,4 +1,12 @@
-﻿using Microsoft.Data.SqlClient;
+﻿/*using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using WorkoutApp.Models;
+using WorkoutApp.Repository;
 
 namespace WorkoutApp.Service
 {
@@ -14,10 +22,7 @@ namespace WorkoutApp.Service
 
         public void SendOrder(double TotalAmount)
         {
-            //call CreateAsync(new Order)
-
-
-            /*connection.Open();
+            *//*connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(
                 "INSERT INTO [Order] (ID, CustomerId, OrderDate, TotalAmount, IsActive) VALUES (@ID, @CustomerId, GETDATE(), @TotalAmount, @IsActive)",
@@ -46,7 +51,7 @@ namespace WorkoutApp.Service
                 addOrderDetail(newId, (int) cartItem.ProductId, (int) cartItem.Quantity, cartItem.GetProduct(productRepository).Price);
             }
 
-            cartItemRepository.ResetCart();*/
+            cartItemRepository.ResetCart();*//*
         }
 
         private void addOrderDetail(int OrderID, int ProductID, int Quantity, double Price)
@@ -75,3 +80,4 @@ namespace WorkoutApp.Service
         }
     }
 }
+*/

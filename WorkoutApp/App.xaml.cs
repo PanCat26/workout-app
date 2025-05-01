@@ -36,7 +36,7 @@ namespace WorkoutApp
                 .ConfigureServices((services) =>
                 {
                     services.AddSingleton<DbConnectionFactory>(_ =>
-                        new SqlDbConnectionFactory(connectionString));
+                        new DbConnectionFactory(connectionString));
                 })
                 .Build();
 

@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using WorkoutApp.Models;
-using WorkoutApp.Service;
+﻿using System.ComponentModel;
 
 namespace WorkoutApp.ViewModel
 {
     public class ProductDetailsViewModel : INotifyPropertyChanged
     {
+        /*
         private readonly ProductService _productService;
         private readonly WishlistService _wishlistService;
         private readonly CartService _cartService;
@@ -37,7 +29,7 @@ namespace WorkoutApp.ViewModel
         private string _selectedQuantity;
         public ObservableCollection<IProduct> RecommendedProducts { get; set; }
 
-        public ObservableCollection<string> AvailableColors  { get; set; }
+        public ObservableCollection<string> AvailableColors { get; set; }
 
         private string _selectedColor = "Choose Color";
         public string SelectedColor
@@ -75,12 +67,12 @@ namespace WorkoutApp.ViewModel
             }
         }
         public ICommand SelectColorCommand { get; }
+        */
 
-
-        public ProductDetailsViewModel(ProductService productService, WishlistService wishlistService, CartService cartService, IProduct product)
+        /*public ProductDetailsViewModel(ProductService productService, WishlistService wishlistService, CartService cartService, IProduct product)
         {
 
-            _productService = productService; 
+            _productService = productService;
             _wishlistService = wishlistService;
             _cartService = cartService;
             this.product = product;
@@ -89,13 +81,13 @@ namespace WorkoutApp.ViewModel
             this.AvailableQuantities = new ObservableCollection<string>();
             this.RecommendedProducts = new ObservableCollection<IProduct>();
             LoadProductDetails();
-            
 
-            
-        }
+
+
+        }*/
 
         private void LoadProductDetails()
-        {
+        {/*
             if (product is ClothesProduct clothesProduct)
             {
                 LoadColors(clothesProduct.Attributes);
@@ -106,46 +98,51 @@ namespace WorkoutApp.ViewModel
                 LoadSizes(foodProduct.Size);
             }
             LoadQuantities();
-            LoadRecommendedProducts();
+            LoadRecommendedProducts();*/
         }
 
         private void LoadColors(string colorData)
         {
+            /*
             AvailableColors.Clear();
             var colors = colorData.Split(',').Select(c => c.Trim()).ToList();
             foreach (var color in colors)
             {
                 AvailableColors.Add(color);
-            }
+            }*/
         }
 
         private void LoadSizes(string sizeData)
         {
+            /*
             AvailableSizes.Clear();
             var sizes = sizeData.Split(',').Select(s => s.Trim()).ToList();
             foreach (var size in sizes)
             {
                 AvailableSizes.Add(size);
-            }
+            }*/
         }
 
         private void LoadQuantities()
         {
+            /*
             AvailableQuantities.Clear();
             for (int i = 1; i <= product.Stock; i++)
             {
                 AvailableQuantities.Add(i.ToString());
-            }
+            }*/
         }
 
         private void LoadRecommendedProducts()
         {
+            /*
             RecommendedProducts.Clear();
             var similarProducts = _productService.GetRecommendedProducts(product.ID);
             foreach (var product in similarProducts)
             {
                 RecommendedProducts.Add(product);
             }
+            */
         }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)

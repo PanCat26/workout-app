@@ -1,4 +1,4 @@
-﻿// <copyright file="ProductRepository.cs" company="WorkoutApp">
+﻿/*// <copyright file="ProductRepository.cs" company="WorkoutApp">
 // Copyright (c) WorkoutApp. All rights reserved.
 // </copyright>
 namespace WorkoutApp.Repository
@@ -349,3 +349,4 @@ namespace WorkoutApp.Repository
         }
     }
 }
+*/

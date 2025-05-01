@@ -1,39 +1,30 @@
-﻿// <copyright file="DbConnectionFactory.cs" company="PlaceholderCompany">
+﻿// <copyright file="SqlDbConnectionFactory.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.Data.Database
 {
-    using System;
-    using System.Collections.Generic;
     using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+    using Microsoft.Data.SqlClient;
 
     /// <summary>
-    /// Represents a factory for creating database connections.
+    /// A factory class for creating SQL database connections.
     /// </summary>
-    public abstract class DbConnectionFactory
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="DbConnectionFactory"/> class with the specified connection string.
+    /// </remarks>
+    /// <param name="connectionString">The connection string to use for the SQL database connection.</param>
+    public class DbConnectionFactory(string connectionString)
     {
-        /// <summary>
-        /// The connection string used to establish database connections.
-        /// </summary>
-        protected readonly string connectionString;
+        private readonly string connectionString = connectionString;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DbConnectionFactory"/> class with the specified connection string.
+        /// Creates and returns a new SQL database connection.
         /// </summary>
-        /// <param name="connectionString">The connection string to use for database connections.</param>
-        protected DbConnectionFactory(string connectionString)
+        /// <returns>An <see cref="IDbConnection"/> instance representing the SQL database connection.</returns>
+        public IDbConnection CreateConnection()
         {
-            this.connectionString = connectionString;
+            return new SqlConnection(this.connectionString);
         }
-
-        /// <summary>
-        /// Creates and returns a new database connection.
-        /// </summary>
-        /// <returns>An object that implements <see cref="IDbConnection"/>.</returns>
-        public abstract IDbConnection CreateConnection();
     }
 }

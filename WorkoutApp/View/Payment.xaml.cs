@@ -1,20 +1,7 @@
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using WorkoutApp.Service;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -40,7 +27,7 @@ namespace WorkoutApp.View
 
         private void FirstNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            SummaryName.Text = FirstNameTextBox.Text +  ' ' + LastNameTextBox.Text;
+            SummaryName.Text = FirstNameTextBox.Text + ' ' + LastNameTextBox.Text;
         }
 
         private void LastNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -78,16 +65,16 @@ namespace WorkoutApp.View
                 return;
             if (LastNameTextBox.Text.IsNullOrEmpty() == true)
                 return;
-            if(CityTextBox.Text.IsNullOrEmpty() == true) 
+            if (CityTextBox.Text.IsNullOrEmpty() == true)
                 return;
-            if(RegionComboBox.SelectedItem == null) 
+            if (RegionComboBox.SelectedItem == null)
                 return;
-
-            OrderService orderService = new OrderService();
-            orderService.SendOrder(TotalAmount);
-            Window main = new MainWindow();
-            main.Activate();
-            this.Close();
+            /*
+                        OrderService orderService = new OrderService();
+                        orderService.SendOrder(TotalAmount);
+                        Window main = new MainWindow();
+                        main.Activate();
+                        this.Close();*/
         }
     }
 }

@@ -1,9 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Collections.Generic;
-using WorkoutApp.Models;
-using WorkoutApp.Repository;
-
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -29,12 +25,12 @@ namespace WorkoutApp.View
         {
 
             //WishlistItemRepository wishlistItemRepository = new WishlistItemRepository();
-            ProductRepository productRepository = new ProductRepository();
-            productRepository.LoadData();
+            //ProductRepository productRepository = new ProductRepository();
+            //productRepository.LoadData();
 
             //var WishListItems = wishlistItemRepository.GetAll();
 
-            List<IProduct> products = new List<IProduct>();
+            //List<IProduct> products = new List<IProduct>();
             /*foreach( var wishlistItem in WishListItems)
             {
                 var product = productRepository.GetById(wishlistItem.ProductID);

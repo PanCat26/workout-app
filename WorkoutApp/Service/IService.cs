@@ -1,4 +1,4 @@
-﻿// <copyright file="IService.cs" company="WorkoutApp">
+﻿/*// <copyright file="IService.cs" company="WorkoutApp">
 // Copyright (c) WorkoutApp. All rights reserved.
 // </copyright>
 namespace WorkoutApp.Service
@@ -47,4 +47,4 @@ namespace WorkoutApp.Service
         /// <returns>A task representing the asynchronous operation with a boolean indicating success.</returns>
         Task<bool> DeleteAsync(int id);
     }
-}
+}*/
