@@ -4,12 +4,6 @@
 
 namespace WorkoutApp.Infrastructure.Session
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Manages user sessions.
     /// </summary>
@@ -18,7 +12,7 @@ namespace WorkoutApp.Infrastructure.Session
         /// <summary>
         /// Gets or sets the ID of the currently logged-in user.
         /// </summary>
-        public int? CurrentUserId { get; set; }
+        public int? CurrentUserId { get; set; } = 1; // For testing purposes, we set a fixed user ID
 
         /// <summary>
         /// Gets a value indicating whether a user is currently logged in.

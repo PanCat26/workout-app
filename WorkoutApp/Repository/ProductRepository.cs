@@ -3,10 +3,10 @@
 // </copyright>
 namespace WorkoutApp.Repository
 {
+    using Microsoft.Data.SqlClient;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.Data.SqlClient;
     using WorkoutApp.Models;
 
     /// <summary>
@@ -15,7 +15,7 @@ namespace WorkoutApp.Repository
     /// </summary>
     public class ProductRepository : IRepository<IProduct>
     {
-        private readonly string loginString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
+        private readonly string loginString = @"Data Source=SIMONA-NEGREA;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
         private readonly SqlConnection connection;
         private readonly List<IProduct> products;
 
