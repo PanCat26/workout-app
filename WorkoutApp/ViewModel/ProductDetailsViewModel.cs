@@ -133,7 +133,7 @@ namespace WorkoutApp.ViewModel
             }*/
         }
 
-        private async Task LoadRecommendedProducts()
+        /*private async Task LoadRecommendedProducts()
         {
             /*
             RecommendedProducts.Clear();
@@ -142,8 +142,8 @@ namespace WorkoutApp.ViewModel
             {
                 RecommendedProducts.Add(product);
             }
-            */
-        }
+            
+        }*/
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
