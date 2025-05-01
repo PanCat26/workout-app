@@ -18,7 +18,7 @@ namespace WorkoutApp.Models
         /// <param name="id">The ID of the order.</param>
         /// <param name="orderProducts">The list of products in the order.</param>
         /// <param name="orderDate">The date the order was placed.</param>
-        public Order(int id, List<Product> orderProducts, DateTime orderDate)
+        public Order(int? id, List<Product> orderProducts, DateTime orderDate)
         {
             this.ID = id;
             this.OrderProducts = orderProducts;
@@ -28,7 +28,7 @@ namespace WorkoutApp.Models
         /// <summary>
         /// Gets or sets the ID of the order.
         /// </summary>
-        public int ID { get; set; }
+        public int? ID { get; set; }
 
         /// <summary>
         /// Gets or sets the list of products in the order.
