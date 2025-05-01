@@ -166,7 +166,6 @@
             cmd.ExecuteNonQuery();
 
             var cleanup2 = @"-- Reset identity columns
-        DBCC CHECKIDENT ('OrderItem', RESEED, 0);
         DBCC CHECKIDENT ('[Order]', RESEED, 0);
         DBCC CHECKIDENT ('Product', RESEED, 0);
         DBCC CHECKIDENT ('Category', RESEED, 0);
