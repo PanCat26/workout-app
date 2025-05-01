@@ -21,7 +21,7 @@ namespace WorkoutApp.Models
         /// <param name="color">The color of the product.</param>
         /// <param name="description">A brief description of the product.</param>
         /// <param name="photoURL">The URL for the photo associated with the product.</param>
-        public Product(int? id, string name, decimal price, int stock, Category category, string size, string color, string description, string photoURL)
+        public Product(int? id, string name, decimal price, int stock, Category category, string size, string color, string description, string? photoURL)
         {
             this.ID = id;
             this.Name = name;
@@ -77,6 +77,6 @@ namespace WorkoutApp.Models
         /// <summary>
         /// Gets or sets the photo URL related to the accessory product.
         /// </summary>
-        public string PhotoURL { get; set; }
+        public string? PhotoURL { get; set; }
     }
 }
