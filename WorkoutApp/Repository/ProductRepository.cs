@@ -27,7 +27,22 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            string query = "SELECT Product.*, Category.Name FROM Product JOIN Category ON Product.CategoryID=Category.ID;";
+            string query = @"
+                SELECT 
+                    Product.ID AS ProductID,
+                    Product.Name AS ProductName,
+                    Product.Price,
+                    Product.Stock,
+                    Product.Size,
+                    Product.Color,
+                    Product.Description,
+                    Product.PhotoURL,
+                    Category.ID AS CategoryID,
+                    Category.Name AS CategoryName
+                FROM Product
+                JOIN Category 
+                    ON Product.CategoryID = Category.ID;
+            ";
             DataTable result = await this.dbService.ExecuteSelectAsync(query, []);
 
             List<Product> products = [];
@@ -42,11 +57,27 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<Product?> GetByIdAsync(int id)
         {
-            string query = "SELECT Product.*, Category.Name FROM Product JOIN Category ON Product.CategoryID=Category.ID;";
+            string query = @"
+                SELECT 
+                    Product.ID AS ProductID,
+                    Product.Name AS ProductName,
+                    Product.Price,
+                    Product.Stock,
+                    Product.Size,
+                    Product.Color,
+                    Product.Description,
+                    Product.PhotoURL,
+                    Category.ID AS CategoryID,
+                    Category.Name AS CategoryName
+                FROM Product
+                JOIN Category 
+                    ON Product.CategoryID = Category.ID
+                WHERE Product.ID = @ProductID;
+            ";
 
             List<SqlParameter> parameters =
             [
-                new ("@ID", id),
+                new ("@ProductID", id),
             ];
 
             DataTable table = await this.dbService.ExecuteSelectAsync(query, parameters);
@@ -65,7 +96,7 @@ namespace WorkoutApp.Repository
             string query = @"
                 INSERT INTO Product (Name, Price, Stock, CategoryID, Size, Color, Description, PhotoURL)
                 OUTPUT INSERTED.ID
-                VALUES (Name, Price, Stock, CategoryID, Size, Color, Description, PhotoURL);";
+                VALUES (@Name, @Price, @Stock, @CategoryID, @Size, @Color, @Description, @PhotoURL);";
 
             List<SqlParameter> parameters = [
                 new ("@Name", entity.Name),
@@ -87,7 +118,16 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<Product> UpdateAsync(Product entity)
         {
-            var query = @"
+            // Check if the product id is given
+            if (entity.ID == null)
+            {
+                throw new ArgumentException("Product ID must be provided for update.");
+            }
+
+            // Check if the product exists
+            _ = await this.GetByIdAsync((int)entity.ID) ?? throw new InvalidOperationException($"Product with ID {entity.ID} does not exist.");
+
+            string query = @"
                 UPDATE Product
                 SET Name = @Name,
                     Price = @Price,
@@ -115,11 +155,10 @@ namespace WorkoutApp.Repository
             return entity;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc/>2 teste
         public async Task<bool> DeleteAsync(int id)
         {
-            string query = "UPDATE Product SET IsActive = 0 WHERE ID = @ID";
-
+            string query = "DELETE FROM Product WHERE ID = @ID;";
             List<SqlParameter> parameters =
             [
                 new SqlParameter("@ID", id)
@@ -132,13 +171,15 @@ namespace WorkoutApp.Repository
         private static Product MapRowToProduct(DataRow row)
         {
             return new Product(
-                    id: Convert.ToInt32(row["Product.ID"]),
-                    name: Convert.ToString(row["Product.Name"]) !,
-                    price: Convert.ToDecimal(row["Product.Price"]),
-                    stock: Convert.ToInt32(row["Product.Stock"]),
-                    category: new Category(id: Convert.ToInt32(row["Category.ID"]), name: Convert.ToString(row["Category.Name"]) !),
+                    id: Convert.ToInt32(row["ProductID"]),
+                    name: Convert.ToString(row["ProductName"]) !,
+                    price: Convert.ToDecimal(row["Price"]),
+                    stock: Convert.ToInt32(row["Stock"]),
+                    category: new Category(
+                        id: Convert.ToInt32(row["CategoryID"]),
+                        name: Convert.ToString(row["CategoryName"]) !),
                     size: Convert.ToString(row["Size"]) !,
-                    color: Convert.ToString(row["Attributes"]) !,
+                    color: Convert.ToString(row["Color"]) !,
                     description: Convert.ToString(row["Description"]) !,
                     photoURL: Convert.ToString(row["PhotoURL"]));
         }
