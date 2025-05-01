@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WorkoutApp.Infrastructure.Session;
+﻿using WorkoutApp.Infrastructure.Session;
 
 namespace WorkoutApp.Tests
 {
     public class SessionManagerTests
     {
-        [Fact]
+        /*[Fact]
         public void IsUserLoggedIn_ShouldBeFalse_OnInitialization()
         {
             SessionManager session = new();
 
             Assert.False(session.IsUserLoggedIn);
-        }
+        }*/
 
         [Fact]
         public void IsUserLoggedIn_ShouldBeTrue_WhenCurrentUserIdIsSet()

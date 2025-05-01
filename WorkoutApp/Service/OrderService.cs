@@ -56,6 +56,7 @@ namespace WorkoutApp.Service
 
         private void addOrderDetail(int OrderID, int ProductID, int Quantity, double Price)
         {
+            //call creasteAsync(OrderDetail)
             connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(

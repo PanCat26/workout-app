@@ -1,16 +1,12 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WorkoutApp.Data.Database;
 
 namespace WorkoutApp.Tests
 {
+    [Collection("DatabaseTests")]
     public class DbServiceTests : IDisposable
     {
         private readonly DbConnectionFactory connectionFactory;
@@ -46,7 +42,7 @@ namespace WorkoutApp.Tests
                 throw;
             }
         }
-        
+
         [Fact]
         public async Task ExecuteSelect_ValidQueryNoParameters_ReturnsDataTable()
         {
