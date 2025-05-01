@@ -47,10 +47,6 @@ namespace WorkoutApp.Repository
         public async Task<Order> CreateAsync(Order entity)
         {
             int? customerId = this.sessionManager.CurrentUserId;
-            if (customerId == null)
-            {
-                throw new InvalidOperationException("User must be logged in to create an order.");
-            }
 
             const string insertOrderQuery = @"
                 INSERT INTO [Order] (CustomerID, OrderDate)
