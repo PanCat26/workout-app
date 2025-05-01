@@ -5,6 +5,7 @@
 namespace WorkoutApp.Models
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Represents a customer's order.
@@ -15,12 +16,12 @@ namespace WorkoutApp.Models
         /// Initializes a new instance of the <see cref="Order"/> class.
         /// </summary>
         /// <param name="id">The ID of the order.</param>
-        /// <param name="orderProducts">The list of products in the order.</param>
+        /// <param name="orderItems">The list of items in the order.</param>
         /// <param name="orderDate">The date the order was placed.</param>
-        public Order(int id, List<Product> orderProducts, DateTime orderDate)
+        public Order(int id, List<OrderItem> orderItems, DateTime orderDate)
         {
             this.ID = id;
-            this.OrderProducts = orderProducts;
+            this.OrderItems = orderItems;
             this.OrderDate = orderDate;
         }
 
@@ -32,7 +33,7 @@ namespace WorkoutApp.Models
         /// <summary>
         /// Gets or sets the list of products in the order.
         /// </summary>
-        public List<Product> OrderProducts { get; set; }
+        public List<OrderItem> OrderItems { get; set; }
 
         /// <summary>
         /// Gets or sets the date the order was placed.

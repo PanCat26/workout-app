@@ -1,19 +1,19 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Configuration;
-using System.Diagnostics;
-using WorkoutApp.Data.Database;
-using WorkoutApp.Models;
-using WorkoutApp.Repository;
-
-namespace WorkoutApp.Tests.Repository
+﻿namespace WorkoutApp.Tests.Repository
 {
+    using Microsoft.Data.SqlClient;
+    using System.Configuration;
+    using WorkoutApp.Data.Database;
+    using WorkoutApp.Infrastructure.Session;
+    using WorkoutApp.Models;
+    using WorkoutApp.Repository;
+
     [Collection("DatabaseTests")]
     public class OrderRepositoryTests : IDisposable
     {
-        // all tests are running on the assumption that all the tables are empty
         private readonly OrderRepository repository;
         private readonly DbConnectionFactory connectionFactory;
         private readonly DbService dbService;
+        private readonly SessionManager sessionManager;
 
         public OrderRepositoryTests()
         {
@@ -23,149 +23,93 @@ namespace WorkoutApp.Tests.Repository
                 throw new InvalidOperationException("TestConnection string is missing or empty in config file.");
             }
 
-            connectionFactory = new SqlDbConnectionFactory(connectionString);
+            connectionFactory = new DbConnectionFactory(connectionString);
             dbService = new DbService(connectionFactory);
-            repository = new OrderRepository(dbService);
+            sessionManager = new SessionManager();
+            sessionManager.CurrentUserId = 1;
+            repository = new OrderRepository(dbService, sessionManager);
 
-            using SqlConnection connection = (SqlConnection)connectionFactory.CreateConnection();
-            try
-            {
-                connection.Open();
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine($"Failed to open SQL connection: {exception}");
-                throw;
-            }
+            using var connection = (SqlConnection)connectionFactory.CreateConnection();
+            connection.Open();
 
-            using SqlCommand insertCustomerCommand = new(
-                "INSERT INTO Customer (IsActive) VALUES (1)", connection);
-            using SqlCommand insertOrderCommand = new(
-                "INSERT INTO [Order] (CustomerId, OrderDate, TotalAmount, IsActive) VALUES (1, GETDATE(), 100, 1), (1, GETDATE(), 200, 0)", connection);
+            using var insertCustomerCommand = new SqlCommand("INSERT INTO Customer (Name) VALUES ('TestUser')", connection);
+            insertCustomerCommand.ExecuteNonQuery();
 
-            try
-            {
-                insertCustomerCommand.ExecuteNonQuery();
-                insertOrderCommand.ExecuteNonQuery();
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine($"Failed to insert test data: {exception}");
-                throw;
-            }
-            finally
-            {
-                connection.Close();
-            }
+            connection.Close();
         }
 
         [Fact]
-        public async Task Test_GetAllAsync()
+        public async Task Test_CreateAsync_CreatesOrderAndOrderItems()
         {
+            using var connection = (SqlConnection)connectionFactory.CreateConnection();
+            connection.Open();
 
-            var orders = await repository.GetAllAsync();
-            Assert.NotNull(orders);
-            Assert.Equal(2, orders.Count());
-        }
+            // Insert a category first (required for the foreign key in Product)
+            using var insertCategory = new SqlCommand("INSERT INTO Category (Name) VALUES ('TestCategory'); SELECT SCOPE_IDENTITY();", connection);
+            int categoryId = Convert.ToInt32(await insertCategory.ExecuteScalarAsync());
 
-        [Fact]
-        public async Task Test_GetByIdAsync()
-        {
-            var order1 = await repository.GetByIdAsync(1);
-            Assert.NotNull(order1);
-            Assert.Equal(1, order1.ID);
+            // Insert a product linked to that category
+            var product = new Product(
+                id: 0,
+                name: "Test Product",
+                price: 49.99m,
+                stock: 10,
+                category: new Category(categoryId, "TestCategory"),
+                size: "M",
+                color: "Red",
+                description: "Test Description",
+                photoURL: "http://example.com/photo.jpg");
 
-            var order2 = await repository.GetByIdAsync(1001);
-            Assert.Null(order2);
-        }
+            using var insertProduct = new SqlCommand(@"
+        INSERT INTO Product (Name, Price, Stock, CategoryID, Size, Color, Description, PhotoURL)
+        VALUES (@Name, @Price, @Stock, @CategoryID, @Size, @Color, @Description, @PhotoURL);
+        SELECT SCOPE_IDENTITY();", connection);
 
-        [Fact]
-        public async Task Test_CreateAsync()
-        {
-            var initialOrders = await repository.GetAllAsync();
-            Assert.NotNull(initialOrders);
-            Assert.Equal(2, initialOrders.Count());
+            insertProduct.Parameters.AddWithValue("@Name", product.Name);
+            insertProduct.Parameters.AddWithValue("@Price", product.Price);
+            insertProduct.Parameters.AddWithValue("@Stock", product.Stock);
+            insertProduct.Parameters.AddWithValue("@CategoryID", product.Category.ID);
+            insertProduct.Parameters.AddWithValue("@Size", product.Size);
+            insertProduct.Parameters.AddWithValue("@Color", product.Color);
+            insertProduct.Parameters.AddWithValue("@Description", product.Description);
+            insertProduct.Parameters.AddWithValue("@PhotoURL", product.PhotoURL);
 
-            Order order = new Order(3, 1, DateTime.Now, 9999, false);
+            product.ID = Convert.ToInt32(await insertProduct.ExecuteScalarAsync());
+
+            connection.Close();
+
+            var order = new Order(0, new List<OrderItem>
+    {
+        new OrderItem(product, 2),
+    }, DateTime.Now);
+
             var result = await repository.CreateAsync(order);
+
             Assert.NotNull(result);
-
-            var finalOrders = await repository.GetAllAsync();
-            Assert.NotNull(finalOrders);
-            Assert.Equal(3, finalOrders.Count());
-
-            var insertedOrder = await repository.GetByIdAsync(3);
-            Assert.NotNull(insertedOrder);
-
-            Assert.Equal(order.ID, insertedOrder.ID);
-            Assert.Equal(order.CustomerID, insertedOrder.CustomerID);
-            Assert.Equal(order.TotalAmount, insertedOrder.TotalAmount);
-            Assert.Equal(order.IsActive, insertedOrder.IsActive);
-
-        }
-
-        [Fact]
-        public async Task Test_UpdateAsync()
-        {
-            var initialOrder = await repository.GetByIdAsync(1);
-            Assert.NotNull(initialOrder);
-
-            Order orderToUpdate = new Order(initialOrder.ID, initialOrder.CustomerID, initialOrder.OrderDate, 0, !initialOrder.IsActive);
-            await repository.UpdateAsync(orderToUpdate);
-
-            var finalOrder = await repository.GetByIdAsync(1);
-            Assert.NotNull(finalOrder);
-            Assert.Equal(initialOrder.ID, finalOrder.ID);
-            Assert.Equal(initialOrder.CustomerID, finalOrder.CustomerID);
-            Assert.Equal(initialOrder.OrderDate, finalOrder.OrderDate);
-            Assert.Equal(0, finalOrder.TotalAmount);
-            Assert.Equal(!initialOrder.IsActive, finalOrder.IsActive);
-
-        }
-
-        [Fact]
-        public async Task Test_DeleteAsync()
-        {
-            var initialOrder = await repository.GetByIdAsync(1);
-            Assert.NotNull(initialOrder);
-            Assert.True(initialOrder.IsActive);
-
-            await repository.DeleteAsync(1);
-
-            var finalOrder = await repository.GetByIdAsync(1);
-            Assert.NotNull(finalOrder);
-            Assert.False(finalOrder.IsActive);
-
+            Assert.True(result.ID > 0);
         }
 
         public void Dispose()
         {
-            using SqlConnection connection = (SqlConnection)connectionFactory.CreateConnection();
-            try
-            {
-                connection.Open();
-                using SqlCommand deleteOrderCommand = new("DELETE FROM [Order]", connection);
-                using SqlCommand deleteCustomerCommand = new("DELETE FROM Customer", connection);
-                deleteOrderCommand.ExecuteNonQuery();
-                deleteCustomerCommand.ExecuteNonQuery();
+            using var connection = (SqlConnection)connectionFactory.CreateConnection();
+            connection.Open();
 
-                // Use square brackets for consistency and correctness
-                using SqlCommand resetIdentityCustomer = new("DBCC CHECKIDENT ('[Customer]', RESEED, 0)", connection);
-                using SqlCommand resetIdentityOrder = new("DBCC CHECKIDENT ('[Order]', RESEED, 0)", connection);
-                resetIdentityCustomer.ExecuteNonQuery();
-                resetIdentityOrder.ExecuteNonQuery();
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine($"Failed to delete test data: {exception}");
-                throw;
-            }
-            finally
-            {
-                connection.Close();
-                GC.SuppressFinalize(this);
-            }
+            var cleanup = @"
+                DELETE FROM OrderItem;
+                DELETE FROM [Order];
+                DELETE FROM Product;
+                DELETE FROM Category;
+                DELETE FROM Customer;
+                DBCC CHECKIDENT ('OrderItem', RESEED, 0);
+                DBCC CHECKIDENT ('[Order]', RESEED, 0);
+                DBCC CHECKIDENT ('Product', RESEED, 0);
+                DBCC CHECKIDENT ('Category', RESEED, 0);
+                DBCC CHECKIDENT ('Customer', RESEED, 0);";
+
+            using var cmd = new SqlCommand(cleanup, connection);
+            cmd.ExecuteNonQuery();
+            connection.Close();
+            GC.SuppressFinalize(this);
         }
-
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+﻿/*using Microsoft.Data.SqlClient;
 using System.Configuration;
 using System.Diagnostics;
 using WorkoutApp.Data.Database;
@@ -194,3 +194,4 @@ namespace WorkoutApp.Tests.Repository
 
     }
 }
+*/

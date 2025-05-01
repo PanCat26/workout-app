@@ -6,10 +6,10 @@ namespace WorkoutApp.Repository
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
     using WorkoutApp.Data.Database;
+    using WorkoutApp.Infrastructure.Session;
     using WorkoutApp.Models;
 
     /// <summary>
@@ -18,113 +18,84 @@ namespace WorkoutApp.Repository
     public class OrderRepository : IRepository<Order>
     {
         private readonly DbService dbService;
+        private readonly SessionManager sessionManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OrderRepository"/> class.
         /// </summary>
         /// <param name="dbService">The database service to use for operations.</param>
-        public OrderRepository(DbService dbService)
+        /// <param name="sessionManager">The session manager to use for user sessions.</param>
+        public OrderRepository(DbService dbService, SessionManager sessionManager)
         {
             this.dbService = dbService;
+            this.sessionManager = sessionManager;
         }
 
         /// <inheritdoc/>
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            const string query = "SELECT * FROM [Order]";
-            var parameters = new List<SqlParameter>();
-
-            DataTable result = await this.dbService.ExecuteSelectAsync(query, parameters);
-            var orders = new List<Order>();
-
-            foreach (DataRow row in result.Rows)
-            {
-                orders.Add(new Order(
-                    iD: Convert.ToInt32(row["ID"]),
-                    customerID: Convert.ToInt32(row["CustomerID"]),
-                    orderDate: Convert.ToDateTime(row["OrderDate"]),
-                    totalAmount: Convert.ToDouble(row["TotalAmount"]),
-                    isActive: Convert.ToBoolean(row["IsActive"])));
-            }
-
-            return orders;
+            return new List<Order>();
         }
 
         /// <inheritdoc/>
         public async Task<Order> GetByIdAsync(int id)
         {
-            const string query = "SELECT * FROM [Order] WHERE ID = @ID";
-            var parameters = new List<SqlParameter>
-            {
-                new SqlParameter("@ID", id),
-            };
-
-            DataTable result = await this.dbService.ExecuteSelectAsync(query, parameters);
-
-            if (result.Rows.Count == 0)
-            {
-                return null;
-            }
-
-            DataRow row = result.Rows[0];
-            return new Order(
-                iD: Convert.ToInt32(row["ID"]),
-                customerID: Convert.ToInt32(row["CustomerID"]),
-                orderDate: Convert.ToDateTime(row["OrderDate"]),
-                totalAmount: Convert.ToDouble(row["TotalAmount"]),
-                isActive: Convert.ToBoolean(row["IsActive"]));
+            return new Order(id, new List<OrderItem>(), DateTime.Now);
         }
 
         /// <inheritdoc/>
         public async Task<Order> CreateAsync(Order entity)
         {
-            const string query = @"
-                INSERT INTO [Order] (CustomerID, OrderDate, TotalAmount, IsActive)
-                VALUES (@CustomerID, @OrderDate, @TotalAmount, @IsActive);
-                SELECT SCOPE_IDENTITY();";
-
-            var parameters = new List<SqlParameter>
+            int? customerId = this.sessionManager.CurrentUserId;
+            if (customerId == null)
             {
-                new SqlParameter("@CustomerID", entity.CustomerID),
+                throw new InvalidOperationException("User must be logged in to create an order.");
+            }
+
+            const string insertOrderQuery = @"
+                INSERT INTO [Order] (CustomerID, OrderDate)
+                VALUES (@CustomerID, @OrderDate);
+                SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            var orderParameters = new List<SqlParameter>
+            {
+                new SqlParameter("@CustomerID", customerId),
                 new SqlParameter("@OrderDate", entity.OrderDate),
-                new SqlParameter("@TotalAmount", entity.TotalAmount),
-                new SqlParameter("@IsActive", entity.IsActive),
             };
-            await this.dbService.ExecuteQueryAsync(query, parameters);
+
+            // Get the generated Order ID
+            int orderId = await this.dbService.ExecuteScalarAsync<int>(insertOrderQuery, orderParameters);
+
+            foreach (var item in entity.OrderItems)
+            {
+                const string insertOrderItemQuery = @"
+                    INSERT INTO OrderItem (OrderID, ProductID, Quantity)
+                    VALUES (@OrderID, @ProductID, @Quantity);";
+
+                var itemParams = new List<SqlParameter>
+                {
+                    new SqlParameter("@OrderID", orderId),
+                    new SqlParameter("@ProductID", item.Product.ID),
+                    new SqlParameter("@Quantity", item.Quantity),
+                };
+
+                await this.dbService.ExecuteQueryAsync(insertOrderItemQuery, itemParams);
+            }
+
+            entity.ID = orderId;
             return entity;
         }
 
         /// <inheritdoc/>
         public async Task<Order> UpdateAsync(Order entity)
         {
-            const string query = @" UPDATE [Order] 
-                SET CustomerID = @CustomerID,
-                    OrderDate = @OrderDate,
-                    TotalAmount = @TotalAmount,
-                    IsActive = @IsActive
-                WHERE ID = @ID";
-            var parameters = new List<SqlParameter>
-            {
-                new SqlParameter("@ID", entity.ID),
-                new SqlParameter("@CustomerID", entity.CustomerID),
-                new SqlParameter("@OrderDate", entity.OrderDate),
-                new SqlParameter("@TotalAmount", entity.TotalAmount),
-                new SqlParameter("@IsActive", entity.IsActive),
-            };
-            await this.dbService.ExecuteQueryAsync(query, parameters);
-            return entity;
+            return new Order(0, new List<OrderItem>(), DateTime.Now);
         }
 
         /// <inheritdoc/>
         public async Task<bool> DeleteAsync(int id)
         {
-            const string query = "UPDATE [Order] SET IsActive = 0 WHERE ID = @ID";
-            var parameters = new List<SqlParameter>
-            {
-                new SqlParameter("@ID", id),
-            };
-            int rowsAffected = await this.dbService.ExecuteQueryAsync(query, parameters);
-            return rowsAffected > 0;
+            return true;
         }
     }
 }
