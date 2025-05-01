@@ -14,7 +14,7 @@ namespace WorkoutApp.Models
         /// </summary>
         /// <param name="id">The unique identifier of the category.</param>
         /// <param name="name">The name of the category.</param>
-        public Category(int id, string name)
+        public Category(int? id, string name)
         {
             this.ID = id;
             this.Name = name;
@@ -23,7 +23,7 @@ namespace WorkoutApp.Models
         /// <summary>
         /// Gets or sets the unique identifier of the category.
         /// </summary>
-        public int ID { get; set; }
+        public int? ID { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the category.
