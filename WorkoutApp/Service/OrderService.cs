@@ -1,83 +1,80 @@
-﻿/*using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WorkoutApp.Models;
-using WorkoutApp.Repository;
+﻿// <copyright file="OrderService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace WorkoutApp.Service
 {
-    public class OrderService
-    {
-        private string connectionString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-        private SqlConnection connection;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using WorkoutApp.Models;
+    using WorkoutApp.Repository;
 
-        public OrderService()
+    /// <summary>
+    /// Service class for handling Order-related operations.
+    /// </summary>
+    public class OrderService : IService<Order>
+    {
+        private readonly IRepository<Order> orderRepository;
+        private readonly IRepository<CartItem> cartRepository;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OrderService"/> class.
+        /// </summary>
+        /// <param name="orderRepository">The order repository.</param>
+        /// <param name="cartRepository">The cart item repository.</param>
+        public OrderService(IRepository<Order> orderRepository, IRepository<CartItem> cartRepository)
         {
-            this.connection = new SqlConnection(connectionString);
+            this.orderRepository = orderRepository;
+            this.cartRepository = cartRepository;
         }
 
-        public void SendOrder(double TotalAmount)
+        /// <inheritdoc/>
+        public async Task<Order> CreateAsync(Order entity)
         {
-            *//*connection.Open();
+            return await this.orderRepository.CreateAsync(entity);
+        }
 
-            SqlCommand insertCommand = new SqlCommand(
-                "INSERT INTO [Order] (ID, CustomerId, OrderDate, TotalAmount, IsActive) VALUES (@ID, @CustomerId, GETDATE(), @TotalAmount, @IsActive)",
-                connection
-            );
+        /// <inheritdoc/>
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await this.orderRepository.DeleteAsync(id);
+        }
 
-            SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) + 1 FROM [Order]", connection);
-            int newId = (int)getMaxIdCommand.ExecuteScalar();
+        /// <inheritdoc/>
+        public async Task<IEnumerable<Order>> GetAllAsync()
+        {
+            return await this.orderRepository.GetAllAsync();
+        }
 
-            insertCommand.Parameters.AddWithValue("@Id", newId);
-            insertCommand.Parameters.AddWithValue("@CustomerId", 1);
-            insertCommand.Parameters.AddWithValue("@TotalAmount", TotalAmount);
-            insertCommand.Parameters.AddWithValue("@IsActive", true);
+        /// <inheritdoc/>
+        public async Task<Order> GetByIdAsync(int id)
+        {
+            return await this.orderRepository.GetByIdAsync(id);
+        }
 
-            insertCommand.ExecuteNonQuery();
+        /// <inheritdoc/>
+        public Task<Order> UpdateAsync(Order entity)
+        {
+            return this.orderRepository.UpdateAsync(entity);
+        }
 
-            connection.Close();
-
-            CartItemRepository cartItemRepository = new CartItemRepository();
-            ProductRepository productRepository = new ProductRepository();
-
-            var cartItems = cartItemRepository.GetAll();
-
-            foreach (var cartItem in cartItems)
+        /// <summary>
+        /// Creates an order from the current items in the cart.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task CreateOrderFromCartAsync()
+        {
+            IEnumerable<CartItem> cartItems = await this.cartRepository.GetAllAsync();
+            List<OrderItem> orderItems = new List<OrderItem>();
+            foreach (CartItem cartItem in cartItems)
             {
-                addOrderDetail(newId, (int) cartItem.ProductId, (int) cartItem.Quantity, cartItem.GetProduct(productRepository).Price);
+                await this.cartRepository.DeleteAsync((int)cartItem.Product.ID);
+                orderItems.Add(new OrderItem(cartItem.Product, cartItem.Quantity));
             }
 
-            cartItemRepository.ResetCart();*//*
-        }
-
-        private void addOrderDetail(int OrderID, int ProductID, int Quantity, double Price)
-        {
-            //call creasteAsync(OrderDetail)
-            connection.Open();
-
-            SqlCommand insertCommand = new SqlCommand(
-                "INSERT INTO OrderDetail (Id, OrderID, ProductId, Quantity, Price, IsActive) VALUES (@Id, @OrderID, @ProductId, @Quantity, @Price, @IsActive)",
-                connection
-            );
-
-            SqlCommand getMaxIdCommand = new SqlCommand("SELECT ISNULL(MAX(ID), 0) + 1 FROM OrderDetail", connection);
-            int newId = (int)getMaxIdCommand.ExecuteScalar();
-
-            insertCommand.Parameters.AddWithValue("@Id", newId);
-            insertCommand.Parameters.AddWithValue("@OrderID", OrderID);
-            insertCommand.Parameters.AddWithValue("@ProductId", ProductID);
-            insertCommand.Parameters.AddWithValue("@Quantity", Quantity);
-            insertCommand.Parameters.AddWithValue("@Price", Price);
-            insertCommand.Parameters.AddWithValue("@IsActive", true);
-
-            insertCommand.ExecuteNonQuery();
-
-            connection.Close();
+            Order newOrder = new Order(null, orderItems, DateTime.Now);
+            await this.orderRepository.CreateAsync(newOrder);
         }
     }
 }
-*/

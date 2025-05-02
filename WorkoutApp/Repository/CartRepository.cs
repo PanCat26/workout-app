@@ -39,23 +39,49 @@ namespace WorkoutApp.Repository
         public async Task<IEnumerable<CartItem>> GetAllAsync()
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
-            if (customerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
 
             List<CartItem> cartItems = new List<CartItem>();
 
             try
             {
                 var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                    "SELECT * FROM CartItem WHERE CustomerID = @CustomerID",
+                    "SELECT p.ID AS ProductID, " +
+                    "ci.CustomerID, " +
+                    "ci.Quantity, " +
+                    "p.Name, " +
+                    "p.Price, " +
+                    "p.Stock, " +
+                    "p.Size, " +
+                    "p.Color, " +
+                    "p.Description, " +
+                    "p.PhotoURL, " +
+                    "p.CategoryID, " +
+                    "ct.Name AS CategoryName " +
+                    "FROM CartItem ci " +
+                    "JOIN Product p ON ci.ProductID = p.ID " +
+                    "JOIN Category ct ON p.CategoryID = ct.ID " +
+                    "WHERE ci.CustomerID = @CustomerID;",
                     new List<SqlParameter> { new SqlParameter("@CustomerID", customerID) });
 
                 foreach (DataRow row in selectQueryResult.Rows)
                 {
+                    Category category = new Category(
+                        id: Convert.ToInt32(row["CategoryID"]),
+                        name: row["CategoryName"]?.ToString() ?? string.Empty);
+
+                    Product product = new Product(
+                            id: Convert.ToInt32(row["ProductID"]),
+                            name: row["Name"]?.ToString() ?? string.Empty,
+                            price: Convert.ToDecimal(row["Price"]),
+                            stock: Convert.ToInt32(row["Stock"]),
+                            category: category,
+                            size: row["Size"]?.ToString() ?? string.Empty,
+                            color: row["Color"]?.ToString() ?? string.Empty,
+                            description: row["Description"]?.ToString() ?? string.Empty,
+                            photoURL: row["PhotoURL"]?.ToString());
+
                     CartItem cartItem = new CartItem(
-                        productID: Convert.ToInt32(row["ProductID"]),
+                        product: product,
                         customerID: Convert.ToInt32(row["CustomerID"]),
                         quantity: Convert.ToInt32(row["Quantity"]));
                     cartItems.Add(cartItem);
@@ -78,20 +104,25 @@ namespace WorkoutApp.Repository
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
 
-            if (productID <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
-            if (customerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
-
             try
             {
                 var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                    "SELECT * FROM CartItem WHERE CustomerID = @CustomerID AND ProductID = @ProductID",
+                    "SELECT p.ID AS ProductID, " +
+                    "ci.CustomerID, " +
+                    "ci.Quantity, " +
+                    "p.Name, " +
+                    "p.Price, " +
+                    "p.Stock, " +
+                    "p.Size, " +
+                    "p.Color, " +
+                    "p.Description, " +
+                    "p.PhotoURL, " +
+                    "c.ID AS CategoryID, " +
+                    "c.Name AS CategoryName " +
+                    "FROM CartItem ci " +
+                    "JOIN Product p ON ci.ProductID = p.ID " +
+                    "JOIN Category c ON p.CategoryID = c.ID " +
+                    "WHERE ci.CustomerID = @CustomerID AND p.ID = @ProductID;",
                     new List<SqlParameter>
                     {
                         new SqlParameter("@CustomerID", customerID),
@@ -100,12 +131,28 @@ namespace WorkoutApp.Repository
 
                 if (selectQueryResult.Rows.Count == 0)
                 {
-                    return null; // Return null if no cart item is found
+                    return null;
                 }
 
                 DataRow row = selectQueryResult.Rows[0];
+
+                Category category = new Category(
+                    id: Convert.ToInt32(row["CategoryID"]),
+                    name: row["CategoryName"]?.ToString() ?? string.Empty);
+
+                Product product = new Product(
+                    id: Convert.ToInt32(row["ProductID"]),
+                    name: row["Name"]?.ToString() ?? string.Empty,
+                    price: Convert.ToDecimal(row["Price"]),
+                    stock: Convert.ToInt32(row["Stock"]),
+                    category: category,
+                    size: row["Size"]?.ToString() ?? string.Empty,
+                    color: row["Color"]?.ToString() ?? string.Empty,
+                    description: row["Description"]?.ToString() ?? string.Empty,
+                    photoURL: row["PhotoURL"]?.ToString());
+
                 CartItem cartItem = new CartItem(
-                    productID: Convert.ToInt32(row["ProductID"]),
+                    product: product,
                     customerID: Convert.ToInt32(row["CustomerID"]),
                     quantity: Convert.ToInt32(row["Quantity"]));
 
@@ -113,7 +160,7 @@ namespace WorkoutApp.Repository
             }
             catch (Exception exception)
             {
-                throw new Exception($"Error retrieving cart item: {exception.Message}");
+                throw new Exception($"Error retrieving product: {exception.Message}");
             }
         }
 
@@ -126,21 +173,6 @@ namespace WorkoutApp.Repository
         public async Task CreateAsync(int productId, int quantity)
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
-
-            if (productId <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
-            if (quantity <= 0)
-            {
-                throw new ArgumentException("Quantity must be greater than 0.");
-            }
-
-            if (customerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
 
             int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
@@ -164,38 +196,18 @@ namespace WorkoutApp.Repository
         /// <returns>The updated cart item.</returns>
         public async Task<CartItem> UpdateAsync(CartItem cartItem)
         {
-            if (cartItem == null)
-            {
-                throw new ArgumentNullException(nameof(cartItem));
-            }
-
-            if (cartItem.ProductID <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
-            if (cartItem.CustomerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
-
-            if (cartItem.Quantity < 0)
-            {
-                throw new ArgumentException("Quantity cannot be negative.");
-            }
-
             int updateQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "UPDATE CartItem SET Quantity = @Quantity WHERE ProductID = @ProductID AND CustomerID = @CustomerID",
                 new List<SqlParameter>
                 {
-                    new SqlParameter("@ProductID", cartItem.ProductID),
+                    new SqlParameter("@ProductID", cartItem.Product.ID),
                     new SqlParameter("@CustomerID", cartItem.CustomerID),
                     new SqlParameter("@Quantity", cartItem.Quantity),
                 });
 
             if (updateQueryResult < 0)
             {
-                throw new Exception($"Error updating cart item with product id: {cartItem.ProductID}");
+                throw new Exception($"Error updating cart item with product id: {cartItem.Product.ID}");
             }
 
             return cartItem;
@@ -258,38 +270,19 @@ namespace WorkoutApp.Repository
         /// <returns>The created cart item.</returns>
         public async Task<CartItem> CreateAsync(CartItem entity)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            if (entity.ProductID <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
-            if (entity.CustomerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
-
-            if (entity.Quantity <= 0)
-            {
-                throw new ArgumentException("Quantity must be greater than 0.");
-            }
 
             int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
                 new List<SqlParameter>
                 {
-                    new SqlParameter("@ProductID", entity.ProductID),
+                    new SqlParameter("@ProductID", entity.Product.ID),
                     new SqlParameter("@CustomerID", entity.CustomerID),
                     new SqlParameter("@Quantity", entity.Quantity),
                 });
 
             if (insertQueryResult < 0)
             {
-                throw new Exception($"Error inserting cart item with product id: {entity.ProductID}");
+                throw new Exception($"Error inserting cart item with product id: {entity.Product.ID}");
             }
 
             return entity;

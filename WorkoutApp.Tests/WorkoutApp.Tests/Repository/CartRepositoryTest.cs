@@ -21,6 +21,7 @@ namespace WorkoutApp.Tests.Repository
 
         private readonly int testCustomerId;
         private readonly int testProductId;
+        private readonly int testCategoryId;
 
         public CartRepositoryTests()
         {
@@ -41,16 +42,16 @@ namespace WorkoutApp.Tests.Repository
                 DELETE FROM Product;
                 DELETE FROM Category;
                 DELETE FROM Customer;
-                DBCC CHECKIDENT ('CartItem', RESEED, 0);
                 DBCC CHECKIDENT ('Product', RESEED, 0);
                 DBCC CHECKIDENT ('Category', RESEED, 0);
                 DBCC CHECKIDENT ('Customer', RESEED, 0);
             ";
-                dbService.ExecuteQueryAsync(resetIdsQuery, []).GetAwaiter().GetResult();
+                dbService.ExecuteQueryAsync(resetIdsQuery, new List<SqlParameter>()).GetAwaiter().GetResult();
 
                 // Insert test data
                 testCustomerId = InsertTestCustomerAsync("Test User").GetAwaiter().GetResult();
-                testProductId = InsertTestProductAsync("Test Product", 19.99m, 10).GetAwaiter().GetResult();
+                testCategoryId = InsertTestCategoryAsync("Test Category").GetAwaiter().GetResult();
+                testProductId = InsertTestProductAsync("Test Product", 19.99m, 10, testCategoryId).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
@@ -68,7 +69,6 @@ namespace WorkoutApp.Tests.Repository
                 DELETE FROM Product;
                 DELETE FROM Category;
                 DELETE FROM Customer;
-                DBCC CHECKIDENT ('CartItem', RESEED, 0);
                 DBCC CHECKIDENT ('Product', RESEED, 0);
                 DBCC CHECKIDENT ('Category', RESEED, 0);
                 DBCC CHECKIDENT ('Customer', RESEED, 0);
@@ -76,9 +76,9 @@ namespace WorkoutApp.Tests.Repository
 
             try
             {
-                dbService.ExecuteQueryAsync(cleanupQuery, []).GetAwaiter().GetResult();
+                dbService.ExecuteQueryAsync(cleanupQuery, new List<SqlParameter>()).GetAwaiter().GetResult();
                 await Task.Delay(100); // minimal delay
-                int remaining = await dbService.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM CartItem", []);
+                int remaining = await dbService.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM CartItem", new List<SqlParameter>());
                 Assert.Equal(0, remaining);
             }
             catch (Exception ex)
@@ -94,39 +94,65 @@ namespace WorkoutApp.Tests.Repository
         [Fact]
         public async Task CreateAsync_ShouldInsertCartItem()
         {
-            await cartRepository.CreateAsync(productId: testProductId, quantity: 2);
-            CartItem? result = await cartRepository.GetByIdAsync(testProductId);
+            CartItem cartItem = new(new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null), testCustomerId, 2);
 
-            Assert.NotNull(result);
-            Assert.Equal(testProductId, result.ProductID);
-            Assert.Equal(2, result.Quantity);
+            await cartRepository.CreateAsync(cartItem);
+
+            CartItem? item = await cartRepository.GetByIdAsync(testProductId);
+
+            Assert.NotNull(item);
+            Assert.Equal(testProductId, item?.Product.ID);
+            Assert.Equal(2, item?.Quantity);
+            Assert.Equal(testCustomerId, item?.CustomerID);
+            Assert.Equal("Test Product", item?.Product?.Name);
         }
 
         [Fact]
         public async Task GetAllAsync_ShouldReturnCartItems()
         {
-            await cartRepository.CreateAsync(productId: testProductId, quantity: 1);
-            IEnumerable<CartItem> items = await cartRepository.GetAllAsync();
+            CartItem cartItem = new(new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null), testCustomerId, 1);
+            await cartRepository.CreateAsync(cartItem);
 
-            Assert.Single(items);
+            IEnumerable<CartItem> cartItems = await cartRepository.GetAllAsync();
+
+            CartItem item = Assert.Single(cartItems);
+            Assert.Equal(testProductId, item.Product.ID);
+            Assert.Equal(1, item.Quantity);
+            Assert.Equal(testCustomerId, item.CustomerID);
+
+            Product product = item.Product;
+            Assert.Equal("Test Product", product.Name);
+            Assert.Equal(19.99m, product.Price);
+            Assert.Equal("M", product.Size);
+            Assert.Equal("Red", product.Color);
+            Assert.NotNull(product.Category);
+            Assert.Equal("Test Category", product.Category.Name);
         }
 
         [Fact]
         public async Task UpdateAsync_ShouldModifyQuantity()
         {
-            await cartRepository.CreateAsync(productId: testProductId, quantity: 1);
-            CartItem itemToUpdate = new(testProductId, testCustomerId, 5);
+            CartItem itemToUpdate = new(new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null), testCustomerId, 1);
+
+            await cartRepository.CreateAsync(itemToUpdate);
+
+            itemToUpdate.Quantity = 5;
             await cartRepository.UpdateAsync(itemToUpdate);
 
-            CartItem? updated = await cartRepository.GetByIdAsync(testProductId);
-            Assert.Equal(5, updated?.Quantity);
+            CartItem? updatedItem = await cartRepository.GetByIdAsync(testProductId);
+
+            Assert.NotNull(updatedItem);
+            Assert.Equal(5, updatedItem?.Quantity);
         }
 
         [Fact]
         public async Task DeleteAsync_ShouldRemoveItem()
         {
-            await cartRepository.CreateAsync(productId: testProductId, quantity: 1);
+            CartItem cartItem = new(new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null), testCustomerId, 1);
+            await cartRepository.CreateAsync(cartItem);
+
             bool deleted = await cartRepository.DeleteAsync(testProductId);
+
             CartItem? result = await cartRepository.GetByIdAsync(testProductId);
 
             Assert.True(deleted);
@@ -136,42 +162,56 @@ namespace WorkoutApp.Tests.Repository
         [Fact]
         public async Task ResetCart_ShouldDeleteAllItems()
         {
-            await cartRepository.CreateAsync(productId: testProductId, quantity: 3);
+            CartItem cartItem = new(new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null), testCustomerId, 1);
+
+            await cartRepository.CreateAsync(cartItem);
             bool result = await cartRepository.ResetCart();
-            IEnumerable<CartItem> items = await cartRepository.GetAllAsync();
+
+            IEnumerable<CartItem> cartItems = await cartRepository.GetAllAsync();
 
             Assert.True(result);
-            Assert.Empty(items);
+            Assert.Empty(cartItems);
         }
 
-        // Utility methods
         private async Task<int> InsertTestCustomerAsync(string name)
         {
-            string query = "INSERT INTO Customer (Name) OUTPUT INSERTED.ID VALUES (@Name)";
-            return await dbService.ExecuteScalarAsync<int>(query, [new SqlParameter("@Name", name)]);
-        }
-
-        private async Task<int> InsertTestProductAsync(string name, decimal price, int stock)
-        {
-            int categoryId = await InsertTestCategoryAsync("Test Category");
-
-            string query = @"
-                INSERT INTO Product (Name, Price, Stock, CategoryID, Size, Color, Description, PhotoURL)
-                OUTPUT INSERTED.ID
-                VALUES (@Name, @Price, @Stock, @CategoryID, 'M', 'Red', '', NULL)";
-            List<SqlParameter> parameters = [
-                new("@Name", name),
-                new("@Price", price),
-                new("@Stock", stock),
-                new("@CategoryID", categoryId)
-            ];
+            string query = "INSERT INTO Customer (Name) VALUES (@Name); SELECT SCOPE_IDENTITY();";
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name }
+            };
             return await dbService.ExecuteScalarAsync<int>(query, parameters);
         }
 
         private async Task<int> InsertTestCategoryAsync(string name)
         {
-            string query = "INSERT INTO Category (Name) OUTPUT INSERTED.ID VALUES (@Name)";
-            return await dbService.ExecuteScalarAsync<int>(query, [new SqlParameter("@Name", name)]);
+            string query = "INSERT INTO Category (Name) VALUES (@Name); SELECT SCOPE_IDENTITY();";
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name }
+            };
+            return await dbService.ExecuteScalarAsync<int>(query, parameters);
+        }
+
+        private async Task<int> InsertTestProductAsync(string name, decimal price, int stock, int categoryId)
+        {
+            string query = @"
+            INSERT INTO Product (Name, Price, Stock, CategoryID, Size, Color, Description, PhotoURL) 
+            VALUES (@Name, @Price, @Stock, @CategoryID, @Size, @Color, @Description, @PhotoURL); 
+            SELECT SCOPE_IDENTITY();";
+
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name },
+                new SqlParameter("@Price", SqlDbType.Decimal) { Value = price },
+                new SqlParameter("@Stock", SqlDbType.Int) { Value = stock },
+                new SqlParameter("@CategoryID", SqlDbType.Int) { Value = categoryId },
+                new SqlParameter("@Size", SqlDbType.NVarChar) { Value = "M" }, 
+                new SqlParameter("@Color", SqlDbType.NVarChar) { Value = "Red" },   
+                new SqlParameter("@Description", SqlDbType.NVarChar) { Value = "Sample description" }, 
+                new SqlParameter("@PhotoURL", SqlDbType.NVarChar) { Value = "shirt.jpg" }
+            };
+            return await dbService.ExecuteScalarAsync<int>(query, parameters);
         }
     }
 }
