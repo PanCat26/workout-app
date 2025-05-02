@@ -69,7 +69,7 @@ namespace WorkoutApp.Service
             List<OrderItem> orderItems = new List<OrderItem>();
             foreach (CartItem cartItem in cartItems)
             {
-                await this.cartRepository.DeleteAsync((int)cartItem.ID);
+                await this.cartRepository.DeleteAsync((int)cartItem.Product.ID);
                 orderItems.Add(new OrderItem(cartItem.Product, cartItem.Quantity));
             }
 

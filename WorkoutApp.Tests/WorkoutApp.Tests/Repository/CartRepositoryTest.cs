@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -110,7 +110,7 @@ namespace WorkoutApp.Tests.Repository
         [Fact]
         public async Task GetAllAsync_ShouldReturnCartItems()
         {
-            CartItem cartItem = new(new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Gray", "Sample description", null), testCustomerId, 1);
+            CartItem cartItem = new(new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null), testCustomerId, 1);
             await cartRepository.CreateAsync(cartItem);
 
             IEnumerable<CartItem> cartItems = await cartRepository.GetAllAsync();
