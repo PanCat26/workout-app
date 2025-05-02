@@ -1,17 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
-using Xunit;
 using System.Configuration;
 using WorkoutApp.Data.Database;
 
-namespace WorkoutApp.Tests
+namespace WorkoutApp.Tests.Repository
 {
     [Collection("DatabaseTests")]
-    public class ProductRepositoryTests: IDisposable
+    public class ProductRepositoryTests : IDisposable
     {
         private readonly DbService dbService;
         private readonly ProductRepository repository;
@@ -25,8 +21,8 @@ namespace WorkoutApp.Tests
                 throw new InvalidOperationException("TestConnection string is missing or empty in config file.");
             }
 
-            DbConnectionFactory dbConnectionFactory = new (testConnectionString);
-            dbService = new (dbConnectionFactory);
+            DbConnectionFactory dbConnectionFactory = new(testConnectionString);
+            dbService = new(dbConnectionFactory);
 
             try
             {
@@ -87,7 +83,7 @@ namespace WorkoutApp.Tests
             Assert.Equal(2, result.Count);
 
             // Validate the first product
-            Product product1 = result.FirstOrDefault(p => p.Name == "Test Product 1") !;
+            Product product1 = result.FirstOrDefault(p => p.Name == "Test Product 1")!;
             Assert.Equal("Test Product 1", product1.Name);
             Assert.Equal(10.99m, product1.Price);
             Assert.Equal(100, product1.Stock);
@@ -97,7 +93,7 @@ namespace WorkoutApp.Tests
             Assert.Equal("http://example.com/product1.jpg", product1.PhotoURL);
 
             // Validate the second product
-            Product product2 = result.FirstOrDefault(p => p.Name == "Test Product 2") !;
+            Product product2 = result.FirstOrDefault(p => p.Name == "Test Product 2")!;
             Assert.Equal("Test Product 2", product2.Name);
             Assert.Equal(15.99m, product2.Price);
             Assert.Equal(50, product2.Stock);
@@ -132,7 +128,7 @@ namespace WorkoutApp.Tests
         [Fact]
         public async Task CreateAsync_ShouldCreateProduct_WhenValidProductIsProvided()
         {
-            Product newProduct = new (
+            Product newProduct = new(
                 id: 3,
                 name: "New Product",
                 price: 25.00m,
@@ -157,7 +153,7 @@ namespace WorkoutApp.Tests
         [Fact]
         public async Task UpdateAsync_ShouldUpdateProduct_WhenProductExists()
         {
-            Product productToUpdate = new (
+            Product productToUpdate = new(
                 id: 1,
                 name: "Updated Product",
                 price: 20.00m,
@@ -227,7 +223,7 @@ namespace WorkoutApp.Tests
         {
             bool result = await repository.DeleteAsync(999999); // Non-existing product ID
 
-            Assert.False(result); 
+            Assert.False(result);
         }
 
         public void Dispose()

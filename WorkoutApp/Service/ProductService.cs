@@ -1,116 +1,58 @@
-﻿/*using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using WorkoutApp.Models;
-using WorkoutApp.Repository;
+﻿// <copyright file="ProductService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace WorkoutApp.Service
 {
-    public class ProductService
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using WorkoutApp.Models;
+    using WorkoutApp.Repository;
+
+    /// <summary>
+    /// Service class for handling product operations.
+    /// </summary>
+    public class ProductService : IService<Product>
     {
-        private readonly ProductRepository repository;
+        private readonly IRepository<Product> productRepository;
 
-        public ProductService(ProductRepository repository)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProductService"/> class.
+        /// </summary>
+        /// <param name="productRepository">The product repository.</param>
+        public ProductService(IRepository<Product> productRepository)
         {
-            this.repository = repository;
+            this.productRepository = productRepository;
         }
 
-        public void ValidateProduct(int productId, string name, double price, int stock, int categoryId, string description, string fileUrl, string color = null, string size = null)
+        /// <inheritdoc/>
+        public async Task<Product> CreateAsync(Product entity)
         {
-            if (string.IsNullOrEmpty(name))
-                throw new Exception("Name cannot be null");
-            if (price <= 0)
-                throw new Exception("Price must be greater than zero");
-            if (string.IsNullOrEmpty(fileUrl))
-                throw new Exception("URL cannot be null or empty");
-            if (string.IsNullOrEmpty(description))
-                throw new Exception("Description cannot be null or empty");
-            if (stock < 0)
-                throw new Exception("Quantity cannot be negative");
-            if (categoryId != 1 && categoryId != 2 && categoryId != 3)
-                throw new Exception("Invalid category ID");
-
-            if (categoryId == 1)
-            {
-                if (string.IsNullOrEmpty(size))
-                    throw new Exception("Size cannot be null or empty");
-                if (string.IsNullOrEmpty(color))
-                    throw new Exception("Color cannot be null or empty");
-            }
-            else if (categoryId == 2)
-            {
-                if (string.IsNullOrEmpty(size))
-                    throw new Exception("Size cannot be null or empty");
-            }
+            return await this.productRepository.CreateAsync(entity);
         }
 
-        public async Task UpdateProductAsync(int productId, string name, double price, int stock, int categoryId, string description, string fileUrl, string color, string size)
+        /// <inheritdoc/>
+        public async Task<bool> DeleteAsync(int id)
         {
-            ValidateProduct(productId, name, price, stock, categoryId, description, fileUrl, color, size);
-
-            var product = await repository.GetByIdAsync(productId);
-            if (product == null)
-                throw new Exception("Product does not exist");
-
-            product.Name = name;
-            product.Price = price;
-            product.Stock = stock;
-            product.CategoryID = categoryId;
-            product.Description = description;
-            product.FileUrl = fileUrl;
-
-            if (product is ClothesProduct clothes)
-            {
-                clothes.Attributes = color;
-                clothes.Size = size;
-            }
-            else if (product is FoodProduct food)
-            {
-                food.Size = size;
-            }
-
-            await repository.UpdateAsync(product);
+            return await this.productRepository.DeleteAsync(id);
         }
 
-        public async Task DeleteProductAsync(int productId)
+        /// <inheritdoc/>
+        public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            var product = await repository.GetByIdAsync(productId);
-            if (product == null)
-                throw new Exception("Product does not exist");
-
-            await repository.DeleteAsync(productId);
+            return await this.productRepository.GetAllAsync();
         }
 
-        public async Task<List<IProduct>> GetAllAsync()
+        /// <inheritdoc/>
+        public async Task<Product> GetByIdAsync(int id)
         {
-            var products = await repository.GetAllAsync();
-            return products.ToList();
+            return await this.productRepository.GetByIdAsync(id);
         }
 
-        public async Task<IProduct> GetByIdAsync(int productId)
+        /// <inheritdoc/>
+        public async Task<Product> UpdateAsync(Product entity)
         {
-            return await repository.GetByIdAsync(productId);
-        }
-
-        public async Task<List<IProduct>> GetRecommendedProductsAsync(int productId)
-        {
-            var product = await repository.GetByIdAsync(productId);
-            if (product == null)
-                return new List<IProduct>();
-
-            var allProducts = (await repository.GetAllAsync()).ToList();
-
-            var recommended = allProducts
-                .Where(p => p.ID != product.ID &&
-                            p.CategoryID == product.CategoryID &&
-                            !p.Name.Equals(product.Name, StringComparison.Ordinal) &&
-                            !p.Name.Contains(product.Name, StringComparison.OrdinalIgnoreCase))
-                .Take(3)
-                .ToList();
-
-            return recommended;
+            return await this.productRepository.UpdateAsync(entity);
         }
     }
 }
-*/

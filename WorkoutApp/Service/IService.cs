@@ -1,5 +1,5 @@
-﻿// <copyright file="IService.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+﻿// <copyright file="IService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 namespace WorkoutApp.Service
 {
@@ -10,7 +10,8 @@ namespace WorkoutApp.Service
     /// Generic interface for service classes.
     /// </summary>
     /// <typeparam name="T">The entity type this service operates on.</typeparam>
-    public interface IService<T> where T : class
+    public interface IService<T>
+        where T : class
     {
         /// <summary>
         /// Gets all entities asynchronously.
