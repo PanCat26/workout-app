@@ -125,8 +125,8 @@ namespace WorkoutApp.Repository
                     "WHERE ci.CustomerID = @CustomerID AND p.ID = @ProductID;",
                     new List<SqlParameter>
                     {
-                new SqlParameter("@CustomerID", customerID),
-                new SqlParameter("@ProductID", productID),
+                        new SqlParameter("@CustomerID", customerID),
+                        new SqlParameter("@ProductID", productID),
                     });
 
                 if (selectQueryResult.Rows.Count == 0)
