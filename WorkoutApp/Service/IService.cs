@@ -1,9 +1,8 @@
-﻿// <copyright file="IService.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+﻿// <copyright file="IService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 namespace WorkoutApp.Service
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -11,7 +10,8 @@ namespace WorkoutApp.Service
     /// Generic interface for service classes.
     /// </summary>
     /// <typeparam name="T">The entity type this service operates on.</typeparam>
-    public interface IService<T> where T : class
+    public interface IService<T>
+        where T : class
     {
         /// <summary>
         /// Gets all entities asynchronously.
@@ -24,7 +24,7 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="id">The ID of the entity.</param>
         /// <returns>A task representing the asynchronous operation with the entity.</returns>
-        Task<T> GetByIdAsync(long id);
+        Task<T> GetByIdAsync(int id);
 
         /// <summary>
         /// Creates a new entity asynchronously.
@@ -45,6 +45,6 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="id">The ID of the entity to delete.</param>
         /// <returns>A task representing the asynchronous operation with a boolean indicating success.</returns>
-        Task<bool> DeleteAsync(long id);
+        Task<bool> DeleteAsync(int id);
     }
 }

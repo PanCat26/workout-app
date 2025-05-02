@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
-namespace WorkoutApp.Models
+namespace WorkoutApp.Tests
 {
-    public class MockModel
+    [CollectionDefinition("DatabaseTests")]
+    public class DatabaseTestsCollection
     {
-        public int id { get; set; }
-        public string name { get; set; }
     }
 }

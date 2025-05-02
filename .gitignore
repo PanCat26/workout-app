@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /App.config
 /WorkoutApp/App.config
 /WorkoutApp.Tests/WorkoutApp.Tests/testhost.dll.config
+/coverage-report

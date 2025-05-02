@@ -1,24 +1,82 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="Product.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace WorkoutApp.Models
 {
+    /// <summary>
+    /// Represents an accessory product in the Workout App.
+    /// </summary>
     public class Product
     {
-        public int Id { get; set; }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Product"/> class.
+        /// </summary>
+        /// <param name="id">The unique identifier for the product.</param>
+        /// <param name="name">The name of the product.</param>
+        /// <param name="price">The price of the product.</param>
+        /// <param name="stock">The available stock quantity of the product.</param>
+        /// <param name="category">The category the product belongs to.</param>
+        /// <param name="size">The size of the product.</param>
+        /// <param name="color">The color of the product.</param>
+        /// <param name="description">A brief description of the product.</param>
+        /// <param name="photoURL">The URL for the photo associated with the product.</param>
+        public Product(int? id, string name, decimal price, int stock, Category category, string size, string color, string description, string? photoURL)
+        {
+            this.ID = id;
+            this.Name = name;
+            this.Price = price;
+            this.Stock = stock;
+            this.Category = category;
+            this.Size = size;
+            this.Color = color;
+            this.Description = description;
+            this.PhotoURL = photoURL;
+        }
+
+        /// <summary>
+        /// Gets or sets the unique identifier for the accessory product.
+        /// </summary>
+        public int? ID { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the accessory product.
+        /// </summary>
         public string Name { get; set; }
-        public string Price { get; set; }
-        public string FileUrl { get; set; }
 
-        public string Type { get; set; }
+        /// <summary>
+        /// Gets or sets the price of the accessory product.
+        /// </summary>
+        public decimal Price { get; set; }
 
-        public string Quantity { get; set; }
+        /// <summary>
+        /// Gets or sets the stock quantity available for the accessory product.
+        /// </summary>
+        public int Stock { get; set; }
 
-        public List<string>? Colors { get; set; }
-        public List<string>? Sizes { get; set; }
-        public List<string>? Weights { get; set; }
+        /// <summary>
+        /// Gets or sets the category associated with the accessory product.
+        /// </summary>
+        public Category Category { get; set; }
+
+        /// <summary>
+        /// Gets or sets the size of the accessory product.
+        /// </summary>
+        public string Size { get; set; }
+
+        /// <summary>
+        /// Gets or sets the color of the accessory product.
+        /// </summary>
+        public string Color { get; set; }
+
+        /// <summary>
+        /// Gets or sets the description of the accessory product.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets the photo URL related to the accessory product.
+        /// </summary>
+        public string? PhotoURL { get; set; }
     }
 }

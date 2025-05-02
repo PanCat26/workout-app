@@ -8,8 +8,6 @@ namespace WorkoutApp.Data.Database
     using System.Collections.Generic;
     using System.Data;
     using System.Diagnostics;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
 
@@ -75,5 +73,38 @@ namespace WorkoutApp.Data.Database
                 return -1;
             }
         }
+
+        /// <summary>
+        /// Executes an SQL query and returns the first column of the first row in the result set returned by the query.
+        /// </summary>
+        /// <typeparam name="T">Type of object expected to be returned.</typeparam>
+        /// <param name="query">The SQL Select query to be run.</param>
+        /// <param name="parameters">The parameters of the SQL Select query to be run.</param>
+        /// <returns>A <see cref="Task{T}"/> representing the result of the asynchronous operation.</returns>
+        public async Task<T?> ExecuteScalarAsync<T>(string query, List<SqlParameter> parameters)
+        {
+            using SqlConnection connection = (SqlConnection)this.dbConnectionFactory.CreateConnection();
+            using SqlCommand command = new (query, connection);
+            command.Parameters.AddRange([.. parameters]);
+
+            try
+            {
+                await connection.OpenAsync();
+                object? result = await command.ExecuteScalarAsync();
+
+                if (result == null || result == DBNull.Value)
+                {
+                    throw new InvalidOperationException("Result is null or DBNull.");
+                }
+
+                return (T)Convert.ChangeType(result, typeof(T));
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine($"Error executing query: {exception.Message}");
+                throw;
+            }
+        }
+
     }
 }

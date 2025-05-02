@@ -1,10 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +9,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
-using WorkoutApp.Service;
+//using WorkoutApp.Service;
 using WorkoutApp.ViewModel;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -25,66 +20,68 @@ namespace WorkoutApp.Components
     public sealed partial class CartItemComponent : UserControl
     {
         private StackPanel parent { get; set; }
-        private CartService cartService { get; set; }
+        /*private CartService cartService { get; set; }
         private CartItem cartItem { get; set; }
+*/
+        private Func<int> callBack { get; set; }
 
-        private Func<int> callBack {  get; set; }
+        //private Func<int> callBack {  get; set; }
 
         public CartItemComponent()
         {
             this.InitializeComponent();
         }
 
-        public CartItemComponent(CartItem cartItem, StackPanel parent, Func<int> callBack)
+        /*public CartItemComponent(CartItem cartItem, StackPanel parent, Func<int> callBack)
         {
             this.InitializeComponent();
 
-            this.cartItem = cartItem;
-            this.cartService = new CartService(new CartItemRepository(), new ProductRepository());
+            //this.cartItem = cartItem;
+            //this.cartService = new CartService(new CartItemRepository(), new ProductRepository());
             this.parent = parent;
             this.callBack = callBack;
 
             setDataContext();
-        }
+        }*/
 
-        private void setDataContext()
+        /* void setDataContext()
         {
             IProduct product = cartItem.GetProduct(new ProductRepository());
 
             this.DataContext = new CartItemViewModel(product.Name, product.FileUrl, product.Price, cartItem.Quantity);
             //this.DataContext = new CartItemViewModel("product.Name", "product.FileUrl", "product.Price.ToString()", cartItem.Quantity.ToString());
-        }
+        */
 
         private void deacreaseQuantityButton_Click(object sender, RoutedEventArgs e)
         {
-            cartService.DecreaseQuantity(cartItem);
+            /*cartService.DecreaseQuantity(cartItem);
             cartItem = cartService.GetCartItemById((int)cartItem.Id);
-            
-            if(cartItem.Quantity == 0)
+
+            if (cartItem.Quantity == 0)
             {
                 cartService.RemoveCartItem(cartItem);
                 parent.Children.Remove(this);
                 callBack();
                 return;
             }
-            
+
             setDataContext();
-            callBack();
+            callBack();*/
         }
 
         private void increaseQuantityButton_Click(object sender, RoutedEventArgs e)
         {
-            cartService.IncreaseQuantity(cartItem);
+            /*cartService.IncreaseQuantity(cartItem);
             cartItem = cartService.GetCartItemById((int)cartItem.Id);
             setDataContext();
-            callBack();
+            callBack();*/
         }
 
         private void removeProductButton_Click(object sender, RoutedEventArgs e)
         {
-            cartService.RemoveCartItem(cartItem);
+            /*cartService.RemoveCartItem(cartItem);
             parent.Children.Remove(this);
-            callBack();
+            callBack();*/
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="IMockRepository.cs" company="WorkoutApp">
+﻿/*// <copyright file="IMockRepository.cs" company="WorkoutApp">
 // Copyright (c) WorkoutApp. All rights reserved.
 // </copyright>
 
@@ -30,3 +30,4 @@ namespace WorkoutApp.Repository
         void Save();
     }
 }
+*/

@@ -1,16 +1,12 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WorkoutApp.Data.Database;
 
 namespace WorkoutApp.Tests
 {
+    [Collection("DatabaseTests")]
     public class DbServiceTests : IDisposable
     {
         private readonly DbConnectionFactory connectionFactory;
@@ -18,72 +14,65 @@ namespace WorkoutApp.Tests
 
         public DbServiceTests()
         {
-            string? connectionString = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
+            string? testConnectionString = ConfigurationManager.ConnectionStrings["TestConnection"]?.ConnectionString;
 
-            if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrWhiteSpace(testConnectionString))
             {
                 throw new InvalidOperationException("TestConnection string is missing or empty in config file.");
             }
 
-            connectionFactory = new TestDbConnectionFactory(connectionString);
+            connectionFactory = new DbConnectionFactory(testConnectionString);
             dbService = new DbService(connectionFactory);
 
-            using SqlConnection connection = (SqlConnection)connectionFactory.CreateConnection();
             try
             {
+                using SqlConnection connection = (SqlConnection)connectionFactory.CreateConnection();
                 connection.Open();
+
+                //Reset ids in test database
+                using var resetIdsCommand = new SqlCommand(
+                    "DBCC CHECKIDENT ('Category', RESEED, 0);",
+                    connection
+                );
+                resetIdsCommand.ExecuteNonQuery();
+
+                using var insertCategoryCommand = new SqlCommand(
+                    "INSERT INTO Category (Name) VALUES ('Creatine'), ('Pants');",
+                    connection
+                );
+                insertCategoryCommand.ExecuteNonQuery();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to open SQL connection: {exception}");
-                throw;
-            }
-            using SqlCommand insertCustomerCommand = new(
-                "INSERT INTO Customer (ID, IsActive) VALUES (1, 1)", connection);
-            using SqlCommand insertOrderCommand = new(
-                "INSERT INTO [Order] (ID, CustomerId, OrderDate, TotalAmount, IsActive) VALUES (1, 1, GETDATE(), 100, 1), (2, 1, GETDATE(), 200, 0)", connection);
-            try
-            {
-                insertCustomerCommand.ExecuteNonQuery();
-                insertOrderCommand.ExecuteNonQuery();
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine($"Failed to insert test data: {exception}");
+                Debug.WriteLine($"Database setup failed: {ex}");
                 throw;
             }
         }
-        
+
         [Fact]
         public async Task ExecuteSelect_ValidQueryNoParameters_ReturnsDataTable()
         {
             // Arrange
-            string query = "SELECT * FROM [Order]";
+            string query = "SELECT * FROM Category";
             // Act
             DataTable result = await dbService.ExecuteSelectAsync(query, []);
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Rows.Count);
             DataRow firstRow = result.Rows[0];
-            Assert.Equal(1, (int)firstRow["ID"]);
-            Assert.Equal(1, (int)firstRow["CustomerId"]);
-            Assert.Equal(100m, Convert.ToDecimal(firstRow["TotalAmount"]));
-            Assert.True(Convert.ToBoolean(firstRow["IsActive"]));
+            Assert.Equal("Creatine", firstRow["Name"]);
             DataRow secondRow = result.Rows[1];
-            Assert.Equal(2, (int)secondRow["ID"]);
-            Assert.Equal(1, (int)secondRow["CustomerId"]);
-            Assert.Equal(200m, Convert.ToDecimal(secondRow["TotalAmount"]));
-            Assert.False(Convert.ToBoolean(secondRow["IsActive"]));
+            Assert.Equal("Pants", secondRow["Name"]);
         }
 
         [Fact]
         public async Task ExecuteSelect_ValidQueryWithParameters_ReturnsDataTable()
         {
             // Arrange
-            string query = "SELECT * FROM [Order] WHERE ID = @Id";
+            string query = "SELECT * FROM Category WHERE Name = @Name";
             List<SqlParameter> parameters =
             [
-                new SqlParameter("@ID", 1)
+                new SqlParameter("@Name", "Creatine")
             ];
             // Act
             DataTable result = await dbService.ExecuteSelectAsync(query, parameters);
@@ -91,10 +80,7 @@ namespace WorkoutApp.Tests
             Assert.NotNull(result);
             Assert.Equal(1, result.Rows.Count);
             DataRow row = result.Rows[0];
-            Assert.Equal(1, (int)row["ID"]);
-            Assert.Equal(1, (int)row["CustomerId"]);
-            Assert.Equal(100m, Convert.ToDecimal(row["TotalAmount"]));
-            Assert.True(Convert.ToBoolean(row["IsActive"]));
+            Assert.Equal("Creatine", row["Name"]);
         }
 
         [Fact]
@@ -110,7 +96,7 @@ namespace WorkoutApp.Tests
         public async Task ExecuteQuery_ValidQueryNoParameters_ReturnsAffectedRows()
         {
             // Arrange
-            string query = "DELETE FROM [Order];";
+            string query = "DELETE FROM Category;";
             List<SqlParameter> parameters = [];
             // Act
             int affectedRows = await dbService.ExecuteQueryAsync(query, parameters);
@@ -122,10 +108,10 @@ namespace WorkoutApp.Tests
         public async Task ExecuteQuery_ValidQueryWithParameters_ReturnsAffectedRows()
         {
             // Arrange
-            string query = "DELETE FROM [Order] WHERE ID = @Id";
+            string query = "DELETE FROM Category WHERE Name = @Name";
             List<SqlParameter> parameters =
             [
-                new SqlParameter("@ID", 1)
+                new SqlParameter("@Name", "Creatine")
             ];
             // Act
             int affectedRows = await dbService.ExecuteQueryAsync(query, parameters);
@@ -147,16 +133,13 @@ namespace WorkoutApp.Tests
 
         public void Dispose()
         {
-            using SqlConnection connection = (SqlConnection)connectionFactory.CreateConnection();
             try
             {
+                using SqlConnection connection = (SqlConnection)connectionFactory.CreateConnection();
                 connection.Open();
-                using SqlCommand deleteOrderCommand = new(
-                    "DELETE FROM [Order];", connection);
-                using SqlCommand deleteCustomerCommand = new(
-                    "DELETE FROM Customer;", connection);
-                deleteOrderCommand.ExecuteNonQuery();
-                deleteCustomerCommand.ExecuteNonQuery();
+                using SqlCommand deleteCategoryCommand = new(
+                    "DELETE FROM Category;", connection);
+                deleteCategoryCommand.ExecuteNonQuery();
             }
             catch (Exception exception)
             {
