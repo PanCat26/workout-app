@@ -29,11 +29,17 @@ namespace WorkoutApp.Tests
                 using SqlConnection connection = (SqlConnection)connectionFactory.CreateConnection();
                 connection.Open();
 
+                //Reset ids in test database
+                using var resetIdsCommand = new SqlCommand(
+                    "DBCC CHECKIDENT ('Category', RESEED, 0);",
+                    connection
+                );
+                resetIdsCommand.ExecuteNonQuery();
+
                 using var insertCategoryCommand = new SqlCommand(
                     "INSERT INTO Category (Name) VALUES ('Creatine'), ('Pants');",
                     connection
                 );
-
                 insertCategoryCommand.ExecuteNonQuery();
             }
             catch (Exception ex)

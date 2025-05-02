@@ -13,6 +13,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="testhost.dll.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="testhost.dll.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -35,12 +45,6 @@
 
   <ItemGroup>
     <Folder Include="TestResults\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="testhost.dll.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>

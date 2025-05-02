@@ -1,6 +1,16 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+using WorkoutApp.Models;
+using WorkoutApp.Repository;
+//using WorkoutApp.Service;
+using WorkoutApp.ViewModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -15,30 +25,32 @@ namespace WorkoutApp.Components
 */
         private Func<int> callBack { get; set; }
 
+        //private Func<int> callBack {  get; set; }
+
         public CartItemComponent()
         {
             this.InitializeComponent();
         }
-        /*
-                public CartItemComponent(CartItem cartItem, StackPanel parent, Func<int> callBack)
-                {
-                    this.InitializeComponent();
 
-                    this.cartItem = cartItem;
-                    this.cartService = new CartService(new CartItemRepository(), new ProductRepository());
-                    this.parent = parent;
-                    this.callBack = callBack;
-
-                    setDataContext();
-                }
-        */
-        private void setDataContext()
+        /*public CartItemComponent(CartItem cartItem, StackPanel parent, Func<int> callBack)
         {
-            /*IProduct product = cartItem.GetProduct(new ProductRepository());
+            this.InitializeComponent();
+
+            //this.cartItem = cartItem;
+            //this.cartService = new CartService(new CartItemRepository(), new ProductRepository());
+            this.parent = parent;
+            this.callBack = callBack;
+
+            setDataContext();
+        }*/
+
+        /* void setDataContext()
+        {
+            IProduct product = cartItem.GetProduct(new ProductRepository());
 
             this.DataContext = new CartItemViewModel(product.Name, product.FileUrl, product.Price, cartItem.Quantity);
-            //this.DataContext = new CartItemViewModel("product.Name", "product.FileUrl", "product.Price.ToString()", cartItem.Quantity.ToString());*/
-        }
+            //this.DataContext = new CartItemViewModel("product.Name", "product.FileUrl", "product.Price.ToString()", cartItem.Quantity.ToString());
+        */
 
         private void deacreaseQuantityButton_Click(object sender, RoutedEventArgs e)
         {
