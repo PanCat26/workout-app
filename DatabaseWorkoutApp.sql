@@ -30,7 +30,7 @@ CREATE TABLE Product (
     CategoryID INT NOT NULL,
     Size NVARCHAR(50) NOT NULL DEFAULT 'N/A',
     Color NVARCHAR(50) NOT NULL DEFAULT 'N/A',
-    Description NVARCHAR(255),
+    Description NVARCHAR(255) NOT NULL DEFAULT '',
     PhotoURL NVARCHAR(255),
     CONSTRAINT FK_Product_Category FOREIGN KEY (CategoryID) REFERENCES Category(ID) ON DELETE CASCADE
 );
