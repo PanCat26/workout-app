@@ -1,5 +1,5 @@
-﻿// <copyright file="CartItemRepository.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+﻿// <copyright file="CartRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.Repository
@@ -24,6 +24,8 @@ namespace WorkoutApp.Repository
         /// <summary>
         /// Initializes a new instance of the <see cref="CartRepository"/> class.
         /// </summary>
+        /// <param name="dbService">The database service used for executing queries.</param>
+        /// <param name="sessionManager">The session manager for managing user sessions.</param>
         public CartRepository(DbService dbService, SessionManager sessionManager)
         {
             this.databaseService = dbService ?? throw new ArgumentNullException(nameof(dbService));
@@ -36,7 +38,12 @@ namespace WorkoutApp.Repository
         /// <returns>A collection of cart items.</returns>
         public async Task<IEnumerable<CartItem>> GetAllAsync()
         {
-            int customerID = (int)this.sessionManager.CurrentUserId;
+            int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
+            if (customerID <= 0)
+            {
+                throw new ArgumentException("Invalid customer ID.");
+            }
+
             List<CartItem> cartItems = new List<CartItem>();
 
             try
@@ -66,30 +73,41 @@ namespace WorkoutApp.Repository
         /// Retrieves a cart item by its ID asynchronously.
         /// </summary>
         /// <param name="productID">The ID of the cart item.</param>
-        /// <returns>The cart item with the specified ID.</returns>
-        public async Task<CartItem> GetByIdAsync(int productID)
+        /// <returns>The cart item with the specified ID, or null if not found.</returns>
+        public async Task<CartItem?> GetByIdAsync(int productID)
         {
-            int customerID = (int)this.sessionManager.CurrentUserId;
+            int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
+
+            if (productID <= 0)
+            {
+                throw new ArgumentException("Invalid product ID.");
+            }
+
+            if (customerID <= 0)
+            {
+                throw new ArgumentException("Invalid customer ID.");
+            }
+
             try
             {
                 var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                    "SELECT * FROM CartItem WHERE CustomerID = @CustomerID AND ProductID = @ProductId",
+                    "SELECT * FROM CartItem WHERE CustomerID = @CustomerID AND ProductID = @ProductID",
                     new List<SqlParameter>
                     {
-                            new SqlParameter("@CartId", customerID),
-                            new SqlParameter("@Id", productID),
+                        new SqlParameter("@CustomerID", customerID),
+                        new SqlParameter("@ProductID", productID),
                     });
 
                 if (selectQueryResult.Rows.Count == 0)
                 {
-                    throw new Exception("Cart item not found.");
+                    return null; // Return null if no cart item is found
                 }
 
                 DataRow row = selectQueryResult.Rows[0];
                 CartItem cartItem = new CartItem(
-                        productID: Convert.ToInt32(row["ProductID"]),
-                        customerID: Convert.ToInt32(row["CustomerID"]),
-                        quantity: Convert.ToInt32(row["Quantity"]));
+                    productID: Convert.ToInt32(row["ProductID"]),
+                    customerID: Convert.ToInt32(row["CustomerID"]),
+                    quantity: Convert.ToInt32(row["Quantity"]));
 
                 return cartItem;
             }
@@ -107,23 +125,36 @@ namespace WorkoutApp.Repository
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task CreateAsync(int productId, int quantity)
         {
-            int customerID = (int)this.sessionManager.CurrentUserId;
+            int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
+
+            if (productId <= 0)
+            {
+                throw new ArgumentException("Invalid product ID.");
+            }
+
+            if (quantity <= 0)
+            {
+                throw new ArgumentException("Quantity must be greater than 0.");
+            }
+
+            if (customerID <= 0)
+            {
+                throw new ArgumentException("Invalid customer ID.");
+            }
 
             int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
                 new List<SqlParameter>
                 {
-                        new SqlParameter("@ProductID", productId),
-                        new SqlParameter("@CustomerID", customerID),
-                        new SqlParameter("@Quantity", quantity),
+                    new SqlParameter("@ProductID", productId),
+                    new SqlParameter("@CustomerID", customerID),
+                    new SqlParameter("@Quantity", quantity),
                 });
 
             if (insertQueryResult < 0)
             {
                 throw new Exception($"Error inserting cart item with product id: {productId}");
             }
-
-            return;
         }
 
         /// <summary>
@@ -133,19 +164,38 @@ namespace WorkoutApp.Repository
         /// <returns>The updated cart item.</returns>
         public async Task<CartItem> UpdateAsync(CartItem cartItem)
         {
-            bool isActive = cartItem.Quantity > 0;
+            if (cartItem == null)
+            {
+                throw new ArgumentNullException(nameof(cartItem));
+            }
+
+            if (cartItem.ProductID <= 0)
+            {
+                throw new ArgumentException("Invalid product ID.");
+            }
+
+            if (cartItem.CustomerID <= 0)
+            {
+                throw new ArgumentException("Invalid customer ID.");
+            }
+
+            if (cartItem.Quantity < 0)
+            {
+                throw new ArgumentException("Quantity cannot be negative.");
+            }
+
             int updateQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "UPDATE CartItem SET Quantity = @Quantity WHERE ProductID = @ProductID AND CustomerID = @CustomerID",
                 new List<SqlParameter>
                 {
-                        new SqlParameter("@ProductID", cartItem.ProductID),
-                        new SqlParameter("@CustomerID", cartItem.CustomerID),
-                        new SqlParameter("@Quantity", cartItem.Quantity),
+                    new SqlParameter("@ProductID", cartItem.ProductID),
+                    new SqlParameter("@CustomerID", cartItem.CustomerID),
+                    new SqlParameter("@Quantity", cartItem.Quantity),
                 });
 
             if (updateQueryResult < 0)
             {
-                throw new Exception($"Error updating cart item with id: {cartItem.ID}");
+                throw new Exception($"Error updating cart item with product id: {cartItem.ProductID}");
             }
 
             return cartItem;
@@ -158,8 +208,13 @@ namespace WorkoutApp.Repository
         /// <returns>A boolean indicating whether the deletion was successful.</returns>
         public async Task<bool> DeleteAsync(int productID)
         {
+            if (productID <= 0)
+            {
+                throw new ArgumentException("Invalid product ID.");
+            }
+
             int deleteQueryResult = await this.databaseService.ExecuteQueryAsync(
-                "DELETE CartItem WHERE ProductID = @ProductID",
+                "DELETE FROM CartItem WHERE ProductID = @ProductID",
                 new List<SqlParameter> { new SqlParameter("@ProductID", productID) });
 
             if (deleteQueryResult < 0)
@@ -176,9 +231,12 @@ namespace WorkoutApp.Repository
         /// <returns>A boolean indicating whether the reset was successful.</returns>
         public async Task<bool> ResetCart()
         {
-            IEnumerable<CartItem> cartItems = await this.GetAllAsync();
+            int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
 
-            int customerID = (int)this.sessionManager.CurrentUserId;
+            if (customerID <= 0)
+            {
+                throw new ArgumentException("Invalid customer ID.");
+            }
 
             string deleteQuery = "DELETE FROM CartItem WHERE CustomerID = @CustomerID";
             int deleteQueryResult = await this.databaseService.ExecuteQueryAsync(
@@ -200,15 +258,33 @@ namespace WorkoutApp.Repository
         /// <returns>The created cart item.</returns>
         public async Task<CartItem> CreateAsync(CartItem entity)
         {
-            int customerID = (int)this.sessionManager.CurrentUserId;
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (entity.ProductID <= 0)
+            {
+                throw new ArgumentException("Invalid product ID.");
+            }
+
+            if (entity.CustomerID <= 0)
+            {
+                throw new ArgumentException("Invalid customer ID.");
+            }
+
+            if (entity.Quantity <= 0)
+            {
+                throw new ArgumentException("Quantity must be greater than 0.");
+            }
 
             int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
-                "INSERT INTO CartItem (ProductId, CustomerID, Quantity) VALUES (@CustomerID, @ProductId, @Quantity)",
+                "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
                 new List<SqlParameter>
                 {
-                        new SqlParameter("@ProductId", entity.ProductID),
-                        new SqlParameter("@CustomerID", entity.CustomerID),
-                        new SqlParameter("@Quantity", entity.Quantity),
+                    new SqlParameter("@ProductID", entity.ProductID),
+                    new SqlParameter("@CustomerID", entity.CustomerID),
+                    new SqlParameter("@Quantity", entity.Quantity),
                 });
 
             if (insertQueryResult < 0)
