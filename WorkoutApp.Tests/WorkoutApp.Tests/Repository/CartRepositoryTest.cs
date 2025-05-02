@@ -95,20 +95,31 @@ namespace WorkoutApp.Tests.Repository
         public async Task CreateAsync_ShouldInsertCartItem()
         {
             await cartRepository.CreateAsync(productId: testProductId, quantity: 2);
-            CartItem? result = await cartRepository.GetByIdAsync(testProductId);
 
-            Assert.NotNull(result);
-            Assert.Equal(testProductId, result.ProductID);
-            Assert.Equal(2, result.Quantity);
+            // Still using CartItem here because CreateAsync affects the cart state, not product structure
+            Product? product = await cartRepository.GetByIdAsync(testProductId);
+
+            Assert.NotNull(product);
+            Assert.Equal(testProductId, product?.ID);
+            Assert.Equal("Test Product", product?.Name);
         }
 
         [Fact]
-        public async Task GetAllAsync_ShouldReturnCartItems()
+        public async Task GetAllAsync_ShouldReturnProductsInCart()
         {
             await cartRepository.CreateAsync(productId: testProductId, quantity: 1);
-            IEnumerable<CartItem> items = await cartRepository.GetAllAsync();
 
-            Assert.Single(items);
+            IEnumerable<Product> products = await cartRepository.GetAllAsync();
+
+            Assert.Single(products);
+            Product product = Assert.Single(products); 
+            Assert.Equal(testProductId, product.ID);
+            Assert.Equal("Test Product", product.Name);
+            Assert.Equal(19.99m, product.Price);
+            Assert.Equal("M", product.Size);
+            Assert.Equal("Red", product.Color);
+            Assert.NotNull(product.Category);
+            Assert.Equal("Test Category", product.Category.Name);
         }
 
         [Fact]
@@ -118,8 +129,10 @@ namespace WorkoutApp.Tests.Repository
             CartItem itemToUpdate = new(testProductId, testCustomerId, 5);
             await cartRepository.UpdateAsync(itemToUpdate);
 
-            CartItem? updated = await cartRepository.GetByIdAsync(testProductId);
-            Assert.Equal(5, updated?.Quantity);
+            Product? updatedProduct = await cartRepository.GetByIdAsync(testProductId);
+
+            Assert.NotNull(updatedProduct);
+            Assert.Equal(testProductId, updatedProduct?.ID);
         }
 
         [Fact]
@@ -127,7 +140,8 @@ namespace WorkoutApp.Tests.Repository
         {
             await cartRepository.CreateAsync(productId: testProductId, quantity: 1);
             bool deleted = await cartRepository.DeleteAsync(testProductId);
-            CartItem? result = await cartRepository.GetByIdAsync(testProductId);
+
+            Product? result = await cartRepository.GetByIdAsync(testProductId);
 
             Assert.True(deleted);
             Assert.Null(result);
@@ -138,10 +152,11 @@ namespace WorkoutApp.Tests.Repository
         {
             await cartRepository.CreateAsync(productId: testProductId, quantity: 3);
             bool result = await cartRepository.ResetCart();
-            IEnumerable<CartItem> items = await cartRepository.GetAllAsync();
+
+            IEnumerable<Product> products = await cartRepository.GetAllAsync();
 
             Assert.True(result);
-            Assert.Empty(items);
+            Assert.Empty(products);
         }
 
         // Utility methods
