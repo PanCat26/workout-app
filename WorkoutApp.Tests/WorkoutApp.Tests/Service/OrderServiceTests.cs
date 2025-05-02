@@ -91,8 +91,8 @@ namespace WorkoutApp.Tests.Service
 
             var sampleCartItems = new List<CartItem>
             {
-                new CartItem(1, new Product(1, "Mat", 20.0m, 10, new Category(1, "Gear"), "M", "Black", "Yoga mat", null),1, 2),
-                new CartItem(2, new Product(2, "Dumbbell", 50.0m, 5, new Category(2, "Weights"), "L", "Silver", "Iron dumbbell", null),1, 1)
+                new CartItem(new Product(1, "Mat", 20.0m, 10, new Category(1, "Gear"), "M", "Black", "Yoga mat", null),1, 2),
+                new CartItem(new Product(2, "Dumbbell", 50.0m, 5, new Category(2, "Weights"), "L", "Silver", "Iron dumbbell", null),1, 1)
             };
 
             mockCartRepo.Setup(repo => repo.GetAllAsync()).ReturnsAsync(sampleCartItems);
@@ -108,7 +108,7 @@ namespace WorkoutApp.Tests.Service
             mockCartRepo.Verify(repo => repo.GetAllAsync(), Times.Once);
             foreach (var item in sampleCartItems)
             {
-                mockCartRepo.Verify(repo => repo.DeleteAsync((int)item.ID), Times.Once);
+                mockCartRepo.Verify(repo => repo.DeleteAsync((int)item.Product.ID), Times.Once);
             }
 
             mockOrderRepo.Verify(repo => repo.CreateAsync(It.Is<Order>(o =>
