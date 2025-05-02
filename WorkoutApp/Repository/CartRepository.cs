@@ -36,7 +36,7 @@ namespace WorkoutApp.Repository
         /// Retrieves all cart items asynchronously.
         /// </summary>
         /// <returns>A collection of cart items.</returns>
-        public async Task<IEnumerable<CartItem>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsync()
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
             if (customerID <= 0)
@@ -44,24 +44,54 @@ namespace WorkoutApp.Repository
                 throw new ArgumentException("Invalid customer ID.");
             }
 
-            List<CartItem> cartItems = new List<CartItem>();
+            List<Product> products = new List<Product>();
 
             try
             {
                 var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                    "SELECT * FROM CartItem WHERE CustomerID = @CustomerID",
+                    "SELECT p.ID AS ProductID, " +
+                    "ci.CustomerID, " +
+                    "ci.Quantity, " +
+                    "p.Name, " +
+                    "p.Price, " +
+                    "p.Stock, " +
+                    "p.Size, " +
+                    "p.Color, " +
+                    "p.Description, " +
+                    "p.PhotoURL, " +
+                    "p.CategoryID, " +
+                    "ct.Name AS CategoryName " +
+                    "FROM CartItem ci " +
+                    "JOIN Product p ON ci.ProductID = p.ID " +
+                    "JOIN Category ct ON p.CategoryID = ct.ID " +
+                    "WHERE ci.CustomerID = @CustomerID;",
                     new List<SqlParameter> { new SqlParameter("@CustomerID", customerID) });
 
                 foreach (DataRow row in selectQueryResult.Rows)
                 {
-                    CartItem cartItem = new CartItem(
-                        productID: Convert.ToInt32(row["ProductID"]),
-                        customerID: Convert.ToInt32(row["CustomerID"]),
-                        quantity: Convert.ToInt32(row["Quantity"]));
-                    cartItems.Add(cartItem);
+                    var category = new Category
+                    (
+                        id: Convert.ToInt32(row["CategoryID"]),
+                        name: row["CategoryName"]?.ToString() ?? string.Empty
+                    );
+
+                    var product = new Product(
+                            id: Convert.ToInt32(row["ProductID"]),
+                            name: row["Name"]?.ToString() ?? string.Empty,
+                            price: Convert.ToDecimal(row["Price"]),
+                            stock: Convert.ToInt32(row["Stock"]),
+                            category: category,
+                            size: row["Size"]?.ToString() ?? string.Empty,
+                            color: row["Color"]?.ToString() ?? string.Empty,
+                            description: row["Description"]?.ToString() ?? string.Empty,
+                            photoURL: row["PhotoURL"]?.ToString()
+              );
+
+                    products.Add(product);
                 }
 
-                return cartItems;
+
+                return products;
             }
             catch (Exception exception)
             {
@@ -74,7 +104,7 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="productID">The ID of the cart item.</param>
         /// <returns>The cart item with the specified ID, or null if not found.</returns>
-        public async Task<CartItem?> GetByIdAsync(int productID)
+        public async Task<Product?> GetByIdAsync(int productID)
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
 
@@ -91,29 +121,58 @@ namespace WorkoutApp.Repository
             try
             {
                 var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                    "SELECT * FROM CartItem WHERE CustomerID = @CustomerID AND ProductID = @ProductID",
+                    "SELECT p.ID AS ProductID, " +
+                    "ci.CustomerID, " +
+                    "ci.Quantity, " +
+                    "p.Name, " +
+                    "p.Price, " +
+                    "p.Stock, " +
+                    "p.Size, " +
+                    "p.Color, " +
+                    "p.Description, " +
+                    "p.PhotoURL, " +
+                    "c.ID AS CategoryID, " +
+                    "c.Name AS CategoryName " +
+                    "FROM CartItem ci " +
+                    "JOIN Product p ON ci.ProductID = p.ID " +
+                    "JOIN Category c ON p.CategoryID = c.ID " +
+                    "WHERE ci.CustomerID = @CustomerID AND p.ID = @ProductID;",
                     new List<SqlParameter>
                     {
-                        new SqlParameter("@CustomerID", customerID),
-                        new SqlParameter("@ProductID", productID),
+                new SqlParameter("@CustomerID", customerID),
+                new SqlParameter("@ProductID", productID),
                     });
 
                 if (selectQueryResult.Rows.Count == 0)
                 {
-                    return null; // Return null if no cart item is found
+                    return null;
                 }
 
                 DataRow row = selectQueryResult.Rows[0];
-                CartItem cartItem = new CartItem(
-                    productID: Convert.ToInt32(row["ProductID"]),
-                    customerID: Convert.ToInt32(row["CustomerID"]),
-                    quantity: Convert.ToInt32(row["Quantity"]));
 
-                return cartItem;
+                var category = new Category
+                (
+                    id: Convert.ToInt32(row["CategoryID"]),
+                    name: row["CategoryName"]?.ToString() ?? string.Empty
+                );
+
+                var product = new Product(
+                    id: Convert.ToInt32(row["ProductID"]),
+                    name: row["Name"]?.ToString() ?? string.Empty,
+                    price: Convert.ToDecimal(row["Price"]),
+                    stock: Convert.ToInt32(row["Stock"]),
+                    category: category,
+                    size: row["Size"]?.ToString() ?? string.Empty,
+                    color: row["Color"]?.ToString() ?? string.Empty,
+                    description: row["Description"]?.ToString() ?? string.Empty,
+                    photoURL: row["PhotoURL"]?.ToString()
+                );
+
+                return product;
             }
             catch (Exception exception)
             {
-                throw new Exception($"Error retrieving cart item: {exception.Message}");
+                throw new Exception($"Error retrieving product: {exception.Message}");
             }
         }
 
@@ -293,6 +352,16 @@ namespace WorkoutApp.Repository
             }
 
             return entity;
+        }
+
+        Task<IEnumerable<CartItem>> IRepository<CartItem>.GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<CartItem?> IRepository<CartItem>.GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
