@@ -1,28 +1,48 @@
-﻿/*using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
 
 namespace WorkoutApp.Service
 {
-    public class OrderService
+    public class OrderService : IService<Order>
     {
-        private string connectionString = @"Data Source=DESKTOP-OR684EE;Initial Catalog=ShopDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True";
-        private SqlConnection connection;
+        IRepository<Order> orderRepository;
+        //IRepository<CartItem> cartRepository;
 
-        public OrderService()
+        public OrderService(IRepository<Order> orderRepository)
         {
-            this.connection = new SqlConnection(connectionString);
+            this.orderRepository = orderRepository;
+        }
+
+        public async Task<Order> CreateAsync(Order entity)
+        {
+            return await this.orderRepository.CreateAsync(entity);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await this.orderRepository.DeleteAsync(id);
+        }
+
+        public async Task<IEnumerable<Order>> GetAllAsync()
+        {
+            return await this.orderRepository.GetAllAsync();
+        }
+
+        public async Task<Order> GetByIdAsync(int id)
+        {
+            return await this.orderRepository.GetByIdAsync(id);
+        }
+
+        public void CreateOrderFromCart()
+        {
+            //CreateOrderFromCart(): ia tot din cartrepo, il goleste, si apeleaza add din orderrepo, aici se face order si se ia timestamp
         }
 
         public void SendOrder(double TotalAmount)
         {
-            *//*connection.Open();
+            /*connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(
                 "INSERT INTO [Order] (ID, CustomerId, OrderDate, TotalAmount, IsActive) VALUES (@ID, @CustomerId, GETDATE(), @TotalAmount, @IsActive)",
@@ -48,15 +68,20 @@ namespace WorkoutApp.Service
 
             foreach (var cartItem in cartItems)
             {
-                addOrderDetail(newId, (int) cartItem.ProductId, (int) cartItem.Quantity, cartItem.GetProduct(productRepository).Price);
+                addOrderDetail(newId, (int)cartItem.ProductId, (int)cartItem.Quantity, cartItem.GetProduct(productRepository).Price);
             }
 
-            cartItemRepository.ResetCart();*//*
+            cartItemRepository.ResetCart();*/
+        }
+
+        public Task<Order> UpdateAsync(Order entity)
+        {
+            return this.orderRepository.UpdateAsync(entity);
         }
 
         private void addOrderDetail(int OrderID, int ProductID, int Quantity, double Price)
         {
-            //call creasteAsync(OrderDetail)
+            /*//call creasteAsync(OrderDetail)
             connection.Open();
 
             SqlCommand insertCommand = new SqlCommand(
@@ -76,8 +101,7 @@ namespace WorkoutApp.Service
 
             insertCommand.ExecuteNonQuery();
 
-            connection.Close();
+            connection.Close();*/
         }
     }
 }
-*/
