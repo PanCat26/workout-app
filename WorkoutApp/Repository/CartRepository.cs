@@ -39,12 +39,8 @@ namespace WorkoutApp.Repository
         public async Task<IEnumerable<CartItem>> GetAllAsync()
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
-            if (customerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
 
-            List<CartItem> products = new List<CartItem>();
+            List<CartItem> cartItems = new List<CartItem>();
 
             try
             {
@@ -69,11 +65,9 @@ namespace WorkoutApp.Repository
 
                 foreach (DataRow row in selectQueryResult.Rows)
                 {
-                    Category category = new Category
-                    (
+                    Category category = new Category(
                         id: Convert.ToInt32(row["CategoryID"]),
-                        name: row["CategoryName"]?.ToString() ?? string.Empty
-                    );
+                        name: row["CategoryName"]?.ToString() ?? string.Empty);
 
                     Product product = new Product(
                             id: Convert.ToInt32(row["ProductID"]),
@@ -90,11 +84,10 @@ namespace WorkoutApp.Repository
                         product: product,
                         customerID: Convert.ToInt32(row["CustomerID"]),
                         quantity: Convert.ToInt32(row["Quantity"]));
-                    products.Add(cartItem);
+                    cartItems.Add(cartItem);
                 }
 
-
-                return products;
+                return cartItems;
             }
             catch (Exception exception)
             {
@@ -110,16 +103,6 @@ namespace WorkoutApp.Repository
         public async Task<CartItem?> GetByIdAsync(int productID)
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
-
-            if (productID <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
-            if (customerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
 
             try
             {
@@ -153,11 +136,9 @@ namespace WorkoutApp.Repository
 
                 DataRow row = selectQueryResult.Rows[0];
 
-                Category category = new Category
-                (
+                Category category = new Category(
                     id: Convert.ToInt32(row["CategoryID"]),
-                    name: row["CategoryName"]?.ToString() ?? string.Empty
-                );
+                    name: row["CategoryName"]?.ToString() ?? string.Empty);
 
                 Product product = new Product(
                     id: Convert.ToInt32(row["ProductID"]),
@@ -168,8 +149,7 @@ namespace WorkoutApp.Repository
                     size: row["Size"]?.ToString() ?? string.Empty,
                     color: row["Color"]?.ToString() ?? string.Empty,
                     description: row["Description"]?.ToString() ?? string.Empty,
-                    photoURL: row["PhotoURL"]?.ToString()
-                );
+                    photoURL: row["PhotoURL"]?.ToString());
 
                 CartItem cartItem = new CartItem(
                     product: product,
@@ -194,21 +174,6 @@ namespace WorkoutApp.Repository
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
 
-            if (productId <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
-            if (quantity <= 0)
-            {
-                throw new ArgumentException("Quantity must be greater than 0.");
-            }
-
-            if (customerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
-
             int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
                 new List<SqlParameter>
@@ -231,26 +196,6 @@ namespace WorkoutApp.Repository
         /// <returns>The updated cart item.</returns>
         public async Task<CartItem> UpdateAsync(CartItem cartItem)
         {
-            if (cartItem == null)
-            {
-                throw new ArgumentNullException(nameof(cartItem));
-            }
-
-            if (cartItem.Product.ID <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
-            if (cartItem.CustomerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
-
-            if (cartItem.Quantity < 0)
-            {
-                throw new ArgumentException("Quantity cannot be negative.");
-            }
-
             int updateQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "UPDATE CartItem SET Quantity = @Quantity WHERE ProductID = @ProductID AND CustomerID = @CustomerID",
                 new List<SqlParameter>
@@ -325,25 +270,6 @@ namespace WorkoutApp.Repository
         /// <returns>The created cart item.</returns>
         public async Task<CartItem> CreateAsync(CartItem entity)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            if (entity.Product.ID <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
-            if (entity.CustomerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
-
-            if (entity.Quantity <= 0)
-            {
-                throw new ArgumentException("Quantity must be greater than 0.");
-            }
 
             int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
                 "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
