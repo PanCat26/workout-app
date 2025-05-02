@@ -23,7 +23,11 @@ namespace WorkoutApp.View.ProductTab
             CartItemRepository cartItemRepository = new CartItemRepository();
             ProductRepository productRepository = new ProductRepository();
             //WishlistItemRepository wishlistRepository = new WishlistItemRepository();
+<<<<<<< HEAD
+            //this.cartService = new CartService(cartItemRepository, productRepository);
+=======
             this.cartService = new CartService(cartItemRepository, productRepository);
+>>>>>>> 44a02acc1d08c122fabac68fdc0a3764375e0dcd
             //this.wishlistService = new  WishlistService(wishlistRepository, productRepository);
             this.productService = new ProductService(productRepository);
             this.product = product;

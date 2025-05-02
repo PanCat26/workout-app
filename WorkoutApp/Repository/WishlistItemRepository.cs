@@ -110,28 +110,26 @@ namespace WorkoutApp.Repository
         /// <returns>The created <see cref="WishlistItem"/> object.</returns>
         public async Task<WishlistItem> CreateAsync(WishlistItem entity)
         {
-            // First get the new ID
-            var getMaxIdQuery = "SELECT ISNULL(MAX(ID), 0) + 1 FROM Wishlist";
-            var maxIdTable = await this.dbService.ExecuteSelectAsync(getMaxIdQuery, new List<SqlParameter>());
-            int newId = Convert.ToInt32(maxIdTable.Rows[0][0]);
-
             var parameters = new List<SqlParameter>
             {
-                new SqlParameter("@ID", newId),
                 new SqlParameter("@ProductID", entity.ProductID),
                 new SqlParameter("@CustomerID", this.GetActiveCustomerId()),
                 new SqlParameter("@IsActive", 1)
             };
 
-            var query = "INSERT INTO Wishlist (ID, ProductID, CustomerID, IsActive) VALUES (@ID, @ProductID, @CustomerID, @IsActive)";
+            string query = @"
+            INSERT INTO Wishlist (ProductID, CustomerID, IsActive)
+            OUTPUT INSERTED.ID
+            VALUES (@ProductID, @CustomerID, @IsActive);";
 
-            await this.dbService.ExecuteQueryAsync(query, parameters);
+            var resultTable = await this.dbService.ExecuteSelectAsync(query, parameters);
 
-            entity.ID = newId;
+            entity.ID = Convert.ToInt32(resultTable.Rows[0][0]);
             entity.CustomerID = this.GetActiveCustomerId();
 
             return entity;
         }
+
 
         /// <summary>
         /// Updates an existing wishlist item.
