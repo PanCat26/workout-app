@@ -17,7 +17,7 @@ namespace WorkoutApp.Models
         /// <summary>
         /// Gets or sets the product ID associated with the cart item.
         /// </summary>
-        public int ProductID { get; set; }
+        public Product Product { get; set; }
 
         /// <summary>
         /// Gets or sets the customer ID associated with the cart item.
@@ -36,17 +36,17 @@ namespace WorkoutApp.Models
         /// <param name="productID">The ID of the product associated with the cart item.</param>
         /// <param name="customerID">The ID of the customer associated with the cart item.</param>
         /// <param name="quantity">The quantity of the product in the cart.</param>
-        public CartItem(int? id, int productID, int customerID, int quantity)
+        public CartItem(int? id, Product product, int customerID, int quantity)
         {
             this.ID = id;
-            this.ProductID = productID;
+            this.Product = product;
             this.CustomerID = customerID;
             this.Quantity = quantity;
         }
 
-        public CartItem(int productID, int customerID, int quantity)
+        public CartItem(Product product, int customerID, int quantity)
         {
-            ProductID = productID;
+            Product = product;
             CustomerID = customerID;
             Quantity = quantity;
         }

@@ -36,7 +36,7 @@ namespace WorkoutApp.Repository
         /// Retrieves all cart items asynchronously.
         /// </summary>
         /// <returns>A collection of cart items.</returns>
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<CartItem>> GetAllAsync()
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
             if (customerID <= 0)
@@ -44,7 +44,7 @@ namespace WorkoutApp.Repository
                 throw new ArgumentException("Invalid customer ID.");
             }
 
-            List<Product> products = new List<Product>();
+            List<CartItem> products = new List<CartItem>();
 
             try
             {
@@ -69,13 +69,13 @@ namespace WorkoutApp.Repository
 
                 foreach (DataRow row in selectQueryResult.Rows)
                 {
-                    var category = new Category
+                    Category category = new Category
                     (
                         id: Convert.ToInt32(row["CategoryID"]),
                         name: row["CategoryName"]?.ToString() ?? string.Empty
                     );
 
-                    var product = new Product(
+                    Product product = new Product(
                             id: Convert.ToInt32(row["ProductID"]),
                             name: row["Name"]?.ToString() ?? string.Empty,
                             price: Convert.ToDecimal(row["Price"]),
@@ -84,10 +84,13 @@ namespace WorkoutApp.Repository
                             size: row["Size"]?.ToString() ?? string.Empty,
                             color: row["Color"]?.ToString() ?? string.Empty,
                             description: row["Description"]?.ToString() ?? string.Empty,
-                            photoURL: row["PhotoURL"]?.ToString()
-              );
+                            photoURL: row["PhotoURL"]?.ToString());
 
-                    products.Add(product);
+                    CartItem cartItem = new CartItem(
+                        product: product,
+                        customerID: Convert.ToInt32(row["CustomerID"]),
+                        quantity: Convert.ToInt32(row["Quantity"]));
+                    products.Add(cartItem);
                 }
 
 
@@ -104,7 +107,7 @@ namespace WorkoutApp.Repository
         /// </summary>
         /// <param name="productID">The ID of the cart item.</param>
         /// <returns>The cart item with the specified ID, or null if not found.</returns>
-        public async Task<Product?> GetByIdAsync(int productID)
+        public async Task<CartItem?> GetByIdAsync(int productID)
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
 
@@ -150,13 +153,13 @@ namespace WorkoutApp.Repository
 
                 DataRow row = selectQueryResult.Rows[0];
 
-                var category = new Category
+                Category category = new Category
                 (
                     id: Convert.ToInt32(row["CategoryID"]),
                     name: row["CategoryName"]?.ToString() ?? string.Empty
                 );
 
-                var product = new Product(
+                Product product = new Product(
                     id: Convert.ToInt32(row["ProductID"]),
                     name: row["Name"]?.ToString() ?? string.Empty,
                     price: Convert.ToDecimal(row["Price"]),
@@ -168,7 +171,12 @@ namespace WorkoutApp.Repository
                     photoURL: row["PhotoURL"]?.ToString()
                 );
 
-                return product;
+                CartItem cartItem = new CartItem(
+                    product: product,
+                    customerID: Convert.ToInt32(row["CustomerID"]),
+                    quantity: Convert.ToInt32(row["Quantity"]));
+
+                return cartItem;
             }
             catch (Exception exception)
             {
@@ -228,7 +236,7 @@ namespace WorkoutApp.Repository
                 throw new ArgumentNullException(nameof(cartItem));
             }
 
-            if (cartItem.ProductID <= 0)
+            if (cartItem.Product.ID <= 0)
             {
                 throw new ArgumentException("Invalid product ID.");
             }
@@ -247,14 +255,14 @@ namespace WorkoutApp.Repository
                 "UPDATE CartItem SET Quantity = @Quantity WHERE ProductID = @ProductID AND CustomerID = @CustomerID",
                 new List<SqlParameter>
                 {
-                    new SqlParameter("@ProductID", cartItem.ProductID),
+                    new SqlParameter("@ProductID", cartItem.Product.ID),
                     new SqlParameter("@CustomerID", cartItem.CustomerID),
                     new SqlParameter("@Quantity", cartItem.Quantity),
                 });
 
             if (updateQueryResult < 0)
             {
-                throw new Exception($"Error updating cart item with product id: {cartItem.ProductID}");
+                throw new Exception($"Error updating cart item with product id: {cartItem.Product.ID}");
             }
 
             return cartItem;
@@ -322,7 +330,7 @@ namespace WorkoutApp.Repository
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            if (entity.ProductID <= 0)
+            if (entity.Product.ID <= 0)
             {
                 throw new ArgumentException("Invalid product ID.");
             }
@@ -341,27 +349,17 @@ namespace WorkoutApp.Repository
                 "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
                 new List<SqlParameter>
                 {
-                    new SqlParameter("@ProductID", entity.ProductID),
+                    new SqlParameter("@ProductID", entity.Product.ID),
                     new SqlParameter("@CustomerID", entity.CustomerID),
                     new SqlParameter("@Quantity", entity.Quantity),
                 });
 
             if (insertQueryResult < 0)
             {
-                throw new Exception($"Error inserting cart item with product id: {entity.ProductID}");
+                throw new Exception($"Error inserting cart item with product id: {entity.Product.ID}");
             }
 
             return entity;
-        }
-
-        Task<IEnumerable<CartItem>> IRepository<CartItem>.GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<CartItem?> IRepository<CartItem>.GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
         }
     }
 }
