@@ -16,7 +16,7 @@ using Xunit; // Required for [Fact], Assert, [Collection], IDisposable
 // This is CRUCIAL for preventing deadlocks and ensuring a clean database state
 // between tests that share the same database.
 // You need to define the 'Sequential' collection in a separate file (e.g., CollectionDefinitions.cs).
-[Collection("Sequential")]
+[Collection("DatabaseTests")]
 public class CategoryServiceTests : IDisposable // Implement IDisposable for cleanup
 {
     // These fields are used by the test class and service/repository dependencies
@@ -231,8 +231,8 @@ public class CategoryServiceTests : IDisposable // Implement IDisposable for cle
 
         // Act: Call the service update method
         var updatedCategory = await categoryService.UpdateAsync(nonExistentCategory);
-
         // Assert: The returned entity should match the input (as the service/repo returns the input)
+
         Assert.NotNull(updatedCategory);
         Assert.Equal(nonExistentCategory.ID, updatedCategory.ID);
         Assert.Equal(nonExistentCategory.Name, updatedCategory.Name);

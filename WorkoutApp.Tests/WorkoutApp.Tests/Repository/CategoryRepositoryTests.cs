@@ -300,6 +300,7 @@ public class CategoryRepositoryTests : IDisposable // Implement IDisposable for 
                 @"
                 DELETE FROM Product; -- Delete products that might reference categories
                 DELETE FROM Category; -- Delete categories themselves
+                DBCC CHECKIDENT('Category', RESEED, 0);
                 ", connection);
             clearDataCommand.ExecuteNonQuery();
         }
