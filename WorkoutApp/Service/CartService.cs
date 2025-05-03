@@ -70,7 +70,7 @@ namespace WorkoutApp.Service
         {
             try
             {
-                await this.cartRepository.DeleteAsync(cartItem.ID);
+                await this.cartRepository.DeleteAsync(cartItem.ID ?? throw new InvalidOperationException("CartItem ID cannot be null."));
             }
             catch (Exception ex)
             {
@@ -106,7 +106,7 @@ namespace WorkoutApp.Service
                 IEnumerable<CartItem> cartItems = await this.cartRepository.GetAllAsync();
                 foreach (CartItem item in cartItems)
                 {
-                    await this.cartRepository.DeleteAsync(item.ID);
+                    await this.cartRepository.DeleteAsync(item.ID ?? throw new InvalidOperationException("CartItem ID cannot be null."));
                 }
             }
             catch (Exception ex)

@@ -102,7 +102,7 @@ namespace WorkoutApp.Tests.Repository
 
             CartItem createdItem = await cartRepository.CreateAsync(cartItem); // this sets ID after DB insert
 
-            CartItem? retrievedItem = await cartRepository.GetByIdAsync(createdItem.ID);
+            CartItem? retrievedItem = await cartRepository.GetByIdAsync((int)createdItem.ID);
 
             Assert.NotNull(retrievedItem);
             Assert.Equal(createdItem.ID, retrievedItem.ID);
@@ -148,12 +148,12 @@ namespace WorkoutApp.Tests.Repository
         public async Task GetByIdAsync_ShouldReturnCorrectItem()
         {
             CartItem cartItem = new(
-                id: 0, 
+                id: null, 
                 product: new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null),
                 customerID: testCustomerId);
 
             CartItem createdItem = await cartRepository.CreateAsync(cartItem);
-            CartItem? result = await cartRepository.GetByIdAsync(createdItem.ID);
+            CartItem? result = await cartRepository.GetByIdAsync((int)createdItem.ID);
 
             Assert.NotNull(result);
             Assert.Equal(createdItem.ID, result.ID);
