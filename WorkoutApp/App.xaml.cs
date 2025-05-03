@@ -2,12 +2,8 @@
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 namespace WorkoutApp
 {
-    using System;
-    using System.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.UI.Xaml;
-    using WorkoutApp.Data.Database;
     using WorkoutApp.View;
 
     /// <summary>
@@ -25,7 +21,7 @@ namespace WorkoutApp
         {
             this.InitializeComponent();
 
-            string? connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"]?.ConnectionString;
+            /*string? connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"]?.ConnectionString;
 
             if (string.IsNullOrEmpty(connectionString))
             {
@@ -40,13 +36,13 @@ namespace WorkoutApp
                 })
                 .Build();
 
-            Services = this.host.Services;
+            Services = this.host.Services;*/
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Gets the service provider for dependency injection.
         /// </summary>
-        public static IServiceProvider Services { get; private set; }
+        public static IServiceProvider Services { get; private set; }*/
 
         /// <summary>
         /// Invoked when the application is launched.
