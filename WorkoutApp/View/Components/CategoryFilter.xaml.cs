@@ -8,7 +8,7 @@ using System;
 
 
 
-namespace WorkoutApp.View
+namespace WorkoutApp.View.Components
 {
     public sealed partial class CategoryFilter : UserControl
     {
@@ -26,13 +26,13 @@ namespace WorkoutApp.View
             var categoryService = new CategoryService(categoryRepository);
 
             this.viewModel = new CategoryFilterViewModel(categoryService);
-            this.DataContext = viewModel;
+            this.DataContext = this.viewModel;
 
             this.Loaded += (_, __) =>
             {
                 this.DispatcherQueue.TryEnqueue(async () =>
                 {
-                    await viewModel.LoadCategoriesAsync();
+                    await this.viewModel.LoadCategoriesAsync();
                 });
             };
         }

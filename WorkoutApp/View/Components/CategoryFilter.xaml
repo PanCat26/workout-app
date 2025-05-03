@@ -1,5 +1,5 @@
 <UserControl
-    x:Class="WorkoutApp.View.CategoryFilter"
+    x:Class="WorkoutApp.View.Components.CategoryFilter"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:WorkoutApp.View"

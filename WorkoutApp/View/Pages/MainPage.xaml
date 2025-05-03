@@ -5,7 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:WorkoutApp.View"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:component="using:WorkoutApp.View.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:component="using:WorkoutApp.View.Components"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -23,7 +24,7 @@
                 Margin="10"
                 Padding="10"
                 Width="200">
-                <local:CategoryFilter x:Name="CategoryFilterControl" 
+                <component:CategoryFilter x:Name="CategoryFilterControl" 
                     Margin="0,0,0,10"
                     CategoryChanged="CategorySelector_SelectionChanged"/>
             </StackPanel>
