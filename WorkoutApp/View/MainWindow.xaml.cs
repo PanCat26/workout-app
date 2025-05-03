@@ -1,6 +1,10 @@
 // MainWindow.xaml.cs
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System.Configuration;
+using WorkoutApp.Data.Database;
+using WorkoutApp.Repository;
+using WorkoutApp.Service;
 
 namespace WorkoutApp.View
 {
