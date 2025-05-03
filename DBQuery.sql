@@ -39,7 +39,6 @@ CREATE TABLE CartItem (
 	ID INT PRIMARY KEY IDENTITY(1,1),
     ProductID INT NOT NULL,
     CustomerID INT NOT NULL,
-    Quantity INT NOT NULL,
     CONSTRAINT FK_CartItem_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(ID) ON DELETE CASCADE,
     CONSTRAINT FK_CartItem_Product FOREIGN KEY (ProductID) REFERENCES Product(ID) ON DELETE CASCADE
 );
@@ -78,9 +77,9 @@ INSERT INTO Product (Name, Price, Stock, CategoryID, Size, Color, Description, P
 ('T-Shirt', 19.99, 50, 2, 'M', 'Blue', 'Comfortable cotton shirt', 'shirt.jpg'),
 ('Book', 9.99, 100, 3, DEFAULT, DEFAULT, DEFAULT, 'book.jpg');
 
-INSERT INTO CartItem (CustomerID, ProductID, Quantity) VALUES
-(1, 1, 1),
-(2, 2, 2);
+INSERT INTO CartItem (CustomerID, ProductID) VALUES
+(1, 1),
+(2, 2);
 
 INSERT INTO WishlistItem (CustomerID, ProductID) VALUES
 (1, 3),
