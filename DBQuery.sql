@@ -36,18 +36,18 @@ CREATE TABLE Product (
 );
 
 CREATE TABLE CartItem (
+	ID INT PRIMARY KEY IDENTITY(1,1),
     ProductID INT NOT NULL,
     CustomerID INT NOT NULL,
     Quantity INT NOT NULL,
-    PRIMARY KEY (CustomerID, ProductID),
     CONSTRAINT FK_CartItem_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(ID) ON DELETE CASCADE,
     CONSTRAINT FK_CartItem_Product FOREIGN KEY (ProductID) REFERENCES Product(ID) ON DELETE CASCADE
 );
 
 CREATE TABLE WishlistItem (
+	ID INT PRIMARY KEY IDENTITY(1,1),
     ProductID INT NOT NULL,
     CustomerID INT NOT NULL,
-    PRIMARY KEY (CustomerID, ProductID),
     CONSTRAINT FK_Wishlist_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(ID) ON DELETE CASCADE,
     CONSTRAINT FK_Wishlist_Product FOREIGN KEY (ProductID) REFERENCES Product(ID) ON DELETE CASCADE
 );
