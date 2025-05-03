@@ -1,6 +1,7 @@
-﻿/*// <copyright file="WishlistService.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+﻿// <copyright file="WishlistService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
+
 namespace WorkoutApp.Service
 {
     using System;
@@ -10,106 +11,108 @@ namespace WorkoutApp.Service
     using WorkoutApp.Repository;
 
     /// <summary>
-    /// Service class for managing wishlist operations.
+    /// Provides services for managing the wishlist, including adding, removing, and retrieving wishlist items.
     /// </summary>
-    public class WishlistService : IService<WishlistItem>
+    public class WishlistService
     {
-        private readonly IRepository<WishlistItem> wishlistItemRepository;
-        private readonly IRepository<Product> productRepository;
+        private readonly IRepository<WishlistItem> wishlistRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WishlistService"/> class.
         /// </summary>
-        /// <param name="wishlistItemRepository">The wishlist item repository.</param>
-        /// <param name="productRepository">The product repository.</param>
-        public WishlistService(IRepository<WishlistItem> wishlistItemRepository, IRepository<Product> productRepository)
+        /// <param name="wishlistRepository">The repository for managing wishlist items.</param>
+        public WishlistService(IRepository<WishlistItem> wishlistRepository)
         {
-            this.wishlistItemRepository = wishlistItemRepository ?? throw new ArgumentNullException(nameof(wishlistItemRepository));
-            this.productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            this.wishlistRepository = wishlistRepository;
         }
 
         /// <summary>
-        /// Gets all wishlist items for the current customer asynchronously.
+        /// Retrieves all items in the wishlist.
         /// </summary>
-        /// <returns>A task representing the asynchronous operation with a collection of wishlist items.</returns>
-        public async Task<IEnumerable<WishlistItem>> GetAllAsync()
+        /// <returns>A list of <see cref="WishlistItem"/> objects representing the items in the wishlist.</returns>
+        public async Task<List<WishlistItem>> GetWishlistItems()
         {
-            return await wishlistItemRepository.GetAllAsync();
-        }
-
-        /// <summary>
-        /// Gets a wishlist item by its ID asynchronously.
-        /// </summary>
-        /// <param name="id">The ID of the wishlist item.</param>
-        /// <returns>A task representing the asynchronous operation with the wishlist item.</returns>
-        public async Task<WishlistItem> GetByIdAsync(int id)
-        {
-            return await wishlistItemRepository.GetByIdAsync(id);
-        }
-
-        /// <summary>
-        /// Creates a new wishlist item asynchronously.
-        /// </summary>
-        /// <param name="entity">The wishlist item to create.</param>
-        /// <returns>A task representing the asynchronous operation with the created wishlist item.</returns>
-        public async Task<WishlistItem> CreateAsync(WishlistItem entity)
-        {
-            return await wishlistItemRepository.CreateAsync(entity);
-        }
-
-        /// <summary>
-        /// Updates an existing wishlist item asynchronously.
-        /// </summary>
-        /// <param name="entity">The wishlist item to update.</param>
-        /// <returns>A task representing the asynchronous operation with the updated wishlist item.</returns>
-        public async Task<WishlistItem> UpdateAsync(WishlistItem entity)
-        {
-            return await wishlistItemRepository.UpdateAsync(entity);
-        }
-
-        /// <summary>
-        /// Deletes a wishlist item by its ID asynchronously.
-        /// </summary>
-        /// <param name="id">The ID of the wishlist item to delete.</param>
-        /// <returns>A task representing the asynchronous operation with a boolean indicating success.</returns>
-        public async Task<bool> DeleteAsync(int id)
-        {
-            return await wishlistItemRepository.DeleteAsync(id);
-        }
-
-        /// <summary>
-        /// Adds a product to the wishlist asynchronously.
-        /// </summary>
-        /// <param name="productId">The ID of the product to add.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        /// <exception cref="Exception">Thrown when the product is already in the wishlist.</exception>
-        public async Task AddToWishlistAsync(int productId)
-        {
-            var wishlistitems = await this.wishlistItemRepository.GetAllAsync();
-            foreach (var item in wishlistitems)
+            try
             {
-                if (item.ProductID == productId)
-                {
-                    throw new Exception("This product is already in the wishlist!");
-                }
+                return (List<WishlistItem>)await this.wishlistRepository.GetAllAsync();
             }
-
-            var wishlistItem = new WishlistItem
+            catch (Exception ex)
             {
-                ProductID = productId
-            };
-
-            await this.wishlistItemRepository.CreateAsync(wishlistItem);
+                throw new Exception("Failed to retrieve wishlist items.", ex);
+            }
         }
 
         /// <summary>
-        /// Removes an item from the wishlist asynchronously.
+        /// Retrieves a specific wishlist item by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the wishlist item to retrieve.</param>
+        /// <returns>The <see cref="WishlistItem"/> with the specified ID.</returns>
+        public async Task<WishlistItem> GetWishlistItemById(int id)
+        {
+            try
+            {
+                WishlistItem item = await this.wishlistRepository.GetByIdAsync(id)
+                                        ?? throw new KeyNotFoundException($"Wishlist item with ID {id} not found.");
+                return item;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to retrieve wishlist item with ID {id}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Removes a specific wishlist item.
         /// </summary>
         /// <param name="wishlistItem">The wishlist item to remove.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task RemoveWishlistItemAsync(WishlistItem wishlistItem)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task RemoveWishlistItem(WishlistItem wishlistItem)
         {
-            await wishlistItemRepository.DeleteAsync(wishlistItem.ID);
+            try
+            {
+                await this.wishlistRepository.DeleteAsync(wishlistItem.ID ?? throw new InvalidOperationException("WishlistItem ID cannot be null."));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to remove wishlist item with ID: {wishlistItem.ID}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Adds a product to the wishlist.
+        /// </summary>
+        /// <param name="wishlistItem">The wishlist item to add, including product details.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task AddToWishlist(WishlistItem wishlistItem)
+        {
+            try
+            {
+                await this.wishlistRepository.CreateAsync(wishlistItem);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to add product {wishlistItem.Product.ID} to wishlist.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Clears all items from the wishlist.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task ResetWishlist()
+        {
+            try
+            {
+                IEnumerable<WishlistItem> wishlistItems = await this.wishlistRepository.GetAllAsync();
+                foreach (WishlistItem item in wishlistItems)
+                {
+                    await this.wishlistRepository.DeleteAsync(item.ID ?? throw new InvalidOperationException("WishlistItem ID cannot be null."));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to reset wishlist.", ex);
+            }
         }
     }
-}*/
+}
