@@ -1,139 +1,110 @@
-﻿//using Moq;
-//using System.Collections.Generic;
-//using System.Threading.Tasks;
-//using WorkoutApp.Infrastructure.Session;
-//using WorkoutApp.Models;
-//using WorkoutApp.Repository;
-//using WorkoutApp.Service;
-//using Xunit;
+﻿using Moq;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Threading.Tasks;
+using WorkoutApp.Data.Database;
+using WorkoutApp.Infrastructure.Session;
+using WorkoutApp.Models;
+using WorkoutApp.Repository;
+using WorkoutApp.Service;
+using Xunit;
 
-//namespace WorkoutApp.Tests.Service
-//{
-//    [Collection("DatabaseTests")]
-//    public class CartServiceTests
-//    {
-//        private readonly Mock<IRepository<CartItem>> cartRepositoryMock;
-//        private readonly Mock<IRepository<Product>> productRepositoryMock;
-//        private readonly CartService cartService;
-//        private readonly SessionManager sessionManager;
-//        private readonly int customerID;
+namespace WorkoutApp.Tests.Service
+{
+    [Collection("DatabaseTests")]
+    public class CartServiceTests
+    {
+        private readonly Mock<IRepository<CartItem>> cartRepositoryMock;
+        private readonly CartService cartService;
+        private readonly SessionManager sessionManager;
+        private readonly int customerID;
 
-//        public CartServiceTests()
-//        {
-//            cartRepositoryMock = new Mock<IRepository<CartItem>>();
-//            productRepositoryMock = new Mock<IRepository<Product>>();
-//            sessionManager = new SessionManager();
-//            customerID = sessionManager.CurrentUserId ?? 1; // Default fallback
-//            cartService = new CartService(cartRepositoryMock.Object, productRepositoryMock.Object);
-//        }
+        public CartServiceTests()
+        {
+            cartRepositoryMock = new Mock<IRepository<CartItem>>();
+            sessionManager = new SessionManager();
+            customerID = sessionManager.CurrentUserId ?? 1;
+            cartService = new CartService(cartRepositoryMock.Object);
+        }
 
-//        [Fact]
-//        public async Task GetCartItems_ShouldReturnAllCartItems()
-//        {
-//            var items = new List<CartItem>
-//            {
-//                new CartItem(1, customerID, 2),
-//                new CartItem(2, customerID, 1)
-//            };
+        [Fact]
+        public async Task GetCartItems_ShouldReturnAllCartItems()
+        {
+            List<CartItem> items = new List<CartItem>
+            {
+                new CartItem(1, new Product(1, "Test Product1", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID),
+                new CartItem(2, new Product(2, "Test Product2", 9.99m, 10, new Category(1, "Category"), "S", "Blue", "", null), customerID)
+            };
 
-//            cartRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(items);
+            cartRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(items);
 
-//            var result = await cartService.GetCartItems();
+            List<CartItem> result = await cartService.GetCartItems();
 
-//            Assert.Equal(2, result.Count);
-//            cartRepositoryMock.Verify(repo => repo.GetAllAsync(), Times.Once);
-//        }
+            Assert.Equal(2, result.Count);
+            cartRepositoryMock.Verify(repo => repo.GetAllAsync(), Times.Once);
+        }
 
-//        [Fact]
-//        public async Task GetCartItemById_ShouldReturnCorrectItem()
-//        {
-//            // Arrange
-//            int productId = 1;
-//            var product = new Product(productId, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null);
+        [Fact]
+        public async Task GetCartItemById_ShouldReturnCorrectItem()
+        {
+            // Arrange
+            int productId = 1;
+            int itemId = 1;
+            Product product = new Product(productId, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null);
+            CartItem cartItem = new CartItem(itemId, product, customerID);
 
-//            cartRepositoryMock.Setup(repo => repo.GetByIdAsync(productId)).ReturnsAsync(product);
+            cartRepositoryMock.Setup(repo => repo.GetByIdAsync(itemId)).ReturnsAsync(cartItem);
 
-//            // Act
-//            var result = await cartService.GetCartItemById(productId);
+            // Act
+            var result = await cartService.GetCartItemById(itemId);
 
-//            // Assert
-//            Assert.Equal(productId, result.ID);
-//            Assert.NotNull(result);
-//            Assert.Equal("Test Product", result.Name);
+            // Assert
+            Assert.Equal(itemId, result.ID);
+            Assert.NotNull(result);
+            Assert.Equal("Test Product", result.Product.Name);
 
-//            cartRepositoryMock.Verify(repo => repo.GetByIdAsync(productId), Times.Once);
-//            productRepositoryMock.Verify(repo => repo.GetByIdAsync(productId), Times.Once);
-//        }
+            cartRepositoryMock.Verify(repo => repo.GetByIdAsync(productId), Times.Once);
+        }
 
-//        [Fact]
-//        public async Task IncreaseQuantity_ShouldIncrementAndUpdateItem()
-//        {
-//            var item = new CartItem(1, customerID, 2);
 
-//            await cartService.IncreaseQuantity(item);
+        [Fact]
+        public async Task RemoveCartItem_ShouldCallDeleteAsync()
+        {
+            int productId = 1;
+            CartItem item = new CartItem(1, new Product(productId, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID);
 
-//            Assert.Equal(3, item.Quantity);
-//            cartRepositoryMock.Verify(repo => repo.UpdateAsync(item), Times.Once);
-//        }
+            await cartService.RemoveCartItem(item);
 
-//        [Fact]
-//        public async Task DecreaseQuantity_ShouldDecrementAndUpdateItem()
-//        {
-//            var item = new CartItem(1, customerID, 2);
+            cartRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
+        }
 
-//            await cartService.DecreaseQuantity(item);
+        [Fact]
+        public async Task AddToCart_ShouldCallCreateAsyncWithCorrectParams()
+        {
+            int productId = 1;
+            CartItem item = new CartItem(1, new Product(productId, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID);
 
-//            Assert.Equal(1, item.Quantity);
-//            cartRepositoryMock.Verify(repo => repo.UpdateAsync(item), Times.Once);
-//        }
 
-//        [Fact]
-//        public async Task DecreaseQuantity_ShouldDeleteItemIfQuantityIsZero()
-//        {
-//            var item = new CartItem(1, customerID, 1);
+            await cartService.AddToCart(item);
 
-//            await cartService.DecreaseQuantity(item);
+            cartRepositoryMock.Verify(repo => repo.CreateAsync(item), Times.Once);
+        }
 
-//            cartRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
-//        }
+        [Fact]
+        public async Task ResetCart_ShouldDeleteAllItems()
+        {
+            List<CartItem> items = new List<CartItem>
+            {
+                new CartItem(1, new Product(1, "Test Product1", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID),
+                new CartItem(2, new Product(2, "Test Product2", 9.99m, 10, new Category(1, "Category"), "S", "Blue", "", null), customerID)
+            };
 
-//        [Fact]
-//        public async Task RemoveCartItem_ShouldCallDeleteAsync()
-//        {
-//            var item = new CartItem(1, customerID, 1);
+            cartRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(items);
 
-//            await cartService.RemoveCartItem(item);
+            await cartService.ResetCart();
 
-//            cartRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
-//        }
-
-//        [Fact]
-//        public async Task AddToCart_ShouldCallCreateAsyncWithCorrectParams()
-//        {
-//            var product = new Product(1, "Test Product", 9.99m, 10, new Category(1, "Test"), "M", "Red", "", null);
-//            productRepositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(product);
-
-//            var cartItem = new CartItem(1, customerID, 2);
-
-//            await cartService.AddToCart(cartItem);
-
-//            cartRepositoryMock.Verify(repo => repo.CreateAsync(cartItem), Times.Once);
-//        }
-
-//        [Fact]
-//        public async Task ResetCart_ShouldDeleteAllItems()
-//        {
-//            var items = new List<CartItem>
-//            {
-//                new CartItem(1, customerID, 2),
-//                new CartItem(2, customerID, 1)
-//            };
-//            cartRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(items);
-
-//            await cartService.ResetCart();
-
-//            cartRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
-//            cartRepositoryMock.Verify(repo => repo.DeleteAsync(2), Times.Once);
-//        }
-//    }
-//}
+            cartRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
+            cartRepositoryMock.Verify(repo => repo.DeleteAsync(2), Times.Once);
+        }
+    }
+}
