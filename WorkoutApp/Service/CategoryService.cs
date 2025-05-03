@@ -9,10 +9,12 @@ namespace WorkoutApp.Service
     using System.Threading.Tasks;
     using WorkoutApp.Models;
     using WorkoutApp.Repository;
+    using System.Linq;
+
 
     /// <summary>
     /// Service class for managing category operations.
-    /// Implements the <see cref="IService{Category}"/> interface.
+    /// Implements the <see cref="IService{Category}"/> interface.a
     /// </summary>
     public class CategoryService : IService<Category> // Assuming IService<T> interface exists
     {
@@ -33,8 +35,11 @@ namespace WorkoutApp.Service
         /// <returns>A task representing the asynchronous operation with a collection of categories.</returns>
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
+            var result = await this.categoryRepository.GetAllAsync();
             // Delegate the call to the repository
-            return await this.categoryRepository.GetAllAsync();
+            System.Diagnostics.Debug.WriteLine($"[CategoryService] Fetched {result?.Count()} categories.");
+
+            return result;
         }
 
         /// <summary>
