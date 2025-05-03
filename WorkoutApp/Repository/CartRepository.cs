@@ -7,11 +7,13 @@ namespace WorkoutApp.Repository
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
     using WorkoutApp.Data.Database;
     using WorkoutApp.Infrastructure.Session;
     using WorkoutApp.Models;
+    using WorkoutApp.Utils.Filters;
 
     /// <summary>
     /// Provides CRUD operations for cart items in the database.
@@ -48,7 +50,6 @@ namespace WorkoutApp.Repository
                     "SELECT ci.ID as CartItemID, " +
                     "p.ID AS ProductID, " +
                     "ci.CustomerID, " +
-                    "ci.Quantity, " +
                     "p.Name, " +
                     "p.Price, " +
                     "p.Stock, " +
@@ -84,8 +85,7 @@ namespace WorkoutApp.Repository
                     CartItem cartItem = new CartItem(
                         id: Convert.ToInt32(row["CartItemID"]),
                         product: product,
-                        customerID: Convert.ToInt32(row["CustomerID"]),
-                        quantity: Convert.ToInt32(row["Quantity"]));
+                        customerID: Convert.ToInt32(row["CustomerID"]));
                     cartItems.Add(cartItem);
                 }
 
@@ -109,9 +109,9 @@ namespace WorkoutApp.Repository
             try
             {
                 var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                    "SELECT ci.ID as CartItemID, " +
+                    "SELECT ci.ID AS CartItemID, " +
                     "p.ID AS ProductID, " +
-                    "ci.Quantity, " +
+                    "ci.CustomerID, " +
                     "p.Name, " +
                     "p.Price, " +
                     "p.Stock, " +
@@ -156,8 +156,7 @@ namespace WorkoutApp.Repository
                 CartItem cartItem = new CartItem(
                     id: Convert.ToInt32(row["CartItemID"]),
                     product: product,
-                    customerID: Convert.ToInt32(row["CustomerID"]),
-                    quantity: Convert.ToInt32(row["Quantity"]));
+                    customerID: Convert.ToInt32(row["CustomerID"]));
 
                 return cartItem;
             }
@@ -177,12 +176,13 @@ namespace WorkoutApp.Repository
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
 
             int newId = await this.databaseService.ExecuteScalarAsync<int>(
-                "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
+                "INSERT INTO CartItem (ProductID, CustomerID) " +
+                "OUTPUT INSERTED.ID " +
+                "VALUES (@ProductID, @CustomerID)",
                 new List<SqlParameter>
                 {
                     new SqlParameter("@ProductID", entity.Product.ID),
                     new SqlParameter("@CustomerID", customerID),
-                    new SqlParameter("@Quantity", entity.Quantity),
                 });
 
             if (newId < 0)
@@ -202,20 +202,6 @@ namespace WorkoutApp.Repository
         /// <returns>The updated cart item.</returns>
         public async Task<CartItem> UpdateAsync(CartItem cartItem)
         {
-            int updateQueryResult = await this.databaseService.ExecuteQueryAsync(
-                "UPDATE CartItem SET Quantity = @Quantity WHERE ProductID = @ProductID AND CustomerID = @CustomerID",
-                new List<SqlParameter>
-                {
-                    new SqlParameter("@ProductID", cartItem.Product.ID),
-                    new SqlParameter("@CustomerID", cartItem.CustomerID),
-                    new SqlParameter("@Quantity", cartItem.Quantity),
-                });
-
-            if (updateQueryResult < 0)
-            {
-                throw new Exception($"Error updating cart item with product id: {cartItem.Product.ID}");
-            }
-
             return cartItem;
         }
 

@@ -15,13 +15,13 @@ namespace WorkoutApp.Service
     /// </summary>
     public class CartService
     {
-        private readonly ICartRepository cartRepository;
+        private readonly IRepository<CartItem> cartRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CartService"/> class.
         /// </summary>
         /// <param name="cartItemRepository">The repository for managing cart items.</param>
-        public CartService(ICartRepository cartItemRepository)
+        public CartService(IRepository<CartItem> cartItemRepository)
         {
             this.cartRepository = cartItemRepository;
         }
@@ -58,49 +58,6 @@ namespace WorkoutApp.Service
             catch (Exception ex)
             {
                 throw new Exception($"Failed to retrieve cart item with ID {id}.", ex);
-            }
-        }
-
-        /// <summary>
-        /// Increases the quantity of a specific cart item by 1.
-        /// </summary>
-        /// <param name="cartItem">The cart item to update.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation, with a <see cref="CartItem"/> result.</returns>
-        public async Task IncreaseQuantity(CartItem cartItem)
-        {
-            try
-            {
-                cartItem.Quantity += 1;
-                await this.cartRepository.UpdateAsync(cartItem);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Failed to increase cart item quantity.", ex);
-            }
-        }
-
-        /// <summary>
-        /// Decreases the quantity of a specific cart item by 1. If the quantity becomes 0, the item is removed from the cart.
-        /// </summary>
-        /// <param name="cartItem">The cart item to update.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation, with a <see cref="CartItem"/> result.</returns>
-        public async Task DecreaseQuantity(CartItem cartItem)
-        {
-            try
-            {
-                cartItem.Quantity -= 1;
-                if (cartItem.Quantity > 0)
-                {
-                    await this.cartRepository.UpdateAsync(cartItem);
-                }
-                else
-                {
-                    await this.cartRepository.DeleteAsync(cartItem.ID);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Failed to decrease cart item quantity.", ex);
             }
         }
 
