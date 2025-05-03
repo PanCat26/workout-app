@@ -25,7 +25,6 @@ namespace WorkoutApp.View
         private void ColorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedColor = (ColorComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            System.Diagnostics.Debug.WriteLine($"[ColorFilter] Selected color: {selectedColor}");
         }
     }
 }

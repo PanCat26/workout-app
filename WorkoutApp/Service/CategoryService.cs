@@ -37,8 +37,6 @@ namespace WorkoutApp.Service
         {
             var result = await this.categoryRepository.GetAllAsync();
             // Delegate the call to the repository
-            System.Diagnostics.Debug.WriteLine($"[CategoryService] Fetched {result?.Count()} categories.");
-
             return result;
         }
 

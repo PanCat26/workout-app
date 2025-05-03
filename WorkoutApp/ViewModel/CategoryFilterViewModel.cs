@@ -35,11 +35,7 @@ public class CategoryFilterViewModel : INotifyPropertyChanged
 
     public async Task LoadCategoriesAsync()
     {
-        System.Diagnostics.Debug.WriteLine("[ViewModel] Loading categories...");
-
         var categories = await categoryService.GetAllAsync();
-
-        System.Diagnostics.Debug.WriteLine($"[ViewModel] Received {categories?.Count()} categories.");
 
         Categories.Clear();
         foreach (var category in categories)

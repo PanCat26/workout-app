@@ -26,7 +26,6 @@ namespace WorkoutApp.View
         private void SizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedSize = (SizeComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            System.Diagnostics.Debug.WriteLine($"[SizeFilter] Selected size: {selectedSize}");
         }
     }
 }

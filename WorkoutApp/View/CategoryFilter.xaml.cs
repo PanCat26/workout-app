@@ -18,8 +18,6 @@ namespace WorkoutApp.View
         {
             this.InitializeComponent();
 
-            System.Diagnostics.Debug.WriteLine("[CategoryFilter] Constructor called");
-
             var connectionFactory = new DbConnectionFactory(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
             var dbService = new DbService(connectionFactory); 
             var categoryRepository = new CategoryRepository(dbService); 
@@ -30,8 +28,6 @@ namespace WorkoutApp.View
 
             this.Loaded += (_, __) =>
             {
-                System.Diagnostics.Debug.WriteLine("[CategoryFilter] Loaded event triggered");
-
                 this.DispatcherQueue.TryEnqueue(async () =>
                 {
                     await viewModel.LoadCategoriesAsync();
