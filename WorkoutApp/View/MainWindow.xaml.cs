@@ -243,7 +243,7 @@ namespace WorkoutApp.View
         private void ViewProduct1_Click(object sender, RoutedEventArgs e)
         {
             // Define the product ID to navigate to
-            int productIdToNavigate = 1;
+            int productIdToNavigate = 2;
 
             // Initialize dependencies for the ProductService.
             // In a real application, you would typically use a Dependency Injection container here.

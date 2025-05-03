@@ -15,13 +15,14 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
     using System.Threading.Tasks;
     using WorkoutApp.Models; // Assuming Product and Category models are here
     using WorkoutApp.Service; // Assuming ProductService and IService<Product> are here
+    using WorkoutApp.Utils.Filters; // Required for ProductFilter
 
     /// <summary>
     /// ViewModel for a single product, designed for UI data binding.
     /// </summary>
     public class ProductViewModel : INotifyPropertyChanged // Implement INotifyPropertyChanged for UI updates
     {
-        // CORRECTED: Changed the type from IService<Product> to the concrete ProductService
+        // The type is ProductService because GetFilteredAsync is not in IService<Product>
         private readonly ProductService productService;
         private int productId; // Store the product ID internally once loaded
         private Product? product; // Hold the underlying Product model
@@ -47,7 +48,6 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// Initializes a new instance of the <see cref="ProductViewModel"/> class.
         /// </summary>
         /// <param name="productService">The product service to fetch product data.</param>
-        // CORRECTED CONSTRUCTOR: Takes the concrete ProductService type
         public ProductViewModel(ProductService productService)
         {
             this.productService = productService ?? throw new ArgumentNullException(nameof(productService));
@@ -207,7 +207,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                     // Load related products after the main product is loaded
                     if (product.Category != null)
                     {
-                        // CORRECTED: Access the non-nullable values using ?. and .Value
+                        // CORRECTED: Call the new generic GetFilteredAsync method
                         await LoadRelatedProductsAsync(product.Category.ID ?? 0, product.ID.Value, 3); // Get 3 related products
                     }
                     else
@@ -251,7 +251,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         }
 
         /// <summary>
-        /// Loads related products asynchronously based on category.
+        /// Loads related products asynchronously based on category and exclusion.
         /// </summary>
         /// <param name="categoryId">The category ID to filter by.</param>
         /// <param name="excludeProductId">The ID of the product to exclude.</param>
@@ -260,9 +260,11 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         {
             try
             {
-                // Call the service method to get related products
-                // This call is now valid because productService is declared as ProductService
-                var related = await productService.GetProductsByCategoryAsync(categoryId, excludeProductId, count);
+                // Create a ProductFilter instance with the desired criteria
+                var filter = new ProductFilter(categoryId, excludeProductId, count);
+
+                // Call the new generic service method to get filtered products
+                var related = await productService.GetFilteredAsync(filter);
 
                 // Clear existing related products and add the new ones
                 RelatedProducts.Clear();

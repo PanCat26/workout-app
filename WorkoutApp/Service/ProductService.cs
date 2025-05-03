@@ -61,19 +61,14 @@ namespace WorkoutApp.Service
         }
 
         /// <summary>
-        /// Gets a specified number of products from a specific category, excluding a given product ID.
+        /// Gets a collection of products based on the provided filter criteria.
         /// This method calls the repository's filtered get method.
         /// </summary>
-        /// <param name="categoryId">The ID of the category to filter by.</param>
-        /// <param name="excludeProductId">The ID of the product to exclude from the results.</param>
-        /// <param name="count">The maximum number of products to return.</param>
+        /// <param name="filter">The filter criteria to apply.</param>
         /// <returns>A task representing the asynchronous operation, containing a collection of products.</returns>
-        // Implementing the GetProductsByCategoryAsync method
-        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId, int excludeProductId, int count)
+        // Added a new generic filtering method
+        public async Task<IEnumerable<Product>> GetFilteredAsync(IFilter filter)
         {
-            // Create a ProductFilter instance with the desired criteria
-            var filter = new ProductFilter(categoryId, excludeProductId, count);
-
             // Call the repository's GetAllFilteredAsync method with the filter
             // The repository handles the actual filtering logic (SQL query)
             return await this.productRepository.GetAllFilteredAsync(filter);
