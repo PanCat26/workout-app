@@ -1,10 +1,6 @@
 // MainWindow.xaml.cs
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Configuration;
-using WorkoutApp.Data.Database;
-using WorkoutApp.Repository;
-using WorkoutApp.Service;
 
 namespace WorkoutApp.View
 {
@@ -88,6 +84,7 @@ namespace WorkoutApp.View
             //}
         }
 
+        /*
         /// <summary>
         /// Handles the Click event for the "View Product 1" button.
         /// Opens the ProductDetailPage in a new window for product ID 2.
@@ -107,11 +104,11 @@ namespace WorkoutApp.View
             var productService = new ProductService(productRepository);
 
             // Create a new Window first
-            var newWindow = new Window();
+            //var newWindow = new Window();
 
             // Create a new instance of the ProductDetailPage, passing the new window to its constructor
             // This allows the ProductDetailPage to know its hosting window for internal navigation.
-            var productDetailPage = new ProductDetailPage(newWindow);
+            var productDetailPage = new ProductDetailPage();
 
             // If ProductDetailPage ViewModel has a LoadProductAsync(int id) method:
             // This is the preferred approach for passing data after page creation.
@@ -121,13 +118,14 @@ namespace WorkoutApp.View
 
 
             // Set the content of the new window to the ProductDetailPage
-            newWindow.Content = productDetailPage;
+            //newWindow.Content = productDetailPage;
 
             // Set a title for the new window (optional)
-            newWindow.Title = $"Product Details (ID: {productIdToNavigate})";
+            //newWindow.Title = $"Product Details (ID: {productIdToNavigate})";
 
             // Activate and show the new window
-            newWindow.Activate();
+            //newWindow.Activate();
         }
+        */
     }
 }
