@@ -51,6 +51,11 @@ namespace WorkoutApp.View
             await this.LoadProducts();
         }
 
+        private void ColorSelector_SelectionChanged(object sender, string color)
+        {
+            //
+        }
+
         private void BuildCategoryFilters(int categoryId)
         {
             /*

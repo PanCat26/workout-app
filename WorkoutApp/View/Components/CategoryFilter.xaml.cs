@@ -6,8 +6,6 @@ using System.Configuration;
 using WorkoutApp.Models;
 using System;
 
-
-
 namespace WorkoutApp.View.Components
 {
     public sealed partial class CategoryFilter : UserControl

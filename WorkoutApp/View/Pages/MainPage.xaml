@@ -27,7 +27,10 @@
                 <component:CategoryFilter x:Name="CategoryFilterControl" 
                     Margin="0,0,0,10"
                     CategoryChanged="CategorySelector_SelectionChanged"/>
-            </StackPanel>
+                <local:ColorFilter x:Name="ColorFilterControl" 
+                    Margin="0,0,0,10"
+                    ColorChanged="ColorSelector_SelectionChanged"/>
+                </StackPanel>
             <component:VerticalProductListComponent 
                 x:Name="ProductListViewControl"
                 ProductClicked="VerticalProductListControl_ProductClicked"

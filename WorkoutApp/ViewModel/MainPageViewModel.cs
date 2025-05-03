@@ -42,7 +42,7 @@ namespace WorkoutApp.ViewModel
             var dbService = new DbService(dbConnectionFactory);
             IRepository<Product> productRepository = new ProductRepository(dbService);
             this.productService = new ProductService(productRepository);
-            this.filter = new ProductFilter(null, null, null);
+            this.filter = new ProductFilter(null, null, null, null, null, null);
         }
 
         /// <summary>
@@ -59,6 +59,20 @@ namespace WorkoutApp.ViewModel
             this.filter.CategoryId = categoryId;
         }
 
+        public void SetSelectedColor(string color)
+        {
+            this.filter.Color = color;
+        }
+
+        public void SetSelectedSize(string size)
+        {
+            this.filter.Size = size;
+        }
+
+        public void SetSearchTerm(string searchTerm)
+        {
+            this.filter.SearchTerm = searchTerm;
+        }
 
     }
 }
