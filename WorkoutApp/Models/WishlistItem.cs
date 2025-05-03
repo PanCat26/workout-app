@@ -7,7 +7,7 @@ namespace WorkoutApp.Models
     /// <summary>
     /// Represents an item in a customer's wishlist.
     /// </summary>
-    public class WishlistItem(int? id, int productId, int customerId)
+    public class WishlistItem(int? id, Product product, int customerID)
     {
         /// <summary>
         /// Gets or sets the unique identifier for the wishlist item.
@@ -15,13 +15,13 @@ namespace WorkoutApp.Models
         public int? ID { get; set; } = id;
 
         /// <summary>
-        /// Gets or sets the identifier of the product associated with this wishlist item.
+        /// Gets or sets the product associated with this wishlist item.
         /// </summary>
-        public int ProductID { get; set; } = productId;
+        public Product Product { get; set; } = product;
 
         /// <summary>
         /// Gets or sets the identifier of the customer who owns this wishlist item.
         /// </summary>
-        public int CustomerID { get; set; } = customerId;
+        public int CustomerID { get; set; } = customerID;
     }
 }
