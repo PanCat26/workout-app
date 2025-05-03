@@ -17,7 +17,7 @@
             IsItemClickEnabled="True"
             ItemClick="ProductList_ItemClick"
             Height="540"
-            Width="700">
+            Width="650">
 
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:Product">
