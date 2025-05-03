@@ -207,7 +207,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                     if (product.Category != null)
                     {
                         // CORRECTED: Call the new generic GetFilteredAsync method
-                        await LoadRelatedProductsAsync(product.Category.ID ?? 0, product.ID.Value, 1); // Get 3 related products
+                        await LoadRelatedProductsAsync(product.Category.ID ?? 0, product.ID.Value, 3); // Get 3 related products
                     }
                     else
                     {
