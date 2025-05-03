@@ -55,13 +55,7 @@
             Padding="10"
             Width="200">
 
-
-                    <!-- 🔽 Category Filter Component (UserControl) -->
-                    <views:CategoryFilter />
-
-					<views:ColorFilter />
-
-					<views:SizeFilter />
+                    <views:AddProductButton />
 
                 </StackPanel>
 
