@@ -18,6 +18,8 @@
   <ItemGroup>
     <None Remove="Components\CartItemComponent.xaml" />
     <None Remove="Components\ProductCardComponent.xaml" />
+    <None Remove="View\AddProductButton.xaml" />
+    <None Remove="View\AddProductFlyout.xaml" />
     <None Remove="View\AddProductWindow.xaml" />
     <None Remove="View\Components\VerticalProductListComponent.xaml" />
     <None Remove="View\Components\VerticalRemovableProductListComponent.xaml" />
@@ -83,6 +85,15 @@
     <None Update="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="View\AddProductButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="View\AddProductFlyout.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="View\ColorFilter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="View\Components\VerticalRemovableProductListComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
