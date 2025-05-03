@@ -45,15 +45,10 @@ namespace WorkoutApp.View
             MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
         }
 
-        private void CategorySelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void CategorySelector_SelectionChanged(object sender, int selectedCategoryID)
         {
-            /*
-            if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selected && selected.Tag is int categoryId)
-            {
-                ProductsGridView.ItemsSource = allProducts.Where(p => p.CategoryID == categoryId).ToList();
-                BuildCategoryFilters(categoryId);
-            }
-            */
+            this.mainPageViewModel.SetSelectedCategoryID(selectedCategoryID);
+            await this.LoadProducts();
         }
 
         private void BuildCategoryFilters(int categoryId)

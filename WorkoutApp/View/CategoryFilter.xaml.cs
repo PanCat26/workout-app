@@ -1,10 +1,10 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using WorkoutApp.ViewModel;
 using WorkoutApp.Service;
 using WorkoutApp.Repository;
 using WorkoutApp.Data.Database;
 using System.Configuration;
+using WorkoutApp.Models;
+using System;
 
 
 
@@ -14,13 +14,15 @@ namespace WorkoutApp.View
     {
         private readonly CategoryFilterViewModel viewModel;
 
+        public event EventHandler<int> CategoryChanged;
+
         public CategoryFilter()
         {
             this.InitializeComponent();
 
             var connectionFactory = new DbConnectionFactory(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
-            var dbService = new DbService(connectionFactory); 
-            var categoryRepository = new CategoryRepository(dbService); 
+            var dbService = new DbService(connectionFactory);
+            var categoryRepository = new CategoryRepository(dbService);
             var categoryService = new CategoryService(categoryRepository);
 
             this.viewModel = new CategoryFilterViewModel(categoryService);
@@ -33,6 +35,14 @@ namespace WorkoutApp.View
                     await viewModel.LoadCategoriesAsync();
                 });
             };
+        }
+
+        private void CategoryListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem is Category selectedCategory && selectedCategory.ID.HasValue)
+            {
+                this.CategoryChanged?.Invoke(this, selectedCategory.ID.Value);
+            }
         }
 
     }

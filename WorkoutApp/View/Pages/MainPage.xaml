@@ -18,16 +18,20 @@
 
         <!-- LEFT SIDE -->
         <StackPanel Orientation="Horizontal">
-            <StackPanel x:Name="FilterOptionsPanel"
-            Background="Red"
-            Margin="10"
-            Padding="10"
-            Width="200"/>
+             <StackPanel x:Name="FilterOptionsPanel"
+                Background="Red"
+                Margin="10"
+                Padding="10"
+                Width="200">
+                <local:CategoryFilter x:Name="CategoryFilterControl" 
+                    Margin="0,0,0,10"
+                    CategoryChanged="CategorySelector_SelectionChanged"/>
+            </StackPanel>
             <component:VerticalProductListComponent 
-            x:Name="ProductListViewControl"
-            ProductClicked="VerticalProductListControl_ProductClicked"
-            Margin="10"
-            Padding="10"/>
+                x:Name="ProductListViewControl"
+                ProductClicked="VerticalProductListControl_ProductClicked"
+                Margin="10"
+                Padding="10"/>
         </StackPanel>
 
         <!-- RIGHT SIDE: Offers -->
