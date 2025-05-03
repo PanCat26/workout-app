@@ -18,6 +18,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Frame x:Name="MainFrame"/>
+
         <StackPanel Background="Red" Grid.Row="0">
             <TextBlock Text="Gym Shop" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Padding="20"/>
         </StackPanel>
