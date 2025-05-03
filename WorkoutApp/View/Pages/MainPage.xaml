@@ -27,7 +27,7 @@
                 <component:CategoryFilter x:Name="CategoryFilterControl" 
                     Margin="0,0,0,10"
                     CategoryChanged="CategorySelector_SelectionChanged"/>
-                <local:ColorFilter x:Name="ColorFilterControl" 
+                <component:ColorFilter x:Name="ColorFilterControl" 
                     Margin="0,0,0,10"
                     ColorChanged="ColorSelector_SelectionChanged"/>
                 </StackPanel>
