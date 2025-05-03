@@ -11,9 +11,12 @@ namespace WorkoutApp.View
     {
         //private List<IProduct> allProducts = new List<IProduct>();
 
+        public static Frame? AppFrame { get; private set; }
+
         public MainWindow()
         {
             this.InitializeComponent();
+            AppFrame = this.MainFrame;
             LoadProducts();
         }
 
