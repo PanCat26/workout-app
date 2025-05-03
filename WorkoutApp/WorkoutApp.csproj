@@ -21,17 +21,16 @@
     <None Remove="View\AddProductButton.xaml" />
     <None Remove="View\AddProductFlyout.xaml" />
     <None Remove="View\AddProductWindow.xaml" />
-    <None Remove="View\CategoryFilter.xaml" />
-    <None Remove="View\ColorFilter.xaml" />
+    <None Remove="View\Components\VerticalProductListComponent.xaml" />
+    <None Remove="View\Components\VerticalRemovableProductListComponent.xaml" />
+    <None Remove="View\MainPage.xaml" />
     <None Remove="View\MainWindow.xaml" />
     <None Remove="View\Payment.xaml" />
 
     <None Remove="View\Add.xaml" />
     <None Remove="View\BlankWindow1.xaml" />
-    <None Remove="View\ProductTab\ProductTab.xaml" />
-    <None Remove="View\ProductTab\UpdateWindow.xaml" />
+    <None Remove="View\ProductDetailPage.xaml" />
     <None Remove="View\ShoppingCart.xaml" />
-    <None Remove="View\SizeFilter.xaml" />
     <None Remove="View\WishListTab.xaml" />
   </ItemGroup>
 
@@ -80,6 +79,9 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.4" />
   </ItemGroup>
   <ItemGroup>
+    <Page Update="View\ProductDetailPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -92,10 +94,13 @@
     <Page Update="View\ColorFilter.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="View\SizeFilter.xaml">
+    <Page Update="View\Components\VerticalRemovableProductListComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="View\CategoryFilter.xaml">
+    <Page Update="View\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="View\Components\VerticalProductListComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
@@ -120,16 +125,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="View\ProductTab\UpdateWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="View\ProductTab\ProductTab.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Page Update="Components\CartItemComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -143,13 +138,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="View\ProductTab\UpdateWindow.xaml" />
     <Page Update="View\AddProductWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="View\ProductTab\ProductTab.xaml" />
     <Page Update="View\BlankWindow1.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -163,6 +156,9 @@
     <Page Update="View\Add.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="View\Pages\" />
   </ItemGroup>
 
   <!--
