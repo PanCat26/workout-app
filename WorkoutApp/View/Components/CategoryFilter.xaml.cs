@@ -43,5 +43,9 @@ namespace WorkoutApp.View.Components
             }
         }
 
+        public void ResetFilter()
+        {
+            this.CategoryComboBox.SelectedIndex = -1;
+        }
     }
 }

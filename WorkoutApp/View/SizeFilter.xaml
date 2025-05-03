@@ -10,7 +10,7 @@
 
     <StackPanel>
         <TextBlock Text="Filter by Size:" FontWeight="Bold" Margin="0,0,0,5"/>
-        <ComboBox x:Name="SizeComboBox" Width="200" SelectionChanged="SizeComboBox_SelectionChanged">
+        <ComboBox x:Name="SizeComboBox" Width="230" Margin="0,0,0,10" SelectionChanged="SizeComboBox_SelectionChanged">
             <ComboBoxItem Content="S" />
             <ComboBoxItem Content="M" />
             <ComboBoxItem Content="L" />

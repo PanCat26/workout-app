@@ -10,11 +10,13 @@
     <StackPanel>
         <TextBlock Text="Select a category:" FontWeight="Bold" Margin="0,0,0,5"/>
         <ComboBox
+            x:Name="CategoryComboBox"
+            x:FieldModifier="public"
             ItemsSource="{Binding Categories}"
             SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
             DisplayMemberPath="Name"
             SelectionChanged="CategoryListView_SelectionChanged"
-            Width="250"
+            Width="230"
             Margin="0,0,0,10"/>
     </StackPanel>
 </UserControl>

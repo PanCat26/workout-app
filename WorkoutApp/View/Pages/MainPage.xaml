@@ -23,13 +23,21 @@
                 Background="Red"
                 Margin="10"
                 Padding="10"
-                Width="200">
+                Width="250">
                 <component:CategoryFilter x:Name="CategoryFilterControl" 
                     Margin="0,0,0,10"
                     CategoryChanged="CategorySelector_SelectionChanged"/>
                 <component:ColorFilter x:Name="ColorFilterControl" 
                     Margin="0,0,0,10"
                     ColorChanged="ColorSelector_SelectionChanged"/>
+                <local:SizeFilter x:Name="SizeFilterControl" 
+                    Margin="0,0,0,10"
+                    SizeChanged="SizeSelector_SelectionChanged"/>
+                <Button
+                    x:Name="ResetFiltersButton"
+                    Content="Reset Filters"
+                    Click="ResetFiltersButton_Click"
+                    Margin="0,0,0,10"/>
                 </StackPanel>
             <component:VerticalProductListComponent 
                 x:Name="ProductListViewControl"

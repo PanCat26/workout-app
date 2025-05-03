@@ -20,5 +20,10 @@ namespace WorkoutApp.View.Components
                 this.ColorChanged?.Invoke(this, selectedColor);
             }
         }
+
+        public void ResetFilter()
+        {
+            this.ColorComboBox.SelectedItem = null;
+        }
     }
 }

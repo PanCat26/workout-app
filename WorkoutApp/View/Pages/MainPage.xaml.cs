@@ -6,6 +6,7 @@ namespace WorkoutApp.View
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Navigation;
     using WorkoutApp.Models;
@@ -51,10 +52,30 @@ namespace WorkoutApp.View
             await this.LoadProducts();
         }
 
-        private async void ColorSelector_SelectionChanged(object sender, string color)
+        private async void ColorSelector_SelectionChanged(object sender, string selectedColor)
         {
-            this.mainPageViewModel.SetSelectedColor(color);
+            this.mainPageViewModel.SetSelectedColor(selectedColor);
             await this.LoadProducts();
+        }
+
+        private async void SizeSelector_SelectionChanged(object sender, string selectedSize)
+        {
+            this.mainPageViewModel.SetSelectedSize(selectedSize);
+            await this.LoadProducts();
+        }
+
+        private async void ResetFiltersButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ResetFilters();
+            this.mainPageViewModel.ResetFilters();
+            await this.LoadProducts();
+        }
+
+        private void ResetFilters()
+        {
+            this.CategoryFilterControl.ResetFilter();
+            this.ColorFilterControl.ResetFilter();
+            this.SizeFilterControl.ResetFilter();
         }
 
         private void BuildCategoryFilters(int categoryId)

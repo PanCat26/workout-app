@@ -74,5 +74,10 @@ namespace WorkoutApp.ViewModel
             this.filter.SearchTerm = searchTerm;
         }
 
+        public void ResetFilters()
+        {
+            this.filter = new ProductFilter(null, null, null, null, null, null);
+        }
+
     }
 }
