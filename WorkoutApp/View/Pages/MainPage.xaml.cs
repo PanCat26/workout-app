@@ -42,7 +42,7 @@ namespace WorkoutApp.View
 
         private void VerticalProductListControl_ProductClicked(object sender, int productID)
         {
-            // TODO: Navigate to product details page using productID.
+            MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
         }
 
         private void CategorySelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
