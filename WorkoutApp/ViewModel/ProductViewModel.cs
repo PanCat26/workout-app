@@ -2,12 +2,13 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
+namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as per your structure
 {
     using System;
     using System.Collections.Generic; // Required for EqualityComparer
     using System.ComponentModel; // Required for INotifyPropertyChanged
     using System.Diagnostics; // Required for Debug.WriteLine
+    using System.Globalization; // Required for CultureInfo
     using System.Runtime.CompilerServices; // Required for CallerMemberName
     using System.Threading.Tasks;
     using WorkoutApp.Models; // Assuming Product and Category models are here
@@ -19,7 +20,7 @@ namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
     public class ProductViewModel : INotifyPropertyChanged // Implement INotifyPropertyChanged for UI updates
     {
         private readonly IService<Product> productService;
-        private int productId;
+        private int productId; // Store the product ID internally once loaded
         private Product? product; // Hold the underlying Product model
 
         // Properties to expose Product data for binding
@@ -40,14 +41,12 @@ namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
         /// Initializes a new instance of the <see cref="ProductViewModel"/> class.
         /// </summary>
         /// <param name="productService">The product service to fetch product data.</param>
-        /// <param name="productId">The ID of the product this ViewModel represents.</param>
-        public ProductViewModel(IService<Product> productService, int productId)
+        // CORRECTED CONSTRUCTOR: Takes only the service dependency.
+        // The product ID is passed to LoadProductAsync after the ViewModel is created.
+        public ProductViewModel(IService<Product> productService)
         {
             this.productService = productService ?? throw new ArgumentNullException(nameof(productService));
-            this.productId = productId;
-
-            // Start loading the product data asynchronously
-            _ = LoadProductAsync(); // Use discard '_' as we don't need to await this in the constructor
+            // Initial values are set, data will be loaded when LoadProductAsync is called
         }
 
         /// <summary>
@@ -71,8 +70,21 @@ namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
         public decimal Price
         {
             get => price;
-            set => SetProperty(ref price, value);
+            set
+            {
+                if (SetProperty(ref price, value))
+                {
+                    OnPropertyChanged(nameof(FormattedPrice)); // Notify UI when Price changes
+                }
+            }
         }
+
+        /// <summary>
+        /// Gets the formatted price as a currency string.
+        /// This property is used for UI binding since StringFormat is not supported in WinUI XAML.
+        /// </summary>
+        public string FormattedPrice => Price.ToString("C2", CultureInfo.CurrentCulture);
+
 
         /// <summary>
         /// Gets or sets the stock quantity of the product.
@@ -148,10 +160,14 @@ namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
         // public ICommand DeleteProductCommand { get; }
 
         /// <summary>
-        /// Loads the product data asynchronously from the service.
+        /// Loads the product data asynchronously from the service based on the provided ID.
+        /// This method is called after the ViewModel is created, typically from the UI's navigation event.
         /// </summary>
-        private async Task LoadProductAsync()
+        /// <param name="id">The ID of the product to load.</param>
+        public async Task LoadProductAsync(int id)
         {
+            this.productId = id; // Store the product ID
+
             try
             {
                 // Use the injected service to get the product by ID
@@ -162,9 +178,9 @@ namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
                     // Update ViewModel properties based on the loaded Product model
                     // SetProperty will raise PropertyChanged event for UI updates
                     Name = product.Name;
-                    Price = product.Price;
+                    Price = product.Price; // Setting Price will also update FormattedPrice
                     Stock = product.Stock;
-                    // Corrected: Access CategoryID from the Category object within the Product model
+                    // Access CategoryID from the Category object within the Product model
                     CategoryID = product.Category?.ID ?? 0; // Use null conditional operator in case Category is null
                     CategoryName = product.Category?.Name ?? "Unknown Category"; // Also add Category Name
                     Size = product.Size;
@@ -179,7 +195,7 @@ namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
                     Name = "Product Not Found";
                     Description = $"Product with ID {productId} could not be loaded.";
                     // Reset other properties or show default values
-                    Price = 0;
+                    Price = 0; // Setting Price will also update FormattedPrice
                     Stock = 0;
                     CategoryID = 0;
                     CategoryName = "N/A";
@@ -195,7 +211,7 @@ namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
                 Description = $"Failed to load product with ID {productId}. Error: {ex.Message}";
                 Debug.WriteLine($"Error loading product {productId}: {ex}");
                 // Reset other properties or show default values
-                Price = 0;
+                Price = 0; // Setting Price will also update FormattedPrice
                 Stock = 0;
                 CategoryID = 0;
                 CategoryName = "N/A";
@@ -204,6 +220,7 @@ namespace WorkoutApp.ViewModels // Corrected namespace to ViewModels
                 PhotoURL = null;
             }
         }
+
 
         /// <summary>
         /// Helper method to set property value and raise PropertyChanged event.

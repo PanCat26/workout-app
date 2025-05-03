@@ -4,6 +4,10 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System.Collections.Generic;
+using System.Configuration;
+using WorkoutApp.Data.Database;
+using WorkoutApp.Repository;
+using WorkoutApp.Service;
 
 namespace WorkoutApp.View
 {
@@ -226,6 +230,56 @@ namespace WorkoutApp.View
             //{
             //    this.Content = new ProductTab.ProductTab(allProducts[1]);
             //}
+        }
+
+        /// <summary>
+        /// Handles the Click event for the "View Product 1" button.
+        /// Navigates to the ProductDetailPage for product ID 1.
+        /// </summary>
+        /// <summary>
+        /// Handles the Click event for the "View Product 1" button.
+        /// Opens the ProductDetailPage in a new window for product ID 1.
+        /// </summary>
+        private void ViewProduct1_Click(object sender, RoutedEventArgs e)
+        {
+            // Define the product ID to navigate to
+            int productIdToNavigate = 1;
+
+            // Initialize dependencies for the ProductService.
+            // In a real application, you would typically use a Dependency Injection container here.
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            // Replace with your actual connection string or get from config
+            var connectionFactory = new DbConnectionFactory(connectionString);
+            var dbService = new DbService(connectionFactory);
+            var productRepository = new ProductRepository(dbService);
+            var productService = new ProductService(productRepository);
+
+            // Create a new instance of the ProductDetailPage, passing the product ID and service
+            // Note: The ProductDetailPage constructor needs to accept the ID and service.
+            // If your ProductDetailPage constructor only takes the service, you'll need
+            // to call a LoadProductAsync method on its ViewModel after creation.
+            var productDetailPage = new ProductDetailPage(); // Assuming parameterless constructor or using DI
+
+            // If ProductDetailPage ViewModel has a LoadProductAsync(int id) method:
+            // This is the preferred approach for passing data after page creation.
+            // You'll need to ensure your ProductDetailPage.xaml.cs has a public ViewModel property.
+            productDetailPage.ViewModel.LoadProductAsync(productIdToNavigate);
+
+
+            // Create a new Window
+            var newWindow = new Window();
+
+            // Set the content of the new window to the ProductDetailPage
+            newWindow.Content = productDetailPage;
+
+            // Set a title for the new window (optional)
+            newWindow.Title = $"Product Details (ID: {productIdToNavigate})";
+
+            // Activate and show the new window
+            newWindow.Activate();
+
+            // Optional: Close the current MainWindow if desired
+            // this.Close();
         }
     }
 }
