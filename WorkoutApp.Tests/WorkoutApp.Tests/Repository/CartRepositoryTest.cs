@@ -176,7 +176,7 @@ namespace WorkoutApp.Tests.Repository
         private async Task<int> InsertTestCustomerAsync(string name)
         {
             string query = "INSERT INTO Customer (Name) VALUES (@Name); SELECT SCOPE_IDENTITY();";
-            var parameters = new List<SqlParameter>
+            List<SqlParameter> parameters = new List<SqlParameter>
             {
                 new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name }
             };
@@ -186,7 +186,7 @@ namespace WorkoutApp.Tests.Repository
         private async Task<int> InsertTestCategoryAsync(string name)
         {
             string query = "INSERT INTO Category (Name) VALUES (@Name); SELECT SCOPE_IDENTITY();";
-            var parameters = new List<SqlParameter>
+            List<SqlParameter> parameters = new List<SqlParameter>
             {
                 new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name }
             };
@@ -200,7 +200,7 @@ namespace WorkoutApp.Tests.Repository
             VALUES (@Name, @Price, @Stock, @CategoryID, @Size, @Color, @Description, @PhotoURL); 
             SELECT SCOPE_IDENTITY();";
 
-            var parameters = new List<SqlParameter>
+            List<SqlParameter> parameters = new List<SqlParameter>
             {
                 new SqlParameter("@Name", SqlDbType.NVarChar) { Value = name },
                 new SqlParameter("@Price", SqlDbType.Decimal) { Value = price },

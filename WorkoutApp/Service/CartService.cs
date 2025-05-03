@@ -15,18 +15,15 @@ namespace WorkoutApp.Service
     /// </summary>
     public class CartService
     {
-        private readonly CartRepository cartRepository;
-        private readonly ProductRepository productRepository;
+        private readonly ICartRepository cartRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CartService"/> class.
         /// </summary>
         /// <param name="cartItemRepository">The repository for managing cart items.</param>
-        /// <param name="productRepository">The repository for managing products.</param>
-        public CartService(CartRepository cartItemRepository, ProductRepository productRepository)
+        public CartService(ICartRepository cartItemRepository)
         {
             this.cartRepository = cartItemRepository;
-            this.productRepository = productRepository;
         }
 
         /// <summary>
@@ -98,7 +95,7 @@ namespace WorkoutApp.Service
                 }
                 else
                 {
-                    await this.cartRepository.DeleteAsync(cartItem.ProductID);
+                    await this.cartRepository.DeleteAsync((int)cartItem.Product.ID);
                 }
             }
             catch (Exception ex)
@@ -116,11 +113,11 @@ namespace WorkoutApp.Service
         {
             try
             {
-                await this.cartRepository.DeleteAsync(cartItem.ProductID);
+                await this.cartRepository.DeleteAsync((int)cartItem.Product.ID);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to remove cart item with ProductID {cartItem.ProductID}.", ex);
+                throw new Exception($"Failed to remove cart item with ProductID {cartItem.Product.ID}.", ex);
             }
         }
 
@@ -139,6 +136,22 @@ namespace WorkoutApp.Service
             catch (Exception ex)
             {
                 throw new Exception($"Failed to add product {productId} to cart.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Resets the shopping cart by clearing all items.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task ResetCart()
+        {
+            try
+            {
+                await this.cartRepository.ResetCart();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to reset cart.", ex);
             }
         }
     }
