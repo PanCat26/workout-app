@@ -20,6 +20,7 @@
     <None Remove="Components\ProductCardComponent.xaml" />
     <None Remove="View\AddProductWindow.xaml" />
     <None Remove="View\Components\VerticalProductListComponent.xaml" />
+    <None Remove="View\Components\VerticalRemovableProductListComponent.xaml" />
     <None Remove="View\MainPage.xaml" />
     <None Remove="View\MainWindow.xaml" />
     <None Remove="View\Payment.xaml" />
@@ -80,6 +81,9 @@
     <None Update="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="View\Components\VerticalRemovableProductListComponent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="View\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
