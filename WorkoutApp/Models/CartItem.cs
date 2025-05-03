@@ -13,12 +13,12 @@ namespace WorkoutApp.Models
     /// <param name="product">The product associated with the cart item.</param>
     /// <param name="customerID">The ID of the customer associated with the cart item.</param>
     /// <param name="quantity">The quantity of the product in the cart.</param>
-    public class CartItem(Product product, int customerID, int quantity)
+    public class CartItem(int id, Product product, int customerID, int quantity)
     {
         /// <summary>
         /// Gets or sets the ID of the order.
         /// </summary>
-        public int? ID { get; set; }
+        public int ID { get; set; } = id;
 
         /// <summary>
         /// Gets or sets the product ID associated with the cart item.

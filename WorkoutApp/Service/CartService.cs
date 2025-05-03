@@ -95,7 +95,7 @@ namespace WorkoutApp.Service
                 }
                 else
                 {
-                    await this.cartRepository.DeleteAsync((int)cartItem.Product.ID);
+                    await this.cartRepository.DeleteAsync(cartItem.ID);
                 }
             }
             catch (Exception ex)
@@ -113,29 +113,28 @@ namespace WorkoutApp.Service
         {
             try
             {
-                await this.cartRepository.DeleteAsync((int)cartItem.Product.ID);
+                await this.cartRepository.DeleteAsync(cartItem.ID);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to remove cart item with ProductID {cartItem.Product.ID}.", ex);
+                throw new Exception($"Failed to remove cart item with ID: {cartItem.ID}.", ex);
             }
         }
 
         /// <summary>
         /// Adds a product to the cart with the specified quantity.
         /// </summary>
-        /// <param name="productId">The ID of the product to add.</param>
-        /// <param name="quantity">The quantity of the product to add.</param>
+        /// <param name="cartItem">The cart item to add to the cart, including product details and quantity.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation, with a <see cref="CartItem"/> result.</returns>
-        public async Task AddToCart(int productId, int quantity)
+        public async Task AddToCart(CartItem cartItem)
         {
             try
             {
-                await this.cartRepository.CreateAsync(productId, quantity);
+                await this.cartRepository.CreateAsync(cartItem);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to add product {productId} to cart.", ex);
+                throw new Exception($"Failed to add product {cartItem.Product.ID} to cart.", ex);
             }
         }
 
@@ -147,7 +146,11 @@ namespace WorkoutApp.Service
         {
             try
             {
-                await this.cartRepository.ResetCart();
+                IEnumerable<CartItem> cartItems = await this.cartRepository.GetAllAsync();
+                foreach (CartItem item in cartItems)
+                {
+                    await this.cartRepository.DeleteAsync(item.ID);
+                }
             }
             catch (Exception ex)
             {

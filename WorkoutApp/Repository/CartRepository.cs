@@ -16,7 +16,7 @@ namespace WorkoutApp.Repository
     /// <summary>
     /// Provides CRUD operations for cart items in the database.
     /// </summary>
-    public class CartRepository : ICartRepository
+    public class CartRepository : IRepository<CartItem>
     {
         private readonly DbService databaseService;
         private readonly SessionManager sessionManager;
@@ -45,7 +45,8 @@ namespace WorkoutApp.Repository
             try
             {
                 var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                    "SELECT p.ID AS ProductID, " +
+                    "SELECT ci.ID as CartItemID, " +
+                    "p.ID AS ProductID, " +
                     "ci.CustomerID, " +
                     "ci.Quantity, " +
                     "p.Name, " +
@@ -81,6 +82,7 @@ namespace WorkoutApp.Repository
                             photoURL: row["PhotoURL"]?.ToString());
 
                     CartItem cartItem = new CartItem(
+                        id: Convert.ToInt32(row["CartItemID"]),
                         product: product,
                         customerID: Convert.ToInt32(row["CustomerID"]),
                         quantity: Convert.ToInt32(row["Quantity"]));
@@ -98,17 +100,17 @@ namespace WorkoutApp.Repository
         /// <summary>
         /// Retrieves a cart item by its ID asynchronously.
         /// </summary>
-        /// <param name="productID">The ID of the cart item.</param>
+        /// <param name="cartItemID">The ID of the cart item.</param>
         /// <returns>The cart item with the specified ID, or null if not found.</returns>
-        public async Task<CartItem?> GetByIdAsync(int productID)
+        public async Task<CartItem?> GetByIdAsync(int cartItemID)
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
 
             try
             {
                 var selectQueryResult = await this.databaseService.ExecuteSelectAsync(
-                    "SELECT p.ID AS ProductID, " +
-                    "ci.CustomerID, " +
+                    "SELECT ci.ID as CartItemID, " +
+                    "p.ID AS ProductID, " +
                     "ci.Quantity, " +
                     "p.Name, " +
                     "p.Price, " +
@@ -122,11 +124,11 @@ namespace WorkoutApp.Repository
                     "FROM CartItem ci " +
                     "JOIN Product p ON ci.ProductID = p.ID " +
                     "JOIN Category c ON p.CategoryID = c.ID " +
-                    "WHERE ci.CustomerID = @CustomerID AND p.ID = @ProductID;",
+                    "WHERE ci.CustomerID = @CustomerID AND ci.ID = @CartItemID;",
                     new List<SqlParameter>
                     {
                         new SqlParameter("@CustomerID", customerID),
-                        new SqlParameter("@ProductID", productID),
+                        new SqlParameter("@CartItemID", cartItemID),
                     });
 
                 if (selectQueryResult.Rows.Count == 0)
@@ -152,6 +154,7 @@ namespace WorkoutApp.Repository
                     photoURL: row["PhotoURL"]?.ToString());
 
                 CartItem cartItem = new CartItem(
+                    id: Convert.ToInt32(row["CartItemID"]),
                     product: product,
                     customerID: Convert.ToInt32(row["CustomerID"]),
                     quantity: Convert.ToInt32(row["Quantity"]));
@@ -167,26 +170,29 @@ namespace WorkoutApp.Repository
         /// <summary>
         /// Creates a new cart item asynchronously.
         /// </summary>
-        /// <param name="productId">The product ID of the cart item.</param>
-        /// <param name="quantity">The quantity of the cart item.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task CreateAsync(int productId, int quantity)
+        /// <param name="entity">The cart item to create.</param>
+        /// <returns>The created cart item.</returns>
+        public async Task<CartItem> CreateAsync(CartItem entity)
         {
             int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
 
-            int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
+            int newId = await this.databaseService.ExecuteScalarAsync<int>(
                 "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
                 new List<SqlParameter>
                 {
-                    new SqlParameter("@ProductID", productId),
+                    new SqlParameter("@ProductID", entity.Product.ID),
                     new SqlParameter("@CustomerID", customerID),
-                    new SqlParameter("@Quantity", quantity),
+                    new SqlParameter("@Quantity", entity.Quantity),
                 });
 
-            if (insertQueryResult < 0)
+            if (newId < 0)
             {
-                throw new Exception($"Error inserting cart item with product id: {productId}");
+                throw new Exception($"Error inserting cart item with product id: {entity.Product.ID}");
             }
+
+            entity.ID = newId;
+
+            return entity;
         }
 
         /// <summary>
@@ -216,18 +222,13 @@ namespace WorkoutApp.Repository
         /// <summary>
         /// Deletes a cart item asynchronously.
         /// </summary>
-        /// <param name="productID">The ID of the cart item to delete.</param>
+        /// <param name="cartItemID">The ID of the cart item to delete.</param>
         /// <returns>A boolean indicating whether the deletion was successful.</returns>
-        public async Task<bool> DeleteAsync(int productID)
+        public async Task<bool> DeleteAsync(int cartItemID)
         {
-            if (productID <= 0)
-            {
-                throw new ArgumentException("Invalid product ID.");
-            }
-
             int deleteQueryResult = await this.databaseService.ExecuteQueryAsync(
-                "DELETE FROM CartItem WHERE ProductID = @ProductID",
-                new List<SqlParameter> { new SqlParameter("@ProductID", productID) });
+                "DELETE FROM CartItem WHERE ID = @CartItemID",
+                new List<SqlParameter> { new SqlParameter("@CartItemID", cartItemID) });
 
             if (deleteQueryResult < 0)
             {
@@ -235,48 +236,6 @@ namespace WorkoutApp.Repository
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Resets the cart by deleting all active items and creating a new cart asynchronously.
-        /// </summary>
-        /// <returns>A boolean indicating whether the reset was successful.</returns>
-        public async Task<bool> ResetCart()
-        {
-            int customerID = this.sessionManager.CurrentUserId ?? throw new InvalidOperationException("Current user ID is null.");
-
-            if (customerID <= 0)
-            {
-                throw new ArgumentException("Invalid customer ID.");
-            }
-
-            string deleteQuery = "DELETE FROM CartItem WHERE CustomerID = @CustomerID";
-            int deleteQueryResult = await this.databaseService.ExecuteQueryAsync(
-                deleteQuery,
-                new List<SqlParameter> { new SqlParameter("@CustomerID", customerID) });
-
-            if (deleteQueryResult < 0)
-            {
-                throw new Exception($"Error deleting cart items for customer id: {customerID}");
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Creates a new cart item asynchronously.
-        /// </summary>
-        /// <param name="entity">The cart item to create.</param>
-        /// <returns>The created cart item.</returns>
-        public async Task<CartItem> CreateAsync(CartItem entity)
-        {
-            if (entity.Product.ID == null)
-            {
-                throw new InvalidOperationException("Product ID cannot be null.");
-            }
-
-            await this.CreateAsync((int)entity.Product.ID, entity.Quantity);
-            return entity;
         }
     }
 }
