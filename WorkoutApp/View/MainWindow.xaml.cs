@@ -83,5 +83,47 @@ namespace WorkoutApp.View
             //    this.Content = new ProductTab.ProductTab(allProducts[1]);
             //}
         }
+
+        /// <summary>
+        /// Handles the Click event for the "View Product 1" button.
+        /// Opens the ProductDetailPage in a new window for product ID 2.
+        /// </summary>
+        private void ViewProduct1_Click(object sender, RoutedEventArgs e)
+        {
+            // Define the product ID to navigate to
+            int productIdToNavigate = 2;
+
+            // Initialize dependencies for the ProductService.
+            // In a real application, you would typically use a Dependency Injection container here.
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            // Replace with your actual connection string or get from config
+            var connectionFactory = new DbConnectionFactory(connectionString);
+            var dbService = new DbService(connectionFactory);
+            var productRepository = new ProductRepository(dbService);
+            var productService = new ProductService(productRepository);
+
+            // Create a new Window first
+            var newWindow = new Window();
+
+            // Create a new instance of the ProductDetailPage, passing the new window to its constructor
+            // This allows the ProductDetailPage to know its hosting window for internal navigation.
+            var productDetailPage = new ProductDetailPage(newWindow);
+
+            // If ProductDetailPage ViewModel has a LoadProductAsync(int id) method:
+            // This is the preferred approach for passing data after page creation.
+            // You'll need to ensure your ProductDetailPage.xaml.cs has a public ViewModel property.
+            // Use _ = ... to avoid awaiting in a void method.
+            _ = productDetailPage.ViewModel.LoadProductAsync(productIdToNavigate);
+
+
+            // Set the content of the new window to the ProductDetailPage
+            newWindow.Content = productDetailPage;
+
+            // Set a title for the new window (optional)
+            newWindow.Title = $"Product Details (ID: {productIdToNavigate})";
+
+            // Activate and show the new window
+            newWindow.Activate();
+        }
     }
 }

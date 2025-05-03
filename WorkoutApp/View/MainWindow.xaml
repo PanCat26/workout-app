@@ -57,5 +57,6 @@
             QueryIcon="Find"
             TextChanged="SearchBox_TextChanged"/>
         </StackPanel>
+
     </Grid>
 </Window>
