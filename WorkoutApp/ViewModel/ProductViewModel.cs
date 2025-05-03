@@ -6,9 +6,11 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
 {
     using System;
     using System.Collections.Generic; // Required for EqualityComparer
+    using System.Collections.ObjectModel; // Required for ObservableCollection
     using System.ComponentModel; // Required for INotifyPropertyChanged
     using System.Diagnostics; // Required for Debug.WriteLine
     using System.Globalization; // Required for CultureInfo
+    using System.Linq; // Required for .ToList()
     using System.Runtime.CompilerServices; // Required for CallerMemberName
     using System.Threading.Tasks;
     using WorkoutApp.Models; // Assuming Product and Category models are here
@@ -19,7 +21,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
     /// </summary>
     public class ProductViewModel : INotifyPropertyChanged // Implement INotifyPropertyChanged for UI updates
     {
-        private readonly IService<Product> productService;
+        // CORRECTED: Changed the type from IService<Product> to the concrete ProductService
+        private readonly ProductService productService;
         private int productId; // Store the product ID internally once loaded
         private Product? product; // Hold the underlying Product model
 
@@ -34,6 +37,9 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         private string description = "Loading description...";
         private string? photoUrl = null; // Use string? for nullable PhotoURL
 
+        // New property for related products
+        private ObservableCollection<Product> relatedProducts = new ObservableCollection<Product>();
+
         // Event required by INotifyPropertyChanged
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -41,9 +47,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// Initializes a new instance of the <see cref="ProductViewModel"/> class.
         /// </summary>
         /// <param name="productService">The product service to fetch product data.</param>
-        // CORRECTED CONSTRUCTOR: Takes only the service dependency.
-        // The product ID is passed to LoadProductAsync after the ViewModel is created.
-        public ProductViewModel(IService<Product> productService)
+        // CORRECTED CONSTRUCTOR: Takes the concrete ProductService type
+        public ProductViewModel(ProductService productService)
         {
             this.productService = productService ?? throw new ArgumentNullException(nameof(productService));
             // Initial values are set, data will be loaded when LoadProductAsync is called
@@ -150,6 +155,16 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             set => SetProperty(ref photoUrl, value);
         }
 
+        /// <summary>
+        /// Gets the collection of related products for UI binding.
+        /// </summary>
+        public ObservableCollection<Product> RelatedProducts
+        {
+            get => relatedProducts;
+            private set => SetProperty(ref relatedProducts, value); // Use SetProperty to notify UI
+        }
+
+
         // --- Commands for UI Interaction (Placeholders) ---
         // In a real app, you'd use ICommand implementations (e.g., RelayCommand, AsyncCommand)
         // and bind UI buttons to these properties.
@@ -188,6 +203,18 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                     Description = product.Description;
                     PhotoURL = product.PhotoURL;
                     // ID is already set or derived
+
+                    // Load related products after the main product is loaded
+                    if (product.Category != null)
+                    {
+                        // CORRECTED: Access the non-nullable values using ?. and .Value
+                        await LoadRelatedProductsAsync(product.Category.ID ?? 0, product.ID.Value, 3); // Get 3 related products
+                    }
+                    else
+                    {
+                        // Handle case where product has no category
+                        RelatedProducts.Clear(); // Clear related products if no category
+                    }
                 }
                 else
                 {
@@ -202,6 +229,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                     Size = "N/A";
                     Color = "N/A";
                     PhotoURL = null;
+                    RelatedProducts.Clear(); // Clear related products if main product not found
                 }
             }
             catch (Exception ex)
@@ -218,6 +246,35 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 Size = "N/A";
                 Color = "N/A";
                 PhotoURL = null;
+                RelatedProducts.Clear(); // Clear related products on error
+            }
+        }
+
+        /// <summary>
+        /// Loads related products asynchronously based on category.
+        /// </summary>
+        /// <param name="categoryId">The category ID to filter by.</param>
+        /// <param name="excludeProductId">The ID of the product to exclude.</param>
+        /// <param name="count">The number of related products to fetch.</param>
+        private async Task LoadRelatedProductsAsync(int categoryId, int excludeProductId, int count)
+        {
+            try
+            {
+                // Call the service method to get related products
+                // This call is now valid because productService is declared as ProductService
+                var related = await productService.GetProductsByCategoryAsync(categoryId, excludeProductId, count);
+
+                // Clear existing related products and add the new ones
+                RelatedProducts.Clear();
+                foreach (var p in related)
+                {
+                    RelatedProducts.Add(p);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading related products for category {categoryId}: {ex}");
+                RelatedProducts.Clear(); // Clear related products on error
             }
         }
 
