@@ -59,6 +59,10 @@
                     <!-- 🔽 Category Filter Component (UserControl) -->
                     <views:CategoryFilter />
 
+					<views:ColorFilter />
+
+					<views:SizeFilter />
+
                 </StackPanel>
 
                 <!-- PRODUCT GRID -->

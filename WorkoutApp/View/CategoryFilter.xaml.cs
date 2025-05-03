@@ -28,10 +28,14 @@ namespace WorkoutApp.View
             this.viewModel = new CategoryFilterViewModel(categoryService);
             this.DataContext = viewModel;
 
-            this.Loaded += async (_, __) =>
+            this.Loaded += (_, __) =>
             {
                 System.Diagnostics.Debug.WriteLine("[CategoryFilter] Loaded event triggered");
-                await viewModel.LoadCategoriesAsync();
+
+                this.DispatcherQueue.TryEnqueue(async () =>
+                {
+                    await viewModel.LoadCategoriesAsync();
+                });
             };
         }
 

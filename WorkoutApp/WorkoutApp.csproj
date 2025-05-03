@@ -20,6 +20,7 @@
     <None Remove="Components\ProductCardComponent.xaml" />
     <None Remove="View\AddProductWindow.xaml" />
     <None Remove="View\CategoryFilter.xaml" />
+    <None Remove="View\ColorFilter.xaml" />
     <None Remove="View\MainWindow.xaml" />
     <None Remove="View\Payment.xaml" />
 
@@ -28,6 +29,7 @@
     <None Remove="View\ProductTab\ProductTab.xaml" />
     <None Remove="View\ProductTab\UpdateWindow.xaml" />
     <None Remove="View\ShoppingCart.xaml" />
+    <None Remove="View\SizeFilter.xaml" />
     <None Remove="View\WishListTab.xaml" />
   </ItemGroup>
 
@@ -79,6 +81,12 @@
     <None Update="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="View\ColorFilter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="View\SizeFilter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="View\CategoryFilter.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
