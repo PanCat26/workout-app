@@ -70,12 +70,33 @@ CREATE TABLE OrderItem (
 -- Insert mock data
 INSERT INTO Customer (Name) VALUES ('Alice'), ('Bob'), ('Charlie');
 
-INSERT INTO Category (Name) VALUES ('Electronics'), ('Clothing'), ('Books');
+INSERT INTO Category (Name) VALUES 
+('Electronics'), 
+('Clothing'), 
+('Books'), 
+('Fitness'), 
+('Home Appliances');
 
 INSERT INTO Product (Name, Price, Stock, CategoryID, Size, Color, Description, PhotoURL) VALUES
-('Laptop', 999.99, 10, 1, '15-inch', 'Gray', 'Powerful laptop', 'laptop.jpg'),
-('T-Shirt', 19.99, 50, 2, 'M', 'Blue', 'Comfortable cotton shirt', 'shirt.jpg'),
-('Book', 9.99, 100, 3, DEFAULT, DEFAULT, DEFAULT, 'book.jpg');
+-- Electronics
+('Smartphone', 699.99, 25, 1, '6.1-inch', 'Black', 'Latest smartphone with high-resolution display', 'https://dlcdnwebimgs.asus.com/files/media/30106838-7820-415e-baac-f0971bfa65b3/v1/features/images/large/1x/kv/phone_left.png'),
+('Wireless Earbuds', 129.99, 40, 1, DEFAULT, 'White', 'Noise-cancelling wireless earbuds', 'https://m.media-amazon.com/images/I/51pycg0MGxL.jpg'),
+
+-- Clothing
+('Jeans', 49.99, 30, 2, '32', 'Blue', 'Slim-fit denim jeans', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQh-D_7D9Pt3fXZh8Eyp933oGjWHzzYjnSbrQ&s'),
+('Hoodie', 39.99, 20, 2, 'L', 'Black', 'Warm fleece hoodie', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsy7eTIB4Y1lGbQEHKEs7pi09zz-2uxwxOEQ&s'),
+
+-- Books
+('Science Fiction Novel', 14.99, 60, 3, DEFAULT, DEFAULT, 'A thrilling space adventure', 'https://cdn.shopify.com/s/files/1/0194/2855/files/atomic-habits_600x600.jpg?v=1624825894'),
+('Cookbook', 24.99, 45, 3, DEFAULT, DEFAULT, 'Delicious recipes for all skill levels', 'https://m.media-amazon.com/images/I/811go9afNjL._AC_UF1000,1000_QL80_.jpg'),
+
+-- Fitness
+('Yoga Mat', 29.99, 15, 4, 'Standard', 'Purple', 'Non-slip yoga mat', 'https://www.techfit.ro/image/cache/catalog/ANA/PVCPRINT1/PVCPRINT1_7-1500x1500.jpg'),
+('Dumbbells', 59.99, 10, 4, '10kg', 'Black', 'Pair of 10kg dumbbells', 'https://www.profesionalfitness.ro/wp-content/uploads/2020/07/PALLADIUM-DUMBBELLS-1-%E2%80%93-10-KG.jpg'),
+
+-- Home Appliances
+('Air Fryer', 89.99, 8, 5, DEFAULT, 'Silver', 'Healthy cooking air fryer', 'https://m.media-amazon.com/images/I/71ZhnVxe-0L.jpg'),
+('Blender', 34.99, 12, 5, DEFAULT, 'Red', 'Multi-speed kitchen blender', 'https://m.media-amazon.com/images/I/81C9vKqIIBL.jpg');
 
 INSERT INTO CartItem (CustomerID, ProductID) VALUES
 (1, 1),
