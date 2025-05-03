@@ -30,7 +30,7 @@
                 <component:ColorFilter x:Name="ColorFilterControl" 
                     Margin="0,0,0,10"
                     ColorChanged="ColorSelector_SelectionChanged"/>
-                <local:SizeFilter x:Name="SizeFilterControl" 
+                <component:SizeFilter x:Name="SizeFilterControl" 
                     Margin="0,0,0,10"
                     SizeChanged="SizeSelector_SelectionChanged"/>
                 <Button

@@ -2,7 +2,7 @@ using System;
 using Microsoft.UI.Xaml.Controls;
 
 
-namespace WorkoutApp.View
+namespace WorkoutApp.View.Components
 {
     public sealed partial class SizeFilter : UserControl
     {
