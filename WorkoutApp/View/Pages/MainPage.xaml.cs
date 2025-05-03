@@ -120,63 +120,17 @@ namespace WorkoutApp.View
             */
         }
 
-        private void AddFilterCombo(string tag, List<string> options, int categoryId)
+        private async void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            /*
-            FilterOptionsPanel.Children.Add(new TextBlock
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                Text = tag,
-                Foreground = new SolidColorBrush(Colors.White),
-                Margin = new Thickness(0, 10, 0, 2),
-            });
-
-            var combo = new ComboBox { Tag = tag, Width = 140 };
-
-            foreach (string option in options)
-            {
-                combo.Items.Add(new ComboBoxItem { Content = option });
-            }
-
-            combo.SelectionChanged += (s, e) => this.ApplyCategoryFilter(categoryId);
-            FilterOptionsPanel.Children.Add(combo);*/
-        }
-
-        private void ApplyCategoryFilter(int categoryId)
-        {
-            /*
-            Dictionary<string, string> selectedFilters = new();
-
-            foreach (var child in FilterOptionsPanel.Children)
-            {
-                if (child is ComboBox comboBox &&
-                    comboBox.SelectedItem is ComboBoxItem selectedItem &&
-                    comboBox.Tag is string tag)
+                string searchTerm = this.SearchBoxControl.Text;
+                if (!string.IsNullOrEmpty(searchTerm))
                 {
-                    selectedFilters[tag] = selectedItem.Content.ToString();
+                    this.mainPageViewModel.SetSearchTerm(searchTerm);
+                    await this.LoadProducts();
                 }
             }
-
-            IEnumerable<IProduct> filtered = allProducts.Where(p => p.CategoryID == categoryId);
-
-            switch (categoryId)
-            {
-                case 1:
-                    filtered = filtered.OfType<ClothesProduct>().Where(p =>
-                        (!selectedFilters.ContainsKey("Size") || p.Size.Contains(selectedFilters["Size"], StringComparison.OrdinalIgnoreCase)) &&
-                        (!selectedFilters.ContainsKey("Color") || p.Attributes.Contains(selectedFilters["Color"], StringComparison.OrdinalIgnoreCase)));
-                    break;
-
-                case 2:
-                    filtered = filtered.OfType<FoodProduct>().Where(p =>
-                        (!selectedFilters.ContainsKey("Size") || p.Size.Contains(selectedFilters["Size"], StringComparison.OrdinalIgnoreCase)));
-                    break;
-
-                case 3:
-                    break;
-            }
-
-            ProductsGridView.ItemsSource = filtered.ToList();
-            */
         }
     }
 }

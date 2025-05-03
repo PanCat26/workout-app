@@ -1,6 +1,11 @@
 // MainWindow.xaml.cs
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System;
+using Windows.Graphics;
+using WinRT.Interop;
 
 namespace WorkoutApp.View
 {
@@ -12,6 +17,7 @@ namespace WorkoutApp.View
         {
             this.InitializeComponent();
             AppFrame = this.MainFrame;
+            this.SetFixedSize(1440, 720);
             MainPage mainPage = new MainPage();
             this.MainFrame.Navigate(typeof(MainPage));
         }
@@ -53,24 +59,16 @@ namespace WorkoutApp.View
             this.Content = new WishListTab(this);
         }
 
-        private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void SetFixedSize(int width, int height)
         {
-            /*
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                string searchTerm = SearchBox.Text.Trim();
+            IntPtr hWnd = WindowNative.GetWindowHandle(this);
+            WindowId windowId = Win32Interop.GetWindowIdFromWindow(hWnd);
+            AppWindow? appWindow = AppWindow.GetFromWindowId(windowId);
 
-                if (string.IsNullOrEmpty(searchTerm))
-                {
-                    ProductsGridView.ItemsSource = allProducts;
-                }
-                else
-                {
-                    //ProductsGridView.ItemsSource = allProducts;
-                    IEnumerable<IProduct> filtered = allProducts.Where(p => p.Name.Contains(searchTerm));
-                    ProductsGridView.ItemsSource = filtered;
-                }
-            }*/
+            if (appWindow != null)
+            {
+                appWindow.Resize(new SizeInt32(width, height));
+            }
         }
 
         private void SeeProduct_Click(object sender, RoutedEventArgs e)

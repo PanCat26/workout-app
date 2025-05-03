@@ -54,26 +54,45 @@ namespace WorkoutApp.ViewModel
             return await ((ProductService)this.productService).GetFilteredAsync(this.filter);
         }
 
+        /// <summary>
+        /// Sets the selected category ID for filtering products.
+        /// </summary>
+        /// <param name="categoryId">The ID of the category.</param>
         public void SetSelectedCategoryID(int categoryId)
         {
             this.filter.CategoryId = categoryId;
         }
 
+        /// <summary>
+        /// Sets the selected brand for filtering products.
+        /// </summary>
+        /// <param name="color">The color to be set.</param>
         public void SetSelectedColor(string color)
         {
             this.filter.Color = color;
         }
 
+        /// <summary>
+        /// Sets the selected brand for filtering products.
+        /// </summary>
+        /// <param name="size">The sizeto be set.</param>
         public void SetSelectedSize(string size)
         {
             this.filter.Size = size;
         }
 
+        /// <summary>
+        /// Sets the selected brand for filtering products.
+        /// </summary>
+        /// <param name="searchTerm">The search term to be set.</param>
         public void SetSearchTerm(string searchTerm)
         {
             this.filter.SearchTerm = searchTerm;
         }
 
+        /// <summary>
+        /// Resets the filters to their default values.
+        /// </summary>
         public void ResetFilters()
         {
             this.filter = new ProductFilter(null, null, null, null, null, null);
