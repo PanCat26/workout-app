@@ -16,7 +16,7 @@ namespace WorkoutApp.Repository
     /// <summary>
     /// Provides CRUD operations for cart items in the database.
     /// </summary>
-    public class CartRepository : IRepository<CartItem>
+    public class CartRepository : ICartRepository
     {
         private readonly DbService databaseService;
         private readonly SessionManager sessionManager;
@@ -270,21 +270,12 @@ namespace WorkoutApp.Repository
         /// <returns>The created cart item.</returns>
         public async Task<CartItem> CreateAsync(CartItem entity)
         {
-
-            int insertQueryResult = await this.databaseService.ExecuteQueryAsync(
-                "INSERT INTO CartItem (ProductID, CustomerID, Quantity) VALUES (@ProductID, @CustomerID, @Quantity)",
-                new List<SqlParameter>
-                {
-                    new SqlParameter("@ProductID", entity.Product.ID),
-                    new SqlParameter("@CustomerID", entity.CustomerID),
-                    new SqlParameter("@Quantity", entity.Quantity),
-                });
-
-            if (insertQueryResult < 0)
+            if (entity.Product.ID == null)
             {
-                throw new Exception($"Error inserting cart item with product id: {entity.Product.ID}");
+                throw new InvalidOperationException("Product ID cannot be null.");
             }
 
+            await this.CreateAsync((int)entity.Product.ID, entity.Quantity);
             return entity;
         }
     }
