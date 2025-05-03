@@ -5,7 +5,10 @@
 namespace WorkoutApp.Repository
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
+    using WorkoutApp.Utils;
+    using WorkoutApp.Utils.Filters;
 
     /// <summary>
     /// Defines the basic CRUD operations for a repository.
@@ -47,5 +50,15 @@ namespace WorkoutApp.Repository
         /// <param name="id">The identifier of the entity to delete.</param>
         /// <returns>A task representing the asynchronous operation, containing a boolean indicating success.</returns>
         Task<bool> DeleteAsync(int id);
+
+        /// <summary>
+        /// Gets all entities filtered by a specific criteria asynchronously.
+        /// </summary>
+        /// <param name="filter">Filter used.</param>>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<IEnumerable<T>> GetAllFilteredAsync(IFilter filter)
+        {
+            return Task.FromResult(Enumerable.Empty<T>());
+        }
     }
 }
