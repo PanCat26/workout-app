@@ -21,10 +21,13 @@
     <None Remove="View\AddProductButton.xaml" />
     <None Remove="View\AddProductFlyout.xaml" />
     <None Remove="View\AddProductWindow.xaml" />
+    <None Remove="View\Components\Header.xaml" />
     <None Remove="View\Components\VerticalProductListComponent.xaml" />
     <None Remove="View\Components\VerticalRemovableProductListComponent.xaml" />
     <None Remove="View\MainPage.xaml" />
     <None Remove="View\MainWindow.xaml" />
+    <None Remove="View\Pages\CartPage.xaml" />
+    <None Remove="View\Pages\WishlistPage.xaml" />
     <None Remove="View\Payment.xaml" />
 
     <None Remove="View\Add.xaml" />
@@ -85,6 +88,15 @@
     <None Update="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="View\Components\Header.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="View\Pages\WishlistPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="View\Pages\CartPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="View\AddProductButton.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -156,9 +168,6 @@
     <Page Update="View\Add.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="View\Pages\" />
   </ItemGroup>
 
   <!--
