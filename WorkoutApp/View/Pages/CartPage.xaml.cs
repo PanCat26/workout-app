@@ -25,7 +25,6 @@ namespace WorkoutApp.View.Pages
         {
             this.InitializeComponent();
             this.cartViewModel = new CartViewModel();
-            this.DataContext = this.cartViewModel;
         }
 
         private void VerticalProductListControl_ProductClicked(object sender, int productID)

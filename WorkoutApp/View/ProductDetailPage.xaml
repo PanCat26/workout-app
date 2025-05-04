@@ -66,7 +66,7 @@
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
                     <Button Content="Add to Cart" Padding="10,5" Margin="0,0,15,0" Click="AddToCartButton_Click"/>
-                    <Button Content="Add to Wishlist" Padding="10,5" Margin="0,0,15,0"/>
+                    <Button x:Name="AddToWishlistButton" Content="Add to Wishlist" Padding="10,5" Margin="0,0,15,0" Click="AddToWishlistButton_Click"/>
 
                     <components:UpdateProductButton
                         ViewModel="{Binding}" />
