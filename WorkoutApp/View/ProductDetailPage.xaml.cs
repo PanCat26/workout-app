@@ -9,6 +9,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
     using Microsoft.UI.Xaml.Controls; // For WinUI Page
     using Microsoft.UI.Xaml.Navigation; // For NavigationEventArgs
     using WorkoutApp.Data.Database; // Assuming DbConnectionFactory and DbService are here
+    using WorkoutApp.Models;
     using WorkoutApp.Repository; // Assuming ProductRepository and IRepository are here
     using WorkoutApp.Service; // Assuming ProductService and IService are here
     using WorkoutApp.ViewModel; // Corrected: Using the singular 'ViewModel' namespace for ProductViewModel
@@ -25,6 +26,10 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         /// The ViewModel for the ProductDetailPage.
         /// </summary>
         public ProductViewModel ViewModel { get; }
+
+        private readonly CartViewModel cartViewModel;
+
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductDetailPage"/> class.
@@ -47,6 +52,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             // You can add other initialization logic here if needed,
             // similar to how you set the RemoveButtonText in DrinkDetailPage.
             // For example, logic based on user roles or product status.
+            this.cartViewModel = new CartViewModel();
         }
 
         /// <summary>
@@ -81,6 +87,18 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 if (clickedButton.Tag is int relatedProductId)
                 {
                     await this.ViewModel.LoadProductAsync(relatedProductId);
+                }
+            }
+        }
+
+        private async void AddToCartButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button clickedButton)
+            {
+                Product selectedProduct = this.ViewModel.GetSelectedProduct();
+                if (selectedProduct != null)
+                {
+                    await this.cartViewModel.AddProductToCart(selectedProduct);
                 }
             }
         }

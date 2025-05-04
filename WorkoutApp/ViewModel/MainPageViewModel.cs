@@ -51,7 +51,7 @@ namespace WorkoutApp.ViewModel
         /// <returns>A task that represents the asynchronous operation. The task result contains a list of products.</returns>
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            return await ((ProductService)this.productService).GetFilteredAsync(this.filter);
+            return await this.productService.GetFilteredAsync(this.filter);
         }
 
         /// <summary>

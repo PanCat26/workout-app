@@ -4,32 +4,46 @@
 
 namespace WorkoutApp.View.Pages
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.InteropServices.WindowsRuntime;
-    using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Controls.Primitives;
-    using Microsoft.UI.Xaml.Data;
-    using Microsoft.UI.Xaml.Input;
-    using Microsoft.UI.Xaml.Media;
     using Microsoft.UI.Xaml.Navigation;
-    using Windows.Foundation;
-    using Windows.Foundation.Collections;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using WorkoutApp.Models;
+    using WorkoutApp.ViewModel;
 
     /// <summary>
     /// A page that displays current items in the cart.
     /// </summary>
     public sealed partial class CartPage : Page
     {
+        private readonly CartViewModel cartViewModel;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CartPage"/> class.
         /// </summary>
         public CartPage()
         {
             this.InitializeComponent();
+            this.cartViewModel = new CartViewModel();
+            this.DataContext = this.cartViewModel;
+        }
+
+        private void VerticalProductListControl_ProductClicked(object sender, int productID)
+        {
+            //MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            await this.LoadProducts();
+        }
+
+        private async Task LoadProducts()
+        {
+            IEnumerable<CartItem> products = await this.cartViewModel.GetAllProductsFromCartAsync();
+            this.ProductListViewControl.SetProducts(products);
+            this.TotalPriceTextBlock.Text = this.cartViewModel.TotalPrice.ToString("C2");
         }
     }
 }
