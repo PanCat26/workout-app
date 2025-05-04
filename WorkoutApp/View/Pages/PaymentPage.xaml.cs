@@ -36,9 +36,9 @@ namespace WorkoutApp.View.Pages
             this.paymentPageViewModel = new PaymentPageViewModel();
         }
 
-        private void SendOrderButton_Click(object sender, RoutedEventArgs e)
+        private async void SendOrderButton_Click(object sender, RoutedEventArgs e)
         {
-
+            await this.paymentPageViewModel.SendOrder();
         }
     }
 }
