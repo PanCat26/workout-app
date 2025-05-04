@@ -1,13 +1,13 @@
 // WorkoutApp.View.Components/UpdateProductModal.xaml.cs
-// <copyright file="UpdateProductModal.xaml.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+// <copyright file="UpdateProductModal.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.View.Components // Your specified namespace
 {
-    using Microsoft.UI.Xaml.Controls; // Required for UserControl
     using System.Diagnostics; // Required for Debug.WriteLine
     using Microsoft.UI.Xaml; // Required for DependencyPropertyChangedEventArgs, DependencyObject
+    using Microsoft.UI.Xaml.Controls; // Required for UserControl
 
     /// <summary>
     /// Interaction logic for UpdateProductModal.xaml
@@ -23,13 +23,14 @@ namespace WorkoutApp.View.Components // Your specified namespace
         {
             Debug.WriteLine("UpdateProductModal: Constructor called."); // Added logging
             this.InitializeComponent();
+
             // The DataContext will be set externally by the ContentDialog or the parent page.
 
             // Subscribe to the DataContextChanged event to know when the ViewModel is set
-            this.DataContextChanged += UpdateProductModal_DataContextChanged;
+            this.DataContextChanged += this.UpdateProductModal_DataContextChanged;
 
             // Subscribe to the Loaded event to know when the control is added to the visual tree
-            this.Loaded += UpdateProductModal_Loaded;
+            this.Loaded += this.UpdateProductModal_Loaded;
         }
 
         /// <summary>

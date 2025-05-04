@@ -1,15 +1,22 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.UI.Xaml.Controls;
-using WorkoutApp.Models;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+// <copyright file="VerticalWishlistItemListComponent.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace WorkoutApp.View.Components
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.UI.Xaml.Controls;
+    using WorkoutApp.Models;
+
+    /// <summary>
+    /// Represents a component that displays a vertical list of wishlist items.
+    /// </summary>
     public sealed partial class VerticalWishlistItemListComponent : UserControl
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VerticalWishlistItemListComponent"/> class.
+        /// </summary>
         public VerticalWishlistItemListComponent()
         {
             this.InitializeComponent();

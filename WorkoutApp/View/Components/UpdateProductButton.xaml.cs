@@ -1,11 +1,10 @@
 // WorkoutApp.View.Components/UpdateProductButton.xaml.cs
-// <copyright file="UpdateProductButton.xaml.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+// <copyright file="UpdateProductButton.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.View.Components // Your specified namespace
 {
-    using System;
     using System.Diagnostics; // Required for Debug.WriteLine
     using Microsoft.UI.Xaml; // Required for DependencyProperty, DependencyPropertyChangedEventArgs
     using Microsoft.UI.Xaml.Controls; // Required for UserControl, Button
@@ -29,7 +28,6 @@ namespace WorkoutApp.View.Components // Your specified namespace
                 typeof(UpdateProductButton),
                 new PropertyMetadata(null, OnViewModelPropertyChanged)); // Default value null, call OnViewModelPropertyChanged when changed
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateProductButton"/> class.
         /// </summary>
@@ -37,6 +35,7 @@ namespace WorkoutApp.View.Components // Your specified namespace
         {
             Debug.WriteLine("UpdateProductButton: Constructor called."); // Added logging
             this.InitializeComponent(); // Initialize the XAML defined in UpdateProductButton.xaml
+
             // No Loaded event needed as ViewModel is set externally
         }
 
@@ -46,8 +45,8 @@ namespace WorkoutApp.View.Components // Your specified namespace
         /// </summary>
         public ProductViewModel ViewModel
         {
-            get => (ProductViewModel)GetValue(ViewModelProperty);
-            set => SetValue(ViewModelProperty, value);
+            get => (ProductViewModel)this.GetValue(ViewModelProperty);
+            set => this.SetValue(ViewModelProperty, value);
         }
 
         /// <summary>
@@ -60,6 +59,7 @@ namespace WorkoutApp.View.Components // Your specified namespace
             if (d is UpdateProductButton button && e.NewValue is ProductViewModel newViewModel)
             {
                 Debug.WriteLine($"UpdateProductButton: ViewModel property set. Updating DataContext."); // Added logging
+
                 // Set the DataContext of the UserControl to the new ViewModel instance
                 button.DataContext = newViewModel;
             }

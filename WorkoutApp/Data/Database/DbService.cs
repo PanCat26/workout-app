@@ -105,6 +105,5 @@ namespace WorkoutApp.Data.Database
                 throw;
             }
         }
-
     }
 }

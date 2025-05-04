@@ -1,4 +1,4 @@
-// <copyright file="VerticalProductListComponent.xaml.cs" company="PlaceholderCompany">
+// <copyright file="VerticalCartItemListComponent.xaml.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 

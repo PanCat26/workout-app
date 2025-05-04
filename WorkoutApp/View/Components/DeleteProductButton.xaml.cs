@@ -1,18 +1,13 @@
 // WorkoutApp.View.Components/DeleteProductButton.xaml.cs
-// <copyright file="DeleteProductButton.xaml.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+// <copyright file="DeleteProductButton.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.View.Components // Your specified namespace
 {
-    using System;
     using System.Diagnostics; // Required for Debug.WriteLine
-    using System.Threading.Tasks; // Required for Task (though not directly awaited here)
     using Microsoft.UI.Xaml; // Required for DependencyProperty, DependencyPropertyChangedEventArgs
     using Microsoft.UI.Xaml.Controls; // Required for UserControl, Button
-    // Removed usings for Service, Data.Database, Repository, ConfigurationManager
-    // as the ViewModel is now provided externally
-
     using WorkoutApp.ViewModel; // Assuming ProductViewModel is here
 
     /// <summary>
@@ -42,7 +37,6 @@ namespace WorkoutApp.View.Components // Your specified namespace
                 typeof(DeleteProductButton),
                 new PropertyMetadata(null, OnViewModelPropertyChanged)); // Default value null, call OnViewModelPropertyChanged when changed
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DeleteProductButton"/> class.
         /// </summary>
@@ -50,6 +44,7 @@ namespace WorkoutApp.View.Components // Your specified namespace
         {
             Debug.WriteLine("DeleteProductButton: Constructor called."); // Added logging
             this.InitializeComponent(); // Initialize the XAML defined in DeleteProductButton.xaml
+
             // Removed Loaded event subscription as ViewModel initialization is external
             // Loaded += DeleteProductButton_Loaded;
         }
@@ -69,8 +64,8 @@ namespace WorkoutApp.View.Components // Your specified namespace
         /// </summary>
         public ProductViewModel ViewModel
         {
-            get => (ProductViewModel)GetValue(ViewModelProperty);
-            set => SetValue(ViewModelProperty, value);
+            get => (ProductViewModel)this.GetValue(ViewModelProperty);
+            set => this.SetValue(ViewModelProperty, value);
         }
 
         // Removed OnProductIdChanged as ProductId DP is removed
@@ -91,7 +86,6 @@ namespace WorkoutApp.View.Components // Your specified namespace
             if (d is DeleteProductButton button && e.NewValue is ProductViewModel newViewModel)
             {
                 Debug.WriteLine($"DeleteProductButton: ViewModel property set. Updating DataContext."); // Added logging
-                // Set the DataContext of the UserControl to the new ViewModel instance
                 button.DataContext = newViewModel;
             }
         }

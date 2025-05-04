@@ -196,7 +196,7 @@ namespace WorkoutApp.Repository
         /// <returns>The updated cart item.</returns>
         public async Task<CartItem> UpdateAsync(CartItem cartItem)
         {
-            return cartItem;
+            return await Task.FromResult(cartItem);
         }
 
         /// <summary>
