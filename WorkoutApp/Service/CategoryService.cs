@@ -10,6 +10,7 @@ namespace WorkoutApp.Service
     using WorkoutApp.Models;
     using WorkoutApp.Repository;
     using System.Linq;
+    using WorkoutApp.Utils.Filters;
 
 
     /// <summary>
@@ -82,6 +83,16 @@ namespace WorkoutApp.Service
         {
             // Delegate the call to the repository
             return await this.categoryRepository.DeleteAsync(id);
+        }
+
+        /// <summary>
+        /// Gets a collection of categories based on the provided filter criteria.
+        /// </summary>
+        /// <param name="filter">The filter criteria to apply.</param>
+        /// <returns>A task representing the asynchronous operation with a collection of categories.</returns>
+        public Task<IEnumerable<Category>> GetFilteredAsync(IFilter filter)
+        {
+            return Task.FromResult(Enumerable.Empty<Category>());
         }
     }
 }

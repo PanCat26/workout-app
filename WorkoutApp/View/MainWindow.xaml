@@ -15,4 +15,5 @@
         <component:Header/>
         <Frame x:Name="MainFrame" Grid.Row="3"/>
     </StackPanel>
+
 </Window>

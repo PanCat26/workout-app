@@ -44,7 +44,6 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
 
             // Set the DataContext of the page to the ViewModel
             this.DataContext = this.ViewModel;
-
             // You can add other initialization logic here if needed,
             // similar to how you set the RemoveButtonText in DrinkDetailPage.
             // For example, logic based on user roles or product status.

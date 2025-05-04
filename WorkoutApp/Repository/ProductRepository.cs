@@ -174,38 +174,40 @@ namespace WorkoutApp.Repository
         // Implementing the GetAllFilteredAsync method from IRepository
         public async Task<IEnumerable<Product>> GetAllFilteredAsync(IFilter filter)
         {
-            // Check if the filter is of the expected type ProductFilter
             if (filter is not ProductFilter productFilter)
             {
-                // Handle invalid filter type - log or throw, returning empty is safest default
                 System.Diagnostics.Debug.WriteLine($"Warning: GetAllFilteredAsync received unexpected filter type: {filter?.GetType().Name}. Expected ProductFilter.");
                 return Enumerable.Empty<Product>();
             }
 
             List<SqlParameter> parameters = [];
-            string topClause = "";
-            string whereClause = " WHERE 1=1"; // Dummy condition to easily append more WHERE clauses
 
-            // Add filter conditions based on the ProductFilter properties
-            if (productFilter.CategoryId.HasValue && productFilter.CategoryId > 0)
-            {
-                whereClause += " AND Product.CategoryID = @CategoryID";
-                parameters.Add(new SqlParameter("@CategoryID", productFilter.CategoryId.Value));
-            }
+            // Add all filter parameters (even if null)
+            parameters.Add(new SqlParameter("@CategoryID", (object?)productFilter.CategoryId ?? DBNull.Value));
+            parameters.Add(new SqlParameter("@ExcludeProductID", (object?)productFilter.ExcludeProductId ?? DBNull.Value));
+            parameters.Add(new SqlParameter("@Color", (object?)productFilter.Color ?? DBNull.Value));
+            parameters.Add(new SqlParameter("@Size", (object?)productFilter.Size ?? DBNull.Value));
+            parameters.Add(new SqlParameter("@SearchTerm", (object?)productFilter.SearchTerm ?? DBNull.Value));
 
-            if (productFilter.ExcludeProductId.HasValue && productFilter.ExcludeProductId > 0)
-            {
-                whereClause += " AND Product.ID != @ExcludeProductID";
-                parameters.Add(new SqlParameter("@ExcludeProductID", productFilter.ExcludeProductId.Value));
-            }
-
-            // Add TOP clause if Count is specified
+            // Use TOP clause safely via string interpolation (not parameterizable)
+            string topClause = String.Empty;
             if (productFilter.Count.HasValue && productFilter.Count > 0)
             {
                 topClause = $"TOP ({productFilter.Count.Value})";
             }
 
-            // Build the final query
+            string whereClause = @"
+                WHERE
+                    (@CategoryID IS NULL OR Product.CategoryID = @CategoryID)
+                AND (@ExcludeProductID IS NULL OR Product.ID != @ExcludeProductID)
+                AND (@Color IS NULL OR Product.Color = @Color)
+                AND (@Size IS NULL OR Product.Size = @Size)
+                AND (
+                    @SearchTerm IS NULL OR
+                    Product.Name LIKE '%' + @SearchTerm + '%' OR
+                    Product.Description LIKE '%' + @SearchTerm + '%'
+                )";
+
             string query = $@"
                 SELECT {topClause}
                     Product.ID AS ProductID,
@@ -222,8 +224,7 @@ namespace WorkoutApp.Repository
                 JOIN Category
                     ON Product.CategoryID = Category.ID
                 {whereClause}
-                ORDER BY Product.ID; -- Ensure ORDER BY is present for deterministic TOP results
-            ";
+                ORDER BY Product.ID;";
 
             DataTable result = await this.dbService.ExecuteSelectAsync(query, parameters);
 
@@ -235,6 +236,7 @@ namespace WorkoutApp.Repository
 
             return products;
         }
+
 
 
         private static Product MapRowToProduct(DataRow row)
