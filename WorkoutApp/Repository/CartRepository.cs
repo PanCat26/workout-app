@@ -202,7 +202,7 @@ namespace WorkoutApp.Repository
         /// <returns>The updated cart item.</returns>
         public async Task<CartItem> UpdateAsync(CartItem cartItem)
         {
-            return cartItem;
+            return await Task.FromResult(cartItem);
         }
 
         /// <summary>
@@ -216,12 +216,7 @@ namespace WorkoutApp.Repository
                 "DELETE FROM CartItem WHERE ID = @CartItemID",
                 new List<SqlParameter> { new SqlParameter("@CartItemID", cartItemID) });
 
-            if (deleteQueryResult < 0)
-            {
-                return false;
-            }
-
-            return true;
+            return deleteQueryResult > 0;
         }
     }
 }

@@ -52,9 +52,7 @@ namespace WorkoutApp.Service
         {
             try
             {
-                WishlistItem item = await this.wishlistRepository.GetByIdAsync(id)
-                                        ?? throw new KeyNotFoundException($"Wishlist item with ID {id} not found.");
-                return item;
+                return await this.wishlistRepository.GetByIdAsync(id);
             }
             catch (Exception ex)
             {

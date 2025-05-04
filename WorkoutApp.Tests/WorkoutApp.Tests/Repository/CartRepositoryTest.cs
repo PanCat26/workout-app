@@ -131,21 +131,39 @@ namespace WorkoutApp.Tests.Repository
         }
 
         [Fact]
-        public async Task DeleteAsync_ShouldRemoveItem()
+        public async Task GetAllAsync_ShouldReturnEmpty_WhenNoItemsExist()
         {
-            CartItem cartItem = new(1,new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null), testCustomerId);
-            await cartRepository.CreateAsync(cartItem);
+            IEnumerable<CartItem> items = await cartRepository.GetAllAsync();
 
-            bool deleted = await cartRepository.DeleteAsync(testProductId);
+            Assert.Empty(items);
+        }
 
-            CartItem? result = await cartRepository.GetByIdAsync(testProductId);
+        [Fact]
+        public async Task DeleteAsync_ShouldReturnTrue_WhenItemExists()
+        {
+            int cartItemId = 1;
+            CartItem cartItem = new(cartItemId,new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null), testCustomerId);
+            CartItem returnedItem = await cartRepository.CreateAsync(cartItem);
+
+
+            bool deleted = await cartRepository.DeleteAsync((int)returnedItem.ID);
+
+            CartItem? result = await cartRepository.GetByIdAsync((int)returnedItem.ID);
 
             Assert.True(deleted);
             Assert.Null(result);
         }
 
         [Fact]
-        public async Task GetByIdAsync_ShouldReturnCorrectItem()
+        public async Task DeleteAsync_ShouldReturnFalse_WhenItemDoesNotExists()
+        {
+            bool deleted = await cartRepository.DeleteAsync(9999);
+
+            Assert.False(deleted);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_ShouldReturnItem_WhenItemExists()
         {
             CartItem cartItem = new(
                 id: null, 
@@ -158,6 +176,74 @@ namespace WorkoutApp.Tests.Repository
             Assert.NotNull(result);
             Assert.Equal(createdItem.ID, result.ID);
             Assert.Equal(testCustomerId, result.CustomerID);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_ShouldReturnNull_WhenItemDoesNotExist()
+        {
+            CartItem? result = await cartRepository.GetByIdAsync(999999); // Non-existing product ID
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnSameCartItem()
+        {
+            CartItem cartItem = new(
+                id: null,
+                product: new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null),
+                customerID: testCustomerId);
+
+            CartItem createdItem = await cartRepository.CreateAsync(cartItem);
+
+            CartItem updatedItem = await cartRepository.UpdateAsync(createdItem);
+
+            Assert.Equal(createdItem.ID, updatedItem.ID);
+            Assert.Equal(createdItem.Product.ID, updatedItem.Product.ID);
+        }
+
+        [Fact]
+        public async Task CreateAsync_ShouldThrow_WhenSessionUserIdIsNull()
+        {
+            sessionManager.CurrentUserId = null;
+
+            CartItem cartItem = new(
+                id: null,
+                product: new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null),
+                customerID: 0);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                cartRepository.CreateAsync(cartItem));
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ShouldThrow_WhenSessionUserIdIsNull()
+        {
+            sessionManager.CurrentUserId = null;
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                cartRepository.GetAllAsync());
+        }
+
+        [Fact]
+        public async Task CreateAsync_ShouldHandleMultipleInsertions()
+        {
+            var tasks = new List<Task<CartItem>>();
+
+            for (int i = 0; i < 5; i++)
+            {
+                CartItem item = new(
+                    id: null,
+                    product: new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null),
+                    customerID: testCustomerId);
+
+                tasks.Add(cartRepository.CreateAsync(item));
+            }
+
+            await Task.WhenAll(tasks);
+
+            IEnumerable<CartItem> allItems = await cartRepository.GetAllAsync();
+            Assert.True(allItems.Count() >= 5);
         }
 
         private async Task InsertTestCustomerAsync(string name)

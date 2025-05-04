@@ -237,8 +237,6 @@ namespace WorkoutApp.Repository
             return products;
         }
 
-
-
         private static Product MapRowToProduct(DataRow row)
         {
             return new Product(
