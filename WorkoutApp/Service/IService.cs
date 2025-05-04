@@ -55,6 +55,9 @@ namespace WorkoutApp.Service
         /// <param name="filter">The filter criteria to apply.</param>
         /// <returns>A task representing the asynchronous operation, containing a collection of products.</returns>
         // Added a new generic filtering method
-        Task<IEnumerable<T>> GetFilteredAsync(IFilter filter);
+        Task<IEnumerable<T>> GetFilteredAsync(IFilter filter)
+        {
+            return Task.FromResult<IEnumerable<T>>([]);
+        }
     }
 }

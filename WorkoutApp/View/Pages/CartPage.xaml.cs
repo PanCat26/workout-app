@@ -40,7 +40,7 @@ namespace WorkoutApp.View.Pages
 
         private void CheckoutButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            //MainWindow.AppFrame.Navigate(typeof(Payment));
+            MainWindow.AppFrame?.Navigate(typeof(PaymentPage));
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
