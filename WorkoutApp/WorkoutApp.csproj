@@ -23,7 +23,6 @@
     <None Remove="View\Components\UpdateProductButton.xaml" />
     <None Remove="View\Components\UpdateProductModal.xaml" />
     <None Remove="View\Components\VerticalProductListComponent.xaml" />
-    <None Remove="View\Components\VerticalRemovableProductListComponent.xaml" />
     <None Remove="View\MainPage.xaml" />
     <None Remove="View\MainWindow.xaml" />
     <None Remove="View\Payment.xaml" />
@@ -95,7 +94,7 @@
     <Page Update="View\Components\DeleteProductButton.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="View\Components\VerticalRemovableProductListComponent.xaml">
+    <Page Update="View\Components\VerticalCartItemListComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="View\MainPage.xaml">

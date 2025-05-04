@@ -592,6 +592,10 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public Product GetSelectedProduct()
+        {
+            return this.product;
+        }
 
         // --- Basic ICommand Implementation (RelayCommand) ---
         private class RelayCommand : ICommand

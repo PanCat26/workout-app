@@ -4,11 +4,13 @@
 
 namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
 {
+    using System;
     using System.Configuration;
     using Microsoft.UI.Xaml; // Required for RoutedEventArgs, FrameworkElement
     using Microsoft.UI.Xaml.Controls; // For WinUI Page, ContentDialog
     using Microsoft.UI.Xaml.Navigation; // For NavigationEventArgs
     using WorkoutApp.Data.Database; // Assuming DbConnectionFactory and DbService are here
+    using WorkoutApp.Models;
     using WorkoutApp.Repository; // Assuming ProductRepository and IRepository are here
     using WorkoutApp.Service; // Assuming ProductService and IService are here
     using WorkoutApp.ViewModel; // Corrected: Using the singular 'ViewModel' namespace for ProductViewModel
@@ -27,8 +29,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         /// </summary>
         public ProductViewModel ViewModel { get; }
 
-        // Removed the private field for hostingWindow as per user instruction.
-        // private readonly Window hostingWindow;
+        private readonly CartViewModel cartViewModel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductDetailPage"/> class.
@@ -53,6 +54,10 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             Debug.WriteLine($"ProductDetailPage: ViewModel created. Initial ViewModel.ID: {ViewModel.ID}"); // Added logging
 
             // Set the DataContext of the page to the ViewModel
+            // You can add other initialization logic here if needed,
+            // similar to how you set the RemoveButtonText in DrinkDetailPage.
+            // For example, logic based on user roles or product status.
+            this.cartViewModel = new CartViewModel();
             this.DataContext = ViewModel;
 
             // Subscribe to the ViewModel's events
@@ -185,5 +190,41 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 Debug.WriteLine($"ProductDetailPage: SeeRelatedProductButton_Click called, but sender is not a Button. Sender type: {sender?.GetType().Name}"); // Added logging
             }
         }
+
+        private async void AddToCartButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button clickedButton)
+            {
+                Product selectedProduct = this.ViewModel.GetSelectedProduct();
+                if (selectedProduct != null)
+                {
+                    CartItem addedItem = await this.cartViewModel.AddProductToCart(selectedProduct);
+
+                    if (addedItem != null)
+                    {
+                        // Success feedback
+                        await new ContentDialog
+                        {
+                            Title = "Success",
+                            Content = "Product added to cart.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        }.ShowAsync();
+                    }
+                    else
+                    {
+                        // Failure feedback
+                        await new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Failed to add product to cart.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        }.ShowAsync();
+                    }
+                }
+            }
+        }
+
     }
 }
