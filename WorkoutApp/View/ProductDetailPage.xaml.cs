@@ -11,11 +11,10 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
     using WorkoutApp.Repository; // Assuming ProductRepository and IRepository are here
     using WorkoutApp.Service; // Assuming ProductService and IService are here
     using WorkoutApp.ViewModel; // Corrected: Using the singular 'ViewModel' namespace for ProductViewModel
-    // Removed using Microsoft.UI.Xaml.Input; as TappedEventArgs is no longer used
     using Microsoft.UI.Xaml; // Required for RoutedEventArgs - USED FOR BUTTON CLICKS
     using System; // Required for System namespace
-    // Removed using Microsoft.UI.Xaml.Media; as VisualTreeHelper is no longer needed for this approach
-    // Removed using WinRT; as As<> extension method is no longer needed for this approach
+    using System.Diagnostics; // Required for Debug.WriteLine
+    using System.ComponentModel; // Required for PropertyChangedEventArgs
 
     /// <summary>
     /// Code-behind for the ProductDetailPage.xaml.
@@ -35,6 +34,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         // MODIFIED CONSTRUCTOR: Added a parameter to receive the hosting Window
         public ProductDetailPage(Window hostingWindow)
         {
+            Debug.WriteLine("ProductDetailPage: Constructor called."); // Added logging
             this.InitializeComponent();
 
             // Store the reference to the hosting window
@@ -52,14 +52,35 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
 
             // Initialize the ViewModel with the necessary service
             ViewModel = new ProductViewModel(productService);
+            Debug.WriteLine($"ProductDetailPage: ViewModel created. Initial ViewModel.ID: {ViewModel.ID}"); // Added logging
 
             // Set the DataContext of the page to the ViewModel
             this.DataContext = ViewModel;
+
+            // Subscribe to the ViewModel's PropertyChanged event to detect when ID changes
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            Debug.WriteLine("ProductDetailPage: Subscribed to ViewModel.PropertyChanged."); // Added logging
 
             // You can add other initialization logic here if needed,
             // similar to how you set the RemoveButtonText in DrinkDetailPage.
             // For example, logic based on user roles or product status.
         }
+
+        /// <summary>
+        /// Handles the PropertyChanged event of the ViewModel.
+        /// Used here to detect when the ViewModel's ID property changes after loading.
+        /// </summary>
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModel.ID))
+            {
+                Debug.WriteLine($"ProductDetailPage: ViewModel.ID changed to: {ViewModel.ID}"); // Added logging
+                // Although the XAML binding ProductId="{Binding ID}" should handle this,
+                // this log confirms when the ID is actually updated in the ViewModel.
+            }
+            // You could add checks for other properties changing if needed for debugging
+        }
+
 
         /// <summary>
         /// Handles the OnNavigatedTo event to load product data when the page is navigated to.
@@ -68,16 +89,22 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            Debug.WriteLine($"ProductDetailPage: OnNavigatedTo called. Parameter type: {e.Parameter?.GetType().Name}, Parameter value: {e.Parameter}"); // Added logging
 
             // Check if the navigation parameter is an integer (the product ID)
             if (e.Parameter is int productId)
             {
+                Debug.WriteLine($"ProductDetailPage: Navigation parameter is Product ID: {productId}. Calling LoadProductAsync."); // Added logging
                 // Load the product data using the ViewModel
                 // Use _ = ViewModel.LoadProductAsync(...) to avoid awaiting in OnNavigatedTo
                 _ = ViewModel.LoadProductAsync(productId);
             }
-            // You might want to handle cases where the parameter is not an int or is missing
-            // For example, navigate back or show an error message.
+            else
+            {
+                Debug.WriteLine($"ProductDetailPage: Navigation parameter is NOT an integer Product ID. Parameter: {e.Parameter}"); // Added logging
+                // You might want to handle cases where the parameter is not an int or is missing
+                // For example, navigate back or show an error message.
+            }
         }
 
         /// <summary>
@@ -88,12 +115,14 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         /// <param name="e">The event arguments.</param>
         private void SeeRelatedProductButton_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine("ProductDetailPage: SeeRelatedProductButton_Click called."); // Added logging
             // Get the clicked Button
             if (sender is Button clickedButton)
             {
                 // Get the product ID from the Tag property
                 if (clickedButton.Tag is int relatedProductId)
                 {
+                    Debug.WriteLine($"ProductDetailPage: Related Product Button clicked. Navigating to Product ID: {relatedProductId}"); // Added logging
                     // Initialize dependencies for the ProductService for the new page.
                     // In a real application, you would typically use a Dependency Injection container here.
                     string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
@@ -116,6 +145,14 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                     // Optional: Update the window title
                     this.hostingWindow.Title = $"Product Details (ID: {relatedProductId})";
                 }
+                else
+                {
+                    Debug.WriteLine($"ProductDetailPage: Related Product Button clicked, but Tag is not an int Product ID. Tag value: {clickedButton.Tag}"); // Added logging
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"ProductDetailPage: SeeRelatedProductButton_Click called, but sender is not a Button. Sender type: {sender?.GetType().Name}"); // Added logging
             }
         }
     }

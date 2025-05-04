@@ -58,5 +58,8 @@
             TextChanged="SearchBox_TextChanged"/>
         </StackPanel>
 
+
+        <Button Content="View Product 1" Click="ViewProduct1_Click" Margin="20,0,0,0"/>
+
     </Grid>
 </Window>
