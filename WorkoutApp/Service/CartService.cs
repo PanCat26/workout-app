@@ -9,11 +9,12 @@ namespace WorkoutApp.Service
     using System.Threading.Tasks;
     using WorkoutApp.Models;
     using WorkoutApp.Repository;
+    using WorkoutApp.Utils.Filters;
 
     /// <summary>
     /// Provides services for managing the shopping cart, including adding, removing, and updating cart items.
     /// </summary>
-    public class CartService
+    public class CartService : IService<CartItem>
     {
         private readonly IRepository<CartItem> cartRepository;
 
@@ -30,11 +31,11 @@ namespace WorkoutApp.Service
         /// Retrieves all items in the shopping cart.
         /// </summary>
         /// <returns>A list of <see cref="CartItem"/> objects representing the items in the cart.</returns>
-        public async Task<List<CartItem>> GetCartItems()
+        public async Task<IEnumerable<CartItem>> GetAllAsync()
         {
             try
             {
-                return (List<CartItem>)await this.cartRepository.GetAllAsync();
+                return await this.cartRepository.GetAllAsync();
             }
             catch (Exception ex)
             {
@@ -47,7 +48,7 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="id">The ID of the cart item to retrieve.</param>
         /// <returns>The <see cref="CartItem"/> with the specified ID.</returns>
-        public async Task<CartItem> GetCartItemById(int id)
+        public async Task<CartItem> GetByIdAsync(int id)
         {
             try
             {
@@ -64,17 +65,17 @@ namespace WorkoutApp.Service
         /// <summary>
         /// Removes a specific cart item from the cart.
         /// </summary>
-        /// <param name="cartItem">The cart item to remove.</param>
+        /// <param name="cartItemID">The ID of the cart item to be remove.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation, with a <see cref="CartItem"/> result.</returns>
-        public async Task RemoveCartItem(CartItem cartItem)
+        public async Task<bool> DeleteAsync(int cartItemID)
         {
             try
             {
-                await this.cartRepository.DeleteAsync(cartItem.ID ?? throw new InvalidOperationException("CartItem ID cannot be null."));
+                return await this.cartRepository.DeleteAsync(cartItemID);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to remove cart item with ID: {cartItem.ID}.", ex);
+                throw new Exception($"Failed to remove cart item with ID: {cartItemID}.", ex);
             }
         }
 
@@ -83,11 +84,11 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="cartItem">The cart item to add to the cart, including product details and quantity.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation, with a <see cref="CartItem"/> result.</returns>
-        public async Task AddToCart(CartItem cartItem)
+        public async Task<CartItem> CreateAsync(CartItem cartItem)
         {
             try
             {
-                await this.cartRepository.CreateAsync(cartItem);
+                return await this.cartRepository.CreateAsync(cartItem);
             }
             catch (Exception ex)
             {
@@ -113,6 +114,26 @@ namespace WorkoutApp.Service
             {
                 throw new Exception("Failed to reset cart.", ex);
             }
+        }
+
+        /// <summary>
+        /// This method is not implemented as the cart service does not support updating cart items directly.
+        /// </summary>
+        /// <param name="entity">The cart item to update, including updated product details and quantity.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation, with the updated <see cref="CartItem"/> result.</returns>
+        public Task<CartItem> UpdateAsync(CartItem entity)
+        {
+            return Task.FromResult(entity);
+        }
+
+        /// <summary>
+        /// This method is not implemented as the cart service does not support filtering cart items directly.
+        /// </summary>
+        /// <param name="filter">The filter criteria to apply to the cart items.</param>
+        /// <returns>A list of <see cref="CartItem"/> objects that match the filter criteria.</returns>
+        public Task<IEnumerable<CartItem>> GetFilteredAsync(IFilter filter)
+        {
+            return Task.FromResult<IEnumerable<CartItem>>(new List<CartItem>());
         }
     }
 }
