@@ -161,11 +161,6 @@ namespace WorkoutApp.Repository
 
             int newId = await this.databaseService.ExecuteScalarAsync<int>(insertQuery, parameters);
 
-            if (newId < 0)
-            {
-                throw new Exception($"Error inserting wishlist item for product ID {entity.Product.ID}");
-            }
-
             entity.ID = newId;
             return entity;
         }

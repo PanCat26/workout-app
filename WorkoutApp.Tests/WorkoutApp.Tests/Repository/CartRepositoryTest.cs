@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Moq;
 using WorkoutApp.Data.Database;
 using WorkoutApp.Infrastructure.Session;
 using WorkoutApp.Models;
@@ -102,7 +103,7 @@ namespace WorkoutApp.Tests.Repository
 
             CartItem createdItem = await cartRepository.CreateAsync(cartItem); // this sets ID after DB insert
 
-            CartItem? retrievedItem = await cartRepository.GetByIdAsync((int)createdItem.ID);
+            CartItem? retrievedItem = await cartRepository.GetByIdAsync((int)createdItem.ID!);
 
             Assert.NotNull(retrievedItem);
             Assert.Equal(createdItem.ID, retrievedItem.ID);
@@ -158,6 +159,40 @@ namespace WorkoutApp.Tests.Repository
             Assert.NotNull(result);
             Assert.Equal(createdItem.ID, result.ID);
             Assert.Equal(testCustomerId, result.CustomerID);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_WhenDbThrows_ShouldWrapAndThrow()
+        {
+            var mockConnectionFactory = new Mock<DbConnectionFactory>("");
+            var mockDbService = new Mock<DbService>(mockConnectionFactory.Object);
+            mockDbService.Setup(m => m.ExecuteSelectAsync(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Throws(new Exception("Database error"));
+            var cartRepository = new CartRepository(mockDbService.Object, sessionManager);
+            await Assert.ThrowsAsync<Exception>(() => cartRepository.GetAllAsync());
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_WhenDbThrows_ShouldWrapAndThrow()
+        {
+            var mockConnectionFactory = new Mock<DbConnectionFactory>("");
+            var mockDbService = new Mock<DbService>(mockConnectionFactory.Object);
+            mockDbService.Setup(m => m.ExecuteSelectAsync(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Throws(new Exception("Database error"));
+            var cartRepository = new CartRepository(mockDbService.Object, sessionManager);
+            await Assert.ThrowsAsync<Exception>(() => cartRepository.GetByIdAsync(0));
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnParameter()
+        {
+            CartItem cartItem = new(
+                id: 1,
+                product: new Product(testProductId, "Test Product", 19.99m, 10, new Category(testCategoryId, "Test Category"), "M", "Red", "Sample description", null),
+                customerID: 1);
+            CartItem updatedItem = await cartRepository.UpdateAsync(cartItem);
+            Assert.NotNull(updatedItem);
+            Assert.Equal(cartItem.ID, updatedItem.ID);
         }
 
         private async Task InsertTestCustomerAsync(string name)

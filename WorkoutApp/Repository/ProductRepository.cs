@@ -174,13 +174,8 @@ namespace WorkoutApp.Repository
         // Implementing the GetAllFilteredAsync method from IRepository
         public async Task<IEnumerable<Product>> GetAllFilteredAsync(IFilter filter)
         {
-            if (filter is not ProductFilter productFilter)
-            {
-                System.Diagnostics.Debug.WriteLine($"Warning: GetAllFilteredAsync received unexpected filter type: {filter?.GetType().Name}. Expected ProductFilter.");
-                return Enumerable.Empty<Product>();
-            }
-
             List<SqlParameter> parameters = [];
+            ProductFilter productFilter = (ProductFilter)filter;
 
             // Add all filter parameters (even if null)
             parameters.Add(new SqlParameter("@CategoryID", (object?)productFilter.CategoryId ?? DBNull.Value));

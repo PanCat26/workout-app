@@ -145,12 +145,6 @@ namespace WorkoutApp.Repository
         public async Task<Category> UpdateAsync(Category entity)
         {
             // Ensure a valid ID is provided for the update
-            if (entity.ID == null || entity.ID <= 0)
-            {
-                throw new ArgumentException("Category ID must be provided for update.", nameof(entity.ID));
-            }
-
-            // Define parameters for the update query
             var parameters = new List<SqlParameter>
             {
                 new SqlParameter("@ID", entity.ID),

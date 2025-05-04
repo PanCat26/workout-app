@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.Identity.Client;
 using WorkoutApp.Data.Database;
 using WorkoutApp.Infrastructure.Session;
 using WorkoutApp.Models;
@@ -162,6 +163,19 @@ namespace WorkoutApp.Tests.Repository
             Assert.NotNull(result);
             Assert.Equal(createdItem.ID, result.ID);
             Assert.Equal(testCustomerId, result.CustomerID);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnParameter()
+        {
+            //do it
+            WishlistItem wishlistItem = new(
+                id: 1,
+                product: new Product(testProductId, "Wishlist Product", 29.99m, 15, new Category(testCategoryId, "Wishlist Category"), "L", "Blue", "Wishlist description", null),
+                customerID: testCustomerId);
+            WishlistItem updatedItem = await wishlistRepository.UpdateAsync(wishlistItem);
+            Assert.True(updatedItem != null);
+            Assert.Equal(wishlistItem.ID, updatedItem.ID);
         }
 
         private async Task InsertTestCustomerAsync(string name)

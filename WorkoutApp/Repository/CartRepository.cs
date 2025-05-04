@@ -185,13 +185,7 @@ namespace WorkoutApp.Repository
                     new SqlParameter("@CustomerID", customerID),
                 });
 
-            if (newId < 0)
-            {
-                throw new Exception($"Error inserting cart item with product id: {entity.Product.ID}");
-            }
-
             entity.ID = newId;
-
             return entity;
         }
 
@@ -216,11 +210,7 @@ namespace WorkoutApp.Repository
                 "DELETE FROM CartItem WHERE ID = @CartItemID",
                 new List<SqlParameter> { new SqlParameter("@CartItemID", cartItemID) });
 
-            if (deleteQueryResult < 0)
-            {
-                return false;
-            }
-
+            // Unsuccessful deletion not handled.
             return true;
         }
     }

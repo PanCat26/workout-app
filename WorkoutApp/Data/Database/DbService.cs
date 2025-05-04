@@ -28,7 +28,7 @@ namespace WorkoutApp.Data.Database
         /// <param name="query">The SQL Select query to be run.</param>
         /// <param name="parameters">The parameters of the SQL Select query to be run.</param>
         /// <returns>A DataTable containing the results of the query.</returns>
-        public async Task<DataTable> ExecuteSelectAsync(string query, List<SqlParameter> parameters)
+        public virtual async Task<DataTable> ExecuteSelectAsync(string query, List<SqlParameter> parameters)
         {
             using SqlConnection connection = (SqlConnection)this.dbConnectionFactory.CreateConnection();
             using SqlCommand command = new (query, connection);

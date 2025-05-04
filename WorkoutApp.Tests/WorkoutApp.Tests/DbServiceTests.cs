@@ -131,6 +131,16 @@ namespace WorkoutApp.Tests
             Assert.Equal(-1, affectedRows);
         }
 
+        [Fact]
+        public async Task ExecuteScalarAsync_InvalidQuery_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            string query = "SELECT * FROM Category WHERE Category.ID=-1;";
+            List<SqlParameter> parameters = [];
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await dbService.ExecuteScalarAsync<int>(query, parameters));
+        }
+
         public void Dispose()
         {
             try
