@@ -13,7 +13,7 @@
         <viewmodel:ProductViewModel/>
     </d:DesignData.DataContext>
 
-    <ScrollViewer Height="570">
+    <ScrollViewer Height="610">
         <StackPanel Orientation="Vertical" Margin="20">
 
             <TextBlock Text="{Binding Name}"
@@ -23,7 +23,7 @@
                            Margin="0,0,0,10"/>
 
             <Image Source="{Binding PhotoURL}"
-                       MaxWidth="200" MaxHeight="200"
+                       MaxWidth="300" MaxHeight="300"
                        Stretch="Uniform"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,20"/>
