@@ -23,7 +23,6 @@
     <None Remove="View\AddProductWindow.xaml" />
     <None Remove="View\Components\Header.xaml" />
     <None Remove="View\Components\VerticalProductListComponent.xaml" />
-    <None Remove="View\Components\VerticalRemovableProductListComponent.xaml" />
     <None Remove="View\MainPage.xaml" />
     <None Remove="View\MainWindow.xaml" />
     <None Remove="View\Pages\CartPage.xaml" />
@@ -106,7 +105,7 @@
     <Page Update="View\ColorFilter.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="View\Components\VerticalRemovableProductListComponent.xaml">
+    <Page Update="View\Components\VerticalCartItemListComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="View\MainPage.xaml">

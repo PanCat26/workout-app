@@ -9,7 +9,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <StackPanel Orientation="Vertical">
+    <StackPanel Orientation="Vertical" Height="610">
         <TextBlock
             Text="Shopping Cart"
             FontSize="24"
@@ -22,7 +22,7 @@
                 CartItemClicked="VerticalProductListControl_ProductClicked"
                 CartItemRemoved="VerticalProductListControl_CartItemRemoved"
                 Margin="20,0,0,0"
-                Width="700"
+                Width="850"
                 Height="Auto"/>
             <StackPanel Orientation="Vertical" Margin="20,0,0,0">
                 <TextBlock
