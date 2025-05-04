@@ -132,7 +132,7 @@ namespace WorkoutApp.Tests.Repository
         }
 
         [Fact]
-        public async Task DeleteAsync_ShouldRemoveWishlistItem()
+        public async Task DeleteAsync_ShouldReturnTrue_WhenWishlistItemExists()
         {
             WishlistItem wishlistItem = new(
                 id: 0,
@@ -149,7 +149,15 @@ namespace WorkoutApp.Tests.Repository
         }
 
         [Fact]
-        public async Task GetByIdAsync_ShouldReturnCorrectWishlistItem()
+        public async Task DeleteAsync_ShouldReturnFalse_WhenWishlistItemDoesNotExists()
+        {
+            bool deleted = await wishlistRepository.DeleteAsync(9999);
+
+            Assert.False(deleted);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_ShouldReturnWishlistItem_WhenItemExists()
         {
             WishlistItem wishlistItem = new(
                 id: null,
@@ -163,6 +171,47 @@ namespace WorkoutApp.Tests.Repository
             Assert.Equal(createdItem.ID, result.ID);
             Assert.Equal(testCustomerId, result.CustomerID);
         }
+
+        [Fact]
+        public async Task GetByIdAsync_ShouldReturnNull_WhenItemDoesNotExists()
+        {
+            WishlistItem? result = await wishlistRepository.GetByIdAsync(9999);
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task CreateAsync_ShouldThrow_WhenSessionUserIdIsNull()
+        {
+            sessionManager.CurrentUserId = null;
+
+            WishlistItem wishlistItem = new(
+                id: null,
+                product: new Product(testProductId, "Wishlist Product", 29.99m, 15, new Category(testCategoryId, "Wishlist Category"), "L", "Blue", "Wishlist description", null),
+                customerID: testCustomerId);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => wishlistRepository.CreateAsync(wishlistItem));
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ShouldThrow_WhenSessionUserIdIsNull()
+        {
+            sessionManager.CurrentUserId = null;
+            await Assert.ThrowsAsync<InvalidOperationException>(() => wishlistRepository.GetAllAsync());
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnSameInstance()
+        {
+            WishlistItem wishlistItem = new(
+                id: 1,
+                product: new Product(testProductId, "Wishlist Product", 29.99m, 15, new Category(testCategoryId, "Wishlist Category"), "L", "Blue", "Wishlist description", null),
+                customerID: testCustomerId);
+
+            WishlistItem result = await wishlistRepository.UpdateAsync(wishlistItem);
+
+            Assert.Same(wishlistItem, result);
+        }
+
 
         private async Task InsertTestCustomerAsync(string name)
         {

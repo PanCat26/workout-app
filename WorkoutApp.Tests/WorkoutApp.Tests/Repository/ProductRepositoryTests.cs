@@ -3,6 +3,7 @@ using WorkoutApp.Models;
 using WorkoutApp.Repository;
 using System.Configuration;
 using WorkoutApp.Data.Database;
+using WorkoutApp.Utils.Filters;
 
 namespace WorkoutApp.Tests.Repository
 {
@@ -26,22 +27,25 @@ namespace WorkoutApp.Tests.Repository
 
             try
             {
-                // Reset ids in test database
-                string resetIdsQuery = "DBCC CHECKIDENT ('Product', RESEED, 0); DBCC CHECKIDENT ('Category', RESEED, 0);";
+                string resetIdsQuery = @"
+                                        DBCC CHECKIDENT ('Product', RESEED, 0);
+                                        DBCC CHECKIDENT ('Category', RESEED, 0);";
                 dbService.ExecuteQueryAsync(resetIdsQuery, []).Wait();
 
                 string insertCategoryQuery = "INSERT INTO Category (Name) VALUES (@Name);";
                 List<SqlParameter> categoryParameters =
                 [
                     new ("@Name", "Test Category"),
-                ];
+    ];
                 dbService.ExecuteQueryAsync(insertCategoryQuery, categoryParameters).Wait();
 
                 string insertProductQuery = @"
-                   INSERT INTO Product (Name, Price, Stock, CategoryId, Size, Color, Description, PhotoURL)
-                   VALUES 
-                   (@Name1, @Price1, @Stock1, @CategoryID1, @Size1, @Color1, @Description1, @PhotoURL1),
-                   (@Name2, @Price2, @Stock2, @CategoryID2, @Size2, @Color2, @Description2, @PhotoURL2)";
+                                           INSERT INTO Product (Name, Price, Stock, CategoryId, Size, Color, Description, PhotoURL)
+                                           VALUES 
+                                           (@Name1, @Price1, @Stock1, @CategoryID1, @Size1, @Color1, @Description1, @PhotoURL1),
+                                           (@Name2, @Price2, @Stock2, @CategoryID2, @Size2, @Color2, @Description2, @PhotoURL2),
+                                           (@Name3, @Price3, @Stock3, @CategoryID3, @Size3, @Color3, @Description3, @PhotoURL3);";
+
                 List<SqlParameter> parameters =
                 [
                     new ("@Name1", "Test Product 1"),
@@ -61,7 +65,17 @@ namespace WorkoutApp.Tests.Repository
                     new ("@Color2", "Blue"),
                     new ("@Description2", "Description for Test Product 2"),
                     new ("@PhotoURL2", "http://example.com/product2.jpg"),
+
+                    new ("@Name3", "Shirt Special"), 
+                    new ("@Price3", 12.50m),
+                    new ("@Stock3", 30),
+                    new ("@CategoryID3", 1),
+                    new ("@Size3", "S"),
+                    new ("@Color3", "Green"),
+                    new ("@Description3", "Description for Shirt Special"),
+                    new ("@PhotoURL3", "http://example.com/shirt.jpg"),
                 ];
+
                 dbService.ExecuteQueryAsync(insertProductQuery, parameters).Wait();
             }
             catch (Exception ex)
@@ -80,7 +94,7 @@ namespace WorkoutApp.Tests.Repository
 
             Assert.NotNull(result);
             Assert.NotEmpty(result);
-            Assert.Equal(2, result.Count);
+            Assert.Equal(3, result.Count);
 
             // Validate the first product
             Product product1 = result.FirstOrDefault(p => p.Name == "Test Product 1")!;
@@ -101,6 +115,16 @@ namespace WorkoutApp.Tests.Repository
             Assert.Equal("Blue", product2.Color);
             Assert.Equal("Description for Test Product 2", product2.Description);
             Assert.Equal("http://example.com/product2.jpg", product2.PhotoURL);
+
+            // Validate the third product
+            Product product3 = result.FirstOrDefault(p => p.Name == "Shirt Special")!;
+            Assert.Equal("Shirt Special", product3.Name);
+            Assert.Equal(12.50m, product3.Price);
+            Assert.Equal(30, product3.Stock);
+            Assert.Equal("S", product3.Size);
+            Assert.Equal("Green", product3.Color);
+            Assert.Equal("Description for Shirt Special", product3.Description);
+            Assert.Equal("http://example.com/shirt.jpg", product3.PhotoURL);
         }
 
         [Fact]
@@ -226,9 +250,67 @@ namespace WorkoutApp.Tests.Repository
             Assert.False(result);
         }
 
+        [Fact]
+        public async Task GetAllFilteredAsync_ReturnsFilteredByCategory()
+        {
+            ProductFilter filter = new ProductFilter(categoryId: 1, excludeProductId: null, count: null, color: null, size: null, searchTerm: null);
+
+            IEnumerable<Product> products = await repository.GetAllFilteredAsync(filter);
+
+            Assert.NotEmpty(products);
+            Assert.All(products, p => Assert.Equal(1, p.Category.ID));
+        }
+
+        [Fact]
+        public async Task GetAllFilteredAsync_WithSearchTerm_ReturnsMatches()
+        {
+            ProductFilter filter = new ProductFilter(categoryId: null, excludeProductId: null, count: null, color: null, size: null, searchTerm: "Shirt");
+
+            IEnumerable<Product> products = await repository.GetAllFilteredAsync(filter);
+
+            Assert.Contains(products, p => p.Name.Contains("Shirt"));
+        }
+
+        [Fact]
+        public async Task GetAllFilteredAsync_WithSizeAndColor_ReturnsExactMatch()
+        {
+            ProductFilter filter = new ProductFilter(categoryId: null, excludeProductId: null, count: null, color: "Red", size: "M", searchTerm: null);
+            IEnumerable<Product> products = await repository.GetAllFilteredAsync(filter);
+
+            Assert.All(products, p =>
+            {
+                Assert.Equal("M", p.Size);
+                Assert.Equal("Red", p.Color);
+            });
+        }
+
+        [Fact]
+        public async Task GetAllFilteredAsync_WithExcludeProductId_ExcludesCorrectProduct()
+        {
+            ProductFilter filter = new ProductFilter(categoryId: null, excludeProductId: 1, count: null, color: null, size: null, searchTerm: null);
+
+            var products = await repository.GetAllFilteredAsync(filter);
+
+            Assert.All(products, p => Assert.NotEqual(1, p.ID));
+        }
+
+        [Fact]
+        public async Task GetAllFilteredAsync_WithTopLimit_ReturnsLimitedResults()
+        {
+            ProductFilter filter = new ProductFilter(categoryId: null, excludeProductId: null, count: 2, color: null, size: null, searchTerm: null);
+            IEnumerable<Product> products = await repository.GetAllFilteredAsync(filter);
+
+            Assert.True(products.Count() <= 2);
+        }
+
+
         public void Dispose()
         {
-            string cleanupQuery = "DELETE FROM Product; DELETE FROM Category;";
+            string cleanupQuery = @"
+                DELETE FROM Product;
+                DELETE FROM Category;
+                DBCC CHECKIDENT ('Product', RESEED, 0);
+                DBCC CHECKIDENT ('Category', RESEED, 0);";
             try
             {
                 dbService.ExecuteQueryAsync(cleanupQuery, []).Wait();
