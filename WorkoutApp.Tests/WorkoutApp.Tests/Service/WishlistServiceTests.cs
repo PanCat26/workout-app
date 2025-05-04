@@ -26,7 +26,7 @@ namespace WorkoutApp.Tests.Service
         }
 
         [Fact]
-        public async Task GetWishlistItems_ShouldReturnAllWishlistItems()
+        public async Task GetAllAsync_ShouldReturnAllWishlistItems()
         {
             List<WishlistItem> items = new List<WishlistItem>
             {
@@ -36,14 +36,14 @@ namespace WorkoutApp.Tests.Service
 
             wishlistRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(items);
 
-            List<WishlistItem> result = await wishlistService.GetWishlistItems();
+            List<WishlistItem> result = (List<WishlistItem>)await wishlistService.GetAllAsync();
 
             Assert.Equal(2, result.Count);
             wishlistRepositoryMock.Verify(repo => repo.GetAllAsync(), Times.Once);
         }
 
         [Fact]
-        public async Task GetWishlistItemById_ShouldReturnCorrectItem()
+        public async Task GetByIdAsync_ShouldReturnCorrectItem()
         {
             int itemId = 1;
             Product product = new Product(1, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null);
@@ -51,7 +51,7 @@ namespace WorkoutApp.Tests.Service
 
             wishlistRepositoryMock.Setup(repo => repo.GetByIdAsync(itemId)).ReturnsAsync(wishlistItem);
 
-            WishlistItem result = await wishlistService.GetWishlistItemById(itemId);
+            WishlistItem result = await wishlistService.GetByIdAsync(itemId);
 
             Assert.NotNull(result);
             Assert.Equal(itemId, result.ID);
@@ -61,21 +61,22 @@ namespace WorkoutApp.Tests.Service
         }
 
         [Fact]
-        public async Task RemoveWishlistItem_ShouldCallDeleteAsync()
+        public async Task DeleteAsync_ShouldCallDeleteAsync()
         {
+            int itemId = 1;
             WishlistItem item = new WishlistItem(1, new Product(1, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID);
 
-            await wishlistService.RemoveWishlistItem(item);
+            await wishlistService.DeleteAsync(itemId);
 
             wishlistRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
         }
 
         [Fact]
-        public async Task AddToWishlist_ShouldCallCreateAsyncWithCorrectParams()
+        public async Task CreateAsync_ShouldCallCreateAsyncWithCorrectParams()
         {
             WishlistItem item = new WishlistItem(null, new Product(1, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID);
 
-            await wishlistService.AddToWishlist(item);
+            await wishlistService.CreateAsync(item);
 
             wishlistRepositoryMock.Verify(repo => repo.CreateAsync(item), Times.Once);
         }

@@ -38,7 +38,7 @@ namespace WorkoutApp.Tests.Service
 
             cartRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(items);
 
-            List<CartItem> result = await cartService.GetCartItems();
+            List<CartItem> result = (List<CartItem>)await cartService.GetAllAsync();
 
             Assert.Equal(2, result.Count);
             cartRepositoryMock.Verify(repo => repo.GetAllAsync(), Times.Once);
@@ -56,7 +56,7 @@ namespace WorkoutApp.Tests.Service
             cartRepositoryMock.Setup(repo => repo.GetByIdAsync(itemId)).ReturnsAsync(cartItem);
 
             // Act
-            var result = await cartService.GetCartItemById(itemId);
+            var result = await cartService.GetByIdAsync(itemId);
 
             // Assert
             Assert.Equal(itemId, result.ID);
@@ -71,9 +71,10 @@ namespace WorkoutApp.Tests.Service
         public async Task RemoveCartItem_ShouldCallDeleteAsync()
         {
             int productId = 1;
-            CartItem item = new CartItem(1, new Product(productId, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID);
+            int itemId = 1;
+            CartItem item = new CartItem(itemId, new Product(productId, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID);
 
-            await cartService.RemoveCartItem(item);
+            await cartService.DeleteAsync(itemId);
 
             cartRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
         }
@@ -85,7 +86,7 @@ namespace WorkoutApp.Tests.Service
             CartItem item = new CartItem(1, new Product(productId, "Test Product", 9.99m, 10, new Category(1, "Category"), "M", "Red", "", null), customerID);
 
 
-            await cartService.AddToCart(item);
+            await cartService.CreateAsync(item);
 
             cartRepositoryMock.Verify(repo => repo.CreateAsync(item), Times.Once);
         }
