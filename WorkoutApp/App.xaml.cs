@@ -1,5 +1,7 @@
-﻿// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+﻿// <copyright file="App.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
 namespace WorkoutApp
 {
     using Microsoft.Extensions.Hosting;
@@ -12,7 +14,6 @@ namespace WorkoutApp
     public partial class App : Application
     {
         private Window? window;
-        private IHost host;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
@@ -20,29 +21,7 @@ namespace WorkoutApp
         public App()
         {
             this.InitializeComponent();
-
-            /*string? connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"]?.ConnectionString;
-
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("The connection string 'DefaultConnection' is not configured or is null.");
-            }
-
-            this.host = Host.CreateDefaultBuilder()
-                .ConfigureServices((services) =>
-                {
-                    services.AddSingleton<DbConnectionFactory>(_ =>
-                        new DbConnectionFactory(connectionString));
-                })
-                .Build();
-
-            Services = this.host.Services;*/
         }
-
-        /*/// <summary>
-        /// Gets the service provider for dependency injection.
-        /// </summary>
-        public static IServiceProvider Services { get; private set; }*/
 
         /// <summary>
         /// Invoked when the application is launched.
