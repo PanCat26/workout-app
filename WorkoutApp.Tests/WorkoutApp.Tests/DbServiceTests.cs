@@ -29,7 +29,7 @@ namespace WorkoutApp.Tests
                 using SqlConnection connection = (SqlConnection)connectionFactory.CreateConnection();
                 connection.Open();
 
-                //Reset ids in test database
+                // Reset ids in test database
                 using var resetIdsCommand = new SqlCommand(
                     "DBCC CHECKIDENT ('Category', RESEED, 0);",
                     connection

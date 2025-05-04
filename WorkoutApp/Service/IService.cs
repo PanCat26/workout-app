@@ -5,6 +5,7 @@ namespace WorkoutApp.Service
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using WorkoutApp.Utils.Filters;
 
     /// <summary>
     /// Generic interface for service classes.
@@ -46,5 +47,14 @@ namespace WorkoutApp.Service
         /// <param name="id">The ID of the entity to delete.</param>
         /// <returns>A task representing the asynchronous operation with a boolean indicating success.</returns>
         Task<bool> DeleteAsync(int id);
+
+        /// <summary>
+        /// Gets a collection of products based on the provided filter criteria.
+        /// This method calls the repository's filtered get method.
+        /// </summary>
+        /// <param name="filter">The filter criteria to apply.</param>
+        /// <returns>A task representing the asynchronous operation, containing a collection of products.</returns>
+        // Added a new generic filtering method
+        Task<IEnumerable<T>> GetFilteredAsync(IFilter filter);
     }
 }

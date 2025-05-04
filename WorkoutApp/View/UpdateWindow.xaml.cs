@@ -85,6 +85,5 @@ namespace WorkoutApp.View.ProductTab
             this.Close();
             main.Activate();
         }
-
     }
 }
