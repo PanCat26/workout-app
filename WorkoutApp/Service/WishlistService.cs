@@ -14,18 +14,13 @@ namespace WorkoutApp.Service
     /// <summary>
     /// Provides services for managing the wishlist, including adding, removing, and retrieving wishlist items.
     /// </summary>
-    public class WishlistService : IService<WishlistItem>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="WishlistService"/> class.
+    /// </remarks>
+    /// <param name="wishlistRepository">The repository for managing wishlist items.</param>
+    public class WishlistService(IRepository<WishlistItem> wishlistRepository) : IService<WishlistItem>
     {
-        private readonly IRepository<WishlistItem> wishlistRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WishlistService"/> class.
-        /// </summary>
-        /// <param name="wishlistRepository">The repository for managing wishlist items.</param>
-        public WishlistService(IRepository<WishlistItem> wishlistRepository)
-        {
-            this.wishlistRepository = wishlistRepository;
-        }
+        private readonly IRepository<WishlistItem> wishlistRepository = wishlistRepository;
 
         /// <summary>
         /// Retrieves all items in the wishlist.

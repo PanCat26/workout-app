@@ -14,18 +14,13 @@ namespace WorkoutApp.Service
     /// <summary>
     /// Provides services for managing the shopping cart, including adding, removing, and updating cart items.
     /// </summary>
-    public class CartService : IService<CartItem>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="CartService"/> class.
+    /// </remarks>
+    /// <param name="cartItemRepository">The repository for managing cart items.</param>
+    public class CartService(IRepository<CartItem> cartItemRepository) : IService<CartItem>
     {
-        private readonly IRepository<CartItem> cartRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CartService"/> class.
-        /// </summary>
-        /// <param name="cartItemRepository">The repository for managing cart items.</param>
-        public CartService(IRepository<CartItem> cartItemRepository)
-        {
-            this.cartRepository = cartItemRepository;
-        }
+        private readonly IRepository<CartItem> cartRepository = cartItemRepository;
 
         /// <summary>
         /// Retrieves all items in the shopping cart.

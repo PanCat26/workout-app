@@ -107,5 +107,62 @@ namespace WorkoutApp.Tests.Service
             cartRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
             cartRepositoryMock.Verify(repo => repo.DeleteAsync(2), Times.Once);
         }
+
+        [Fact]
+        public async Task GetCartItems_WhenRepositoryThrows_ShouldThrowWrappedException()
+        {
+            cartRepositoryMock
+                .Setup(repo => repo.GetAllAsync())
+                .ThrowsAsync(new Exception("DB failure"));
+
+            var ex = await Assert.ThrowsAsync<Exception>(() => cartService.GetAllAsync());
+
+            Assert.Contains("Failed to retrieve cart items", ex.Message);
+        }
+
+        [Fact]
+        public async Task GetCartItemById_WhenRepositoryThrows_ShouldThrowWrappedException()
+        {
+            cartRepositoryMock
+                .Setup(repo => repo.GetByIdAsync(It.IsAny<int>()))
+                .ThrowsAsync(new Exception("DB failure"));
+
+            var ex = await Assert.ThrowsAsync<Exception>(() => cartService.GetByIdAsync(1));
+
+            Assert.Contains("Failed to retrieve cart item with ID", ex.Message);
+        }
+
+        [Fact]
+        public async Task DeleteCartItem_WhenRepositoryThrows_ShouldThrowWrappedException()
+        {
+            cartRepositoryMock
+                .Setup(repo => repo.DeleteAsync(It.IsAny<int>()))
+                .ThrowsAsync(new Exception("DB failure"));
+
+            var ex = await Assert.ThrowsAsync<Exception>(() => cartService.DeleteAsync(1));
+
+            Assert.Contains("Failed to remove cart item with ID", ex.Message);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnPassedEntity()
+        {
+            var product = new Product(1, "Test Product", 9.99m, 5, new Category(1, "Category"), "L", "Green", "", null);
+            var cartItem = new CartItem(42, product, customerID);
+
+            var result = await cartService.UpdateAsync(cartItem);
+
+            Assert.Equal(cartItem, result);
+        }
+
+        [Fact]
+        public async Task GetFilteredAsync_ShouldReturnEmptyList()
+        {
+            var mockFilter = new Mock<WorkoutApp.Utils.Filters.IFilter>(); // No logic used, just an instance
+            var result = await cartService.GetFilteredAsync(mockFilter.Object);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
     }
 }

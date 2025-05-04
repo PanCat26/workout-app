@@ -1,21 +1,20 @@
-﻿// <copyright file="CategoryService.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+﻿// <copyright file="CategoryService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.Service
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using WorkoutApp.Models;
     using WorkoutApp.Repository;
-    using System.Linq;
     using WorkoutApp.Utils.Filters;
-
 
     /// <summary>
     /// Service class for managing category operations.
-    /// Implements the <see cref="IService{Category}"/> interface.a
+    /// Implements the <see cref="IService{Category}"/> interface.
     /// </summary>
     public class CategoryService : IService<Category> // Assuming IService<T> interface exists
     {
@@ -37,6 +36,7 @@ namespace WorkoutApp.Service
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
             var result = await this.categoryRepository.GetAllAsync();
+
             // Delegate the call to the repository
             return result;
         }
@@ -46,10 +46,10 @@ namespace WorkoutApp.Service
         /// </summary>
         /// <param name="id">The ID of the category.</param>
         /// <returns>A task representing the asynchronous operation with the category.</returns>
-        public async Task<Category?> GetByIdAsync(int id) // Using int id as per IRepository
+        public async Task<Category> GetByIdAsync(int id) // Using int id as per IRepository
         {
             // Delegate the call to the repository
-            return await this.categoryRepository.GetByIdAsync(id);
+            return (await this.categoryRepository.GetByIdAsync(id)) !;
         }
 
         /// <summary>

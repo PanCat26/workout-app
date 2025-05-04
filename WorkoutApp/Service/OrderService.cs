@@ -13,21 +13,15 @@ namespace WorkoutApp.Service
     /// <summary>
     /// Service class for handling Order-related operations.
     /// </summary>
-    public class OrderService : IService<Order>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="OrderService"/> class.
+    /// </remarks>
+    /// <param name="orderRepository">The order repository.</param>
+    /// <param name="cartRepository">The cart item repository.</param>
+    public class OrderService(IRepository<Order> orderRepository, IRepository<CartItem> cartRepository) : IService<Order>
     {
-        private readonly IRepository<Order> orderRepository;
-        private readonly IRepository<CartItem> cartRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OrderService"/> class.
-        /// </summary>
-        /// <param name="orderRepository">The order repository.</param>
-        /// <param name="cartRepository">The cart item repository.</param>
-        public OrderService(IRepository<Order> orderRepository, IRepository<CartItem> cartRepository)
-        {
-            this.orderRepository = orderRepository;
-            this.cartRepository = cartRepository;
-        }
+        private readonly IRepository<Order> orderRepository = orderRepository;
+        private readonly IRepository<CartItem> cartRepository = cartRepository;
 
         /// <inheritdoc/>
         public async Task<Order> CreateAsync(Order entity)
@@ -50,7 +44,7 @@ namespace WorkoutApp.Service
         /// <inheritdoc/>
         public async Task<Order> GetByIdAsync(int id)
         {
-            return await this.orderRepository.GetByIdAsync(id);
+            return (await this.orderRepository.GetByIdAsync(id)) !;
         }
 
         /// <inheritdoc/>
@@ -66,14 +60,14 @@ namespace WorkoutApp.Service
         public async Task CreateOrderFromCartAsync()
         {
             IEnumerable<CartItem> cartItems = await this.cartRepository.GetAllAsync();
-            List<OrderItem> orderItems = new List<OrderItem>();
+            List<OrderItem> orderItems = [];
             foreach (CartItem cartItem in cartItems)
             {
                 await this.cartRepository.DeleteAsync((int)cartItem.ID!);
                 orderItems.Add(new OrderItem(cartItem.Product, 1));
             }
 
-            Order newOrder = new Order(null, orderItems, DateTime.Now);
+            Order newOrder = new (null, orderItems, DateTime.Now);
             await this.orderRepository.CreateAsync(newOrder);
         }
     }

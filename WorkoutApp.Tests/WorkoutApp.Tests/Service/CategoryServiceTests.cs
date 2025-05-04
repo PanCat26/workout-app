@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Configuration; // Required for ConfigurationManager
@@ -214,7 +215,7 @@ namespace WorkoutApp.Tests.Service
             Assert.Equal("Updated Service Name", updatedCategory.Name);
 
             // Verify in database: Fetch the category from the DB and ensure it was updated
-            var fetchedCategory = await categoryService.GetByIdAsync((int)updatedCategory.ID); // Use service GetByIdAsync to verify
+            var fetchedCategory = await categoryService.GetByIdAsync((int)updatedCategory.ID!); // Use service GetByIdAsync to verify
             Assert.NotNull(fetchedCategory);
             Assert.Equal(updatedCategory.ID, fetchedCategory.ID);
             Assert.Equal("Updated Service Name", fetchedCategory.Name);
@@ -240,7 +241,7 @@ namespace WorkoutApp.Tests.Service
             Assert.Equal(nonExistentCategory.Name, updatedCategory.Name);
 
             // Verify in database: Ensure no category with this ID was created or affected
-            var fetchedCategory = await categoryService.GetByIdAsync((int)nonExistentCategory.ID); // Use service GetByIdAsync to verify
+            var fetchedCategory = await categoryService.GetByIdAsync((int)nonExistentCategory.ID!); // Use service GetByIdAsync to verify
             Assert.Null(fetchedCategory);
         }
 
@@ -284,6 +285,19 @@ namespace WorkoutApp.Tests.Service
 
             // Assert: Verify the method returned false (as no row was affected)
             Assert.False(deleteResult);
+        }
+
+        [Fact]
+        public async Task GetFilteredAsync_ShouldReturnEmptyList()
+        {
+            var mockFilter = new Mock<WorkoutApp.Utils.Filters.IFilter>();
+
+            // Act
+            var result = await categoryService.GetFilteredAsync(mockFilter.Object);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
         }
 
 

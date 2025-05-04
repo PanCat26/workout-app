@@ -3,6 +3,7 @@ using WorkoutApp.Models;
 using WorkoutApp.Repository;
 using System.Configuration;
 using WorkoutApp.Data.Database;
+using WorkoutApp.Utils.Filters;
 
 namespace WorkoutApp.Tests.Repository
 {
@@ -224,6 +225,46 @@ namespace WorkoutApp.Tests.Repository
             bool result = await repository.DeleteAsync(999999); // Non-existing product ID
 
             Assert.False(result);
+        }
+
+        [Fact]
+        public async Task GetAllFilteredAsync_ShouldReturnFilteredResults_WhenAllFilterValuesSet()
+        {
+            // Arrange
+            var filter = new ProductFilter(
+                categoryId: 1,
+                excludeProductId: 999, // doesn't exist so won't affect result
+                count: 1, // limit to 1
+                color: "Red",
+                size: "M",
+                searchTerm: "Test Product 1"
+            );
+
+            // Act
+            var result = await repository.GetAllFilteredAsync(filter);
+            var list = result.ToList();
+
+            // Assert
+            Assert.Single(list);
+            Assert.Equal("Test Product 1", list[0].Name);
+            Assert.Equal("Red", list[0].Color);
+            Assert.Equal("M", list[0].Size);
+            Assert.Contains("Test Product 1", list[0].Name);
+        }
+
+        [Fact]
+        public async Task GetAllFilteredAsync_ShouldReturnAll_WhenFilterIsEmpty()
+        {
+            // Arrange
+            var filter = new ProductFilter(null, null, null, null, null, null);
+
+            // Act
+            var result = await repository.GetAllFilteredAsync(filter);
+            var list = result.ToList();
+
+            // Assert
+            Assert.NotNull(list);
+            Assert.Equal(2, list.Count);
         }
 
         public void Dispose()

@@ -13,18 +13,13 @@ namespace WorkoutApp.Service
     /// <summary>
     /// Service class for handling product operations.
     /// </summary>
-    public class ProductService : IService<Product>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ProductService"/> class.
+    /// </remarks>
+    /// <param name="productRepository">The product repository.</param>
+    public class ProductService(IRepository<Product> productRepository) : IService<Product>
     {
-        private readonly IRepository<Product> productRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProductService"/> class.
-        /// </summary>
-        /// <param name="productRepository">The product repository.</param>
-        public ProductService(IRepository<Product> productRepository)
-        {
-            this.productRepository = productRepository;
-        }
+        private readonly IRepository<Product> productRepository = productRepository;
 
         /// <inheritdoc/>
         public async Task<Product> CreateAsync(Product entity)
@@ -49,7 +44,7 @@ namespace WorkoutApp.Service
         public async Task<Product> GetByIdAsync(int id)
         {
             // Calling the generic GetByIdAsync from the repository
-            return await this.productRepository.GetByIdAsync(id);
+            return (await this.productRepository.GetByIdAsync(id)) !;
         }
 
         /// <inheritdoc/>

@@ -97,5 +97,46 @@ namespace WorkoutApp.Tests.Service
             wishlistRepositoryMock.Verify(repo => repo.DeleteAsync(1), Times.Once);
             wishlistRepositoryMock.Verify(repo => repo.DeleteAsync(2), Times.Once);
         }
+
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnSameWishlistItem()
+        {
+            var wishlistItem = new WishlistItem(1, new Product(1, "P", 9.99m, 10, new Category(1, "C"), "M", "Red", "", null), customerID);
+
+            var result = await wishlistService.UpdateAsync(wishlistItem);
+
+            Assert.Equal(wishlistItem, result);
+        }
+
+        [Fact]
+        public async Task GetFilteredAsync_ShouldReturnEmptyList()
+        {
+            var result = await wishlistService.GetFilteredAsync(Mock.Of<WorkoutApp.Utils.Filters.IFilter>());
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_ShouldThrowWrappedException_WhenRepositoryThrows()
+        {
+            wishlistRepositoryMock.Setup(repo => repo.GetByIdAsync(It.IsAny<int>()))
+                                  .ThrowsAsync(new Exception("DB failure"));
+
+            var ex = await Assert.ThrowsAsync<Exception>(() => wishlistService.GetByIdAsync(1));
+
+            Assert.Contains("Failed to retrieve wishlist item", ex.Message);
+            Assert.IsType<Exception>(ex.InnerException);
+        }
+
+        [Fact]
+        public async Task DeleteAsync_ShouldThrowWrappedException_WhenRepositoryThrows()
+        {
+            wishlistRepositoryMock.Setup(repo => repo.DeleteAsync(It.IsAny<int>()))
+                                  .ThrowsAsync(new Exception("DB failure"));
+
+            var ex = await Assert.ThrowsAsync<Exception>(() => wishlistService.DeleteAsync(1));
+
+            Assert.Contains("Failed to remove wishlist item", ex.Message);
+        }
     }
 }

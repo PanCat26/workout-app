@@ -2,6 +2,7 @@
 using WorkoutApp.Models;
 using WorkoutApp.Repository;
 using WorkoutApp.Service;
+using WorkoutApp.Utils.Filters;
 
 namespace WorkoutApp.Tests.Service
 {
@@ -80,5 +81,29 @@ namespace WorkoutApp.Tests.Service
             Assert.Equal("Updated Product", result.Name);
             Assert.Equal(30m, result.Price);
         }
+
+        [Fact]
+        public async Task GetFilteredAsync_ShouldReturnFilteredProducts()
+        {
+            // Arrange
+            var filter = new ProductFilter(null, null, null, null, null, null);
+            var filteredProducts = new List<Product>
+            {
+                new Product(1, "Filtered Product", 12.5m, 8, new Category(1, "Supplements"), "M", "White", "Filtered", null)
+            };
+
+            productRepositoryMock
+                .Setup(repo => repo.GetAllFilteredAsync(filter))
+                .ReturnsAsync(filteredProducts);
+
+            // Act
+            var result = await productService.GetFilteredAsync(filter);
+
+            // Assert
+            Assert.Single(result);
+            Assert.Equal("Filtered Product", result.First().Name);
+            productRepositoryMock.Verify(repo => repo.GetAllFilteredAsync(filter), Times.Once);
+        }
+
     }
 }
