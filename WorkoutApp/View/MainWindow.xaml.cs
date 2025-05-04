@@ -1,10 +1,11 @@
 // MainWindow.xaml.cs
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Configuration;
-using WorkoutApp.Data.Database;
-using WorkoutApp.Repository;
-using WorkoutApp.Service;
+using System;
+using Windows.Graphics;
+using WinRT.Interop;
 
 namespace WorkoutApp.View
 {
@@ -16,6 +17,7 @@ namespace WorkoutApp.View
         {
             this.InitializeComponent();
             AppFrame = this.MainFrame;
+            this.SetFixedSize(1440, 720);
             MainPage mainPage = new MainPage();
             this.MainFrame.Navigate(typeof(MainPage));
         }
@@ -57,24 +59,16 @@ namespace WorkoutApp.View
             this.Content = new WishListTab(this);
         }
 
-        private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void SetFixedSize(int width, int height)
         {
-            /*
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                string searchTerm = SearchBox.Text.Trim();
+            IntPtr hWnd = WindowNative.GetWindowHandle(this);
+            WindowId windowId = Win32Interop.GetWindowIdFromWindow(hWnd);
+            AppWindow? appWindow = AppWindow.GetFromWindowId(windowId);
 
-                if (string.IsNullOrEmpty(searchTerm))
-                {
-                    ProductsGridView.ItemsSource = allProducts;
-                }
-                else
-                {
-                    //ProductsGridView.ItemsSource = allProducts;
-                    IEnumerable<IProduct> filtered = allProducts.Where(p => p.Name.Contains(searchTerm));
-                    ProductsGridView.ItemsSource = filtered;
-                }
-            }*/
+            if (appWindow != null)
+            {
+                appWindow.Resize(new SizeInt32(width, height));
+            }
         }
 
         private void SeeProduct_Click(object sender, RoutedEventArgs e)
@@ -88,6 +82,7 @@ namespace WorkoutApp.View
             //}
         }
 
+        /*
         /// <summary>
         /// Handles the Click event for the "View Product 1" button.
         /// Opens the ProductDetailPage in a new window for product ID 2.
@@ -107,11 +102,11 @@ namespace WorkoutApp.View
             var productService = new ProductService(productRepository);
 
             // Create a new Window first
-            var newWindow = new Window();
+            //var newWindow = new Window();
 
             // Create a new instance of the ProductDetailPage, passing the new window to its constructor
             // This allows the ProductDetailPage to know its hosting window for internal navigation.
-            var productDetailPage = new ProductDetailPage(newWindow);
+            var productDetailPage = new ProductDetailPage();
 
             // If ProductDetailPage ViewModel has a LoadProductAsync(int id) method:
             // This is the preferred approach for passing data after page creation.
@@ -121,13 +116,14 @@ namespace WorkoutApp.View
 
 
             // Set the content of the new window to the ProductDetailPage
-            newWindow.Content = productDetailPage;
+            //newWindow.Content = productDetailPage;
 
             // Set a title for the new window (optional)
-            newWindow.Title = $"Product Details (ID: {productIdToNavigate})";
+            //newWindow.Title = $"Product Details (ID: {productIdToNavigate})";
 
             // Activate and show the new window
-            newWindow.Activate();
+            //newWindow.Activate();
         }
+        */
     }
 }

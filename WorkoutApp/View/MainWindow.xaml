@@ -10,56 +10,10 @@
     mc:Ignorable="d"
     Title="MainWindow">
 
-    <Grid Background="Red">
-        <!-- Grid with rows for header, menu, search bar, and content -->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <!-- Header -->
-            <RowDefinition Height="Auto"/>
-            <!-- Menu -->
-            <RowDefinition Height="Auto"/>
-            <!-- Search -->
-            <RowDefinition Height="*"/>
-            <!-- Main Content -->
-        </Grid.RowDefinitions>
-
+    <StackPanel Orientation="Vertical" 
+                Background="Red">
+        <component:Header/>
         <Frame x:Name="MainFrame" Grid.Row="3"/>
+    </StackPanel>
 
-        <StackPanel Background="Red" Grid.Row="0">
-            <TextBlock Text="Gym Shop" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Padding="20"/>
-        </StackPanel>
-
-        <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
-            <AppBarButton Icon="Add" Label="Add" Click="AddButton_Click"/>
-        </CommandBar>
-
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Background="Black">
-            <MenuBar BorderThickness="2" Margin="0,0,0,0">
-                <MenuBarItem Title="Filter" Tapped="OnFilterClick"/>
-                <MenuBarItem Title="Wishlist">
-                    <MenuBarItem.Items>
-                        <MenuFlyoutItem Text="Open Wishlist" Click="WishList_Click"/>
-                    </MenuBarItem.Items>
-                </MenuBarItem>
-                <MenuBarItem Title="Cart">
-                    <MenuBarItem.Items>
-                        <MenuFlyoutItem Text="Open Cart" Click="CartMenu_Click"/>
-                    </MenuBarItem.Items>
-                </MenuBarItem>
-            </MenuBar>
-        </StackPanel>
-
-        <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,10,0,10" Background="Black">
-            <!--<AutoSuggestBox PlaceholderText="Type a control name" QueryIcon="Find" Width="300"/> -->
-            <AutoSuggestBox x:Name="SearchBox"
-            PlaceholderText="Cauta produs..."
-            Width="300"
-            QueryIcon="Find"
-            TextChanged="SearchBox_TextChanged"/>
-        </StackPanel>
-
-
-        <Button Content="View Product 1" Click="ViewProduct1_Click" Margin="20,0,0,0"/>
-
-    </Grid>
 </Window>

@@ -1,17 +1,17 @@
-// <copyright file="ProductDetailPage.xaml.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+// <copyright file="ProductDetailPage.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
 {
     using System.Configuration;
+    using Microsoft.UI.Xaml; // Required for RoutedEventArgs, FrameworkElement
     using Microsoft.UI.Xaml.Controls; // For WinUI Page, ContentDialog
     using Microsoft.UI.Xaml.Navigation; // For NavigationEventArgs
     using WorkoutApp.Data.Database; // Assuming DbConnectionFactory and DbService are here
     using WorkoutApp.Repository; // Assuming ProductRepository and IRepository are here
     using WorkoutApp.Service; // Assuming ProductService and IService are here
     using WorkoutApp.ViewModel; // Corrected: Using the singular 'ViewModel' namespace for ProductViewModel
-    using Microsoft.UI.Xaml; // Required for RoutedEventArgs, FrameworkElement
     using System; // Required for System namespace
     using System.Diagnostics; // Required for Debug.WriteLine
     using System.ComponentModel; // Required for PropertyChangedEventArgs
@@ -22,26 +22,26 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
     /// </summary>
     public sealed partial class ProductDetailPage : Page // Inherit from Page
     {
-        // Public ViewModel property for XAML binding
+        /// <summary>
+        /// The ViewModel for the ProductDetailPage.
+        /// </summary>
         public ProductViewModel ViewModel { get; }
 
-        // Private field to store the hosting Window
-        private readonly Window hostingWindow;
+        // Removed the private field for hostingWindow as per user instruction.
+        // private readonly Window hostingWindow;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductDetailPage"/> class.
         /// </summary>
-        /// <param name="hostingWindow">The window that is hosting this page.</param>
-        // MODIFIED CONSTRUCTOR: Added a parameter to receive the hosting Window
-        public ProductDetailPage(Window hostingWindow)
+        // Corrected: Parameterless constructor as per user instruction to remove hostingWindow
+        public ProductDetailPage()
         {
             Debug.WriteLine("ProductDetailPage: Constructor called."); // Added logging
             this.InitializeComponent();
 
-            // Store the reference to the hosting window
-            this.hostingWindow = hostingWindow ?? throw new ArgumentNullException(nameof(hostingWindow));
-
             // Initialize dependencies for the ProductService.
+            // This should ideally be done via Dependency Injection in a real app,
+            // but we'll new them up here for simplicity based on your structure.
             string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var connectionFactory = new DbConnectionFactory(connectionString);
             var dbService = new DbService(connectionFactory);
@@ -56,21 +56,20 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             this.DataContext = ViewModel;
 
             // Subscribe to the ViewModel's events
-            ViewModel.PropertyChanged += ViewModel_PropertyChanged; // Keep for other property changes if needed
-            ViewModel.RequestShowUpdateModal += ViewModel_RequestShowUpdateModal; // Subscribe to the new event
-            Debug.WriteLine("ProductDetailPage: Subscribed to ViewModel.PropertyChanged and RequestShowUpdateModal."); // Added logging
+            // ViewModel.PropertyChanged += ViewModel_PropertyChanged; // Removed as it's no longer needed for modal logic
+            ViewModel.RequestShowUpdateModal += ViewModel_RequestShowUpdateModal; // Subscribe to the event that signals modal display
+            Debug.WriteLine("ProductDetailPage: Subscribed to RequestShowUpdateModal."); // Updated logging
         }
 
-        /// <summary>
-        /// Handles the PropertyChanged event of the ViewModel.
-        /// This handler is kept in case you need to react to other property changes,
-        /// but it no longer directly shows the modal based on IsUpdateModalOpen.
-        /// </summary>
+        // Removed the ViewModel_PropertyChanged handler as it's no longer needed for modal logic.
+        /*
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            Debug.WriteLine($"ProductDetailPage: ViewModel.PropertyChanged called for: {e.PropertyName}"); // Added logging
-                                                                                                           // The logic to show the modal based on IsUpdateModalOpen is moved to ViewModel_RequestShowUpdateModal
+             Debug.WriteLine($"ProductDetailPage: ViewModel.PropertyChanged called for: {e.PropertyName}"); // Added logging
+             // The logic to show the modal based on IsUpdateModalOpen is moved to ViewModel_RequestShowUpdateModal
         }
+        */
+
 
         /// <summary>
         /// Handles the RequestShowUpdateModal event from the ViewModel.
@@ -136,7 +135,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         /// Handles the OnNavigatedTo event to load product data when the page is navigated to.
         /// </summary>
         /// <param name="e">The navigation event arguments.</param>
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             Debug.WriteLine($"ProductDetailPage: OnNavigatedTo called. Parameter type: {e.Parameter?.GetType().Name}, Parameter value: {e.Parameter}"); // Added logging
@@ -146,8 +145,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             {
                 Debug.WriteLine($"ProductDetailPage: Navigation parameter is Product ID: {productId}. Calling LoadProductAsync."); // Added logging
                 // Load the product data using the ViewModel
-                // Use _ = ViewModel.LoadProductAsync(...) to avoid awaiting in OnNavigatedTo
-                _ = ViewModel.LoadProductAsync(productId);
+                await this.ViewModel.LoadProductAsync(productId); // Await the LoadProductAsync call
             }
             else
             {
@@ -159,11 +157,11 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
 
         /// <summary>
         /// Handles the Click event for the "View" button on a related product item.
-        /// Navigates to the detail page for the tapped related product within the current window.
+        /// Loads the related product details into the current page's ViewModel.
         /// </summary>
         /// <param name="sender">The source of the event (the clicked Button).</param>
         /// <param name="e">The event arguments.</param>
-        private void SeeRelatedProductButton_Click(object sender, RoutedEventArgs e)
+        private async void SeeRelatedProductButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("ProductDetailPage: SeeRelatedProductButton_Click called."); // Added logging
             // Get the clicked Button
@@ -172,30 +170,10 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 // Get the product ID from the Tag property
                 if (clickedButton.Tag is int relatedProductId)
                 {
-                    Debug.WriteLine($"ProductDetailPage: Related Product Button clicked. Navigating to Product ID: {relatedProductId}"); // Added logging
-                    // Initialize dependencies for the ProductService for the new page.
-                    string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-                    var connectionFactory = new DbConnectionFactory(connectionString);
-                    var dbService = new DbService(connectionFactory);
-                    var productRepository = new ProductRepository(dbService);
-                    var productService = new ProductService(productRepository);
-
-                    // Create a new instance of the ProductDetailPage, passing the *current* hosting window to its constructor
-                    // This allows the ProductDetailPage to know its hosting window for internal navigation.
-                    var relatedProductPage = new ProductDetailPage(this.hostingWindow);
-
-                    // If ProductDetailPage ViewModel has a LoadProductAsync(int id) method:
-                    // This is the preferred approach for passing data after page creation.
-                    // You'll need to ensure your ProductDetailPage.xaml.cs has a public ViewModel property.
-                    // Use _ = ViewModel.LoadProductAsync(...) to avoid awaiting in a void method.
-                    _ = relatedProductPage.ViewModel.LoadProductAsync(relatedProductId);
-
-
-                    // Set the content of the new window to the ProductDetailPage
-                    this.hostingWindow.Content = relatedProductPage;
-
-                    // Optional: Update the window title
-                    this.hostingWindow.Title = $"Product Details (ID: {relatedProductId})";
+                    Debug.WriteLine($"ProductDetailPage: Related Product Button clicked. Loading Product ID: {relatedProductId} into current page."); // Added logging
+                    // Load the data for the related product into the *current* ViewModel
+                    // This will update the UI bindings on the current page.
+                    await this.ViewModel.LoadProductAsync(relatedProductId);
                 }
                 else
                 {

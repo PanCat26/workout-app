@@ -5,7 +5,6 @@
 namespace WorkoutApp.Service
 {
     using System.Collections.Generic;
-    using System.Linq; // Required for .ToList() if needed, but not directly used in this method
     using System.Threading.Tasks;
     using WorkoutApp.Models;
     using WorkoutApp.Repository;
@@ -60,13 +59,7 @@ namespace WorkoutApp.Service
             return await this.productRepository.UpdateAsync(entity);
         }
 
-        /// <summary>
-        /// Gets a collection of products based on the provided filter criteria.
-        /// This method calls the repository's filtered get method.
-        /// </summary>
-        /// <param name="filter">The filter criteria to apply.</param>
-        /// <returns>A task representing the asynchronous operation, containing a collection of products.</returns>
-        // Added a new generic filtering method
+        /// <inheritdoc/>
         public async Task<IEnumerable<Product>> GetFilteredAsync(IFilter filter)
         {
             // Call the repository's GetAllFilteredAsync method with the filter

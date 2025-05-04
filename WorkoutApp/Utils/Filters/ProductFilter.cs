@@ -1,5 +1,5 @@
-﻿// <copyright file="ProductFilter.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+﻿// <copyright file="ProductFilter.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.Utils.Filters
@@ -7,7 +7,7 @@ namespace WorkoutApp.Utils.Filters
     /// <summary>
     /// Filter criteria for querying products.
     /// </summary>
-    public class ProductFilter(int? categoryId, int? excludeProductId, int? count) : IFilter // Added constructor
+    public class ProductFilter(int? categoryId, int? excludeProductId, int? count, string? color, string? size, string? searchTerm) : IFilter // Added constructor
     {
         /// <summary>
         /// Gets or sets the category ID to filter products by.
@@ -24,6 +24,19 @@ namespace WorkoutApp.Utils.Filters
         /// </summary>
         public int? Count { get; set; } = count; // Initialize from constructor
 
-        // You can add other filter properties here (e.g., min/max price, search term, etc.)
+        /// <summary>
+        /// Gets or sets the color to filter products by.
+        /// </summary>
+        public string? Color { get; set; } = color; // Initialize from constructor
+
+        /// <summary>
+        /// Gets or sets the size to filter products by.
+        /// </summary>
+        public string? Size { get; set; } = size; // Initialize from constructor
+
+        /// <summary>
+        /// Gets or sets the search term to filter products by.
+        /// </summary>
+        public string? SearchTerm { get; set; } = searchTerm; // Initialize from constructor
     }
 }

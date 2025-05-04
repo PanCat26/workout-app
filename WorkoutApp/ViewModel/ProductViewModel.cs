@@ -10,7 +10,6 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
     using System.ComponentModel; // Required for INotifyPropertyChanged
     using System.Diagnostics; // Required for Debug.WriteLine
     using System.Globalization; // Required for CultureInfo
-    using System.Linq; // Required for .ToList()
     using System.Runtime.CompilerServices; // Required for CallerMemberName
     using System.Threading.Tasks;
     using System.Windows.Input; // Required for ICommand
@@ -314,7 +313,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             try
             {
                 // Create a ProductFilter instance with the desired criteria
-                var filter = new ProductFilter(categoryId, excludeProductId, count);
+                var filter = new ProductFilter(categoryId, excludeProductId, count, null, null, null);
 
                 // Call the new generic service method to get filtered products
                 var related = await productService.GetFilteredAsync(filter);
