@@ -47,6 +47,11 @@ namespace WorkoutApp.ViewModel
             return await this.cartService.CreateAsync(new CartItem(null, product, 1));
         }
 
+        public async Task<bool> RemoveProductFromCart(int cartItemID)
+        {
+            return await this.cartService.DeleteAsync(cartItemID);
+        }
+
 
         private async void ComputeTotalPrice(IEnumerable<CartItem> cartItems)
         {

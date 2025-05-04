@@ -60,16 +60,26 @@ namespace WorkoutApp.View.Components
             }
         }
 
-        /// <summary>
-        /// Handles click events on remove button.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">Event data for the item click event.</param>
-        private void RemoveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        private async void RemoveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            if (sender is Button button && button.Tag is int cartItemId)
+            ContentDialog dialog = new ContentDialog
             {
-                this.CartItemClicked?.Invoke(this, cartItemId);
+                Title = "Confirm Removal",
+                Content = "Are you sure you want to remove this item from your cart?",
+                PrimaryButtonText = "Yes",
+                CloseButtonText = "No",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot, // Required in WinUI 3
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                if (sender is Button button && button.Tag is int cartItemId)
+                {
+                    this.CartItemRemoved?.Invoke(this, cartItemId);
+                }
             }
         }
     }

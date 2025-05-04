@@ -20,6 +20,7 @@
             <component:VerticalRemovableProductListComponent
                 x:Name="ProductListViewControl"
                 CartItemClicked="VerticalProductListControl_ProductClicked"
+                CartItemRemoved="VerticalProductListControl_CartItemRemoved"
                 Margin="20,0,0,0"
                 Width="700"
                 Height="Auto"/>
@@ -36,6 +37,7 @@
                 <Button
                     x:Name="CheckoutButton"
                     Content="Checkout"
+                    Click="CheckoutButton_Click"
                     Width="100"
                     Height="30"
                     Margin="0,20,0,0"/>

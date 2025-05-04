@@ -4,6 +4,7 @@
 
 namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
 {
+    using System;
     using System.Configuration;
     using Microsoft.UI.Xaml; // Required for RoutedEventArgs - USED FOR BUTTON CLICKS
     using Microsoft.UI.Xaml.Controls; // For WinUI Page
@@ -98,9 +99,33 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 Product selectedProduct = this.ViewModel.GetSelectedProduct();
                 if (selectedProduct != null)
                 {
-                    await this.cartViewModel.AddProductToCart(selectedProduct);
+                    CartItem addedItem = await this.cartViewModel.AddProductToCart(selectedProduct);
+
+                    if (addedItem != null)
+                    {
+                        // Success feedback
+                        await new ContentDialog
+                        {
+                            Title = "Success",
+                            Content = "Product added to cart.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        }.ShowAsync();
+                    }
+                    else
+                    {
+                        // Failure feedback
+                        await new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Failed to add product to cart.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        }.ShowAsync();
+                    }
                 }
             }
         }
+
     }
 }

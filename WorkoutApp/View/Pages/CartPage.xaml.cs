@@ -30,7 +30,18 @@ namespace WorkoutApp.View.Pages
 
         private void VerticalProductListControl_ProductClicked(object sender, int productID)
         {
-            //MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
+            MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
+        }
+
+        private async void VerticalProductListControl_CartItemRemoved(object sender, int cartItemID)
+        {
+            await this.cartViewModel.RemoveProductFromCart(cartItemID);
+            await this.LoadProducts();
+        }
+
+        private void CheckoutButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            //MainWindow.AppFrame.Navigate(typeof(Payment));
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
