@@ -16,6 +16,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
     using WorkoutApp.ViewModel; // Corrected: Using the singular 'ViewModel' namespace for ProductViewModel
     using System.Diagnostics; // Required for Debug.WriteLine
     using Microsoft.UI.Dispatching; // Required for DispatcherQueue
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Code-behind for the ProductDetailPage.xaml.
@@ -152,6 +153,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 Debug.WriteLine($"ProductDetailPage: Navigation parameter is Product ID: {productId}. Calling LoadProductAsync."); // Added logging
                 // Load the product data using the ViewModel
                 await this.ViewModel.LoadProductAsync(productId); // Await the LoadProductAsync call
+                await this.CheckProductExistanceInWishlist(); // Check if the product exists in the wishlist
             }
             else
             {
@@ -232,9 +234,67 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             if (sender is Button clickedButton)
             {
                 Product selectedProduct = this.ViewModel.GetSelectedProduct();
-                if (selectedProduct != null)
+                if (selectedProduct != null && selectedProduct.ID.HasValue)
                 {
-                    WishlistItem addedItem = await this.wishlistViewModel.AddProductToWishlist(selectedProduct);
+                    // Check if the product is already in the wishlist
+                    WishlistItem item = await this.wishlistViewModel.GetProductFromWishlist(selectedProduct.ID.Value);
+                    if (item != null && item.ID.HasValue)
+                    {
+                        // Remove from wishlist
+                        bool removed = await this.wishlistViewModel.RemoveProductFromWishlist(item.ID.Value);
+                        if (removed)
+                        {
+                            AddToWishlistButton.Content = "Add to Wishlist";
+                            // Success feedback
+                            await new ContentDialog
+                            {
+                                Title = "Success",
+                                Content = "Product removed from wishlist.",
+                                CloseButtonText = "OK",
+                                XamlRoot = this.XamlRoot
+                            }.ShowAsync();
+                        }
+                        else
+                        {
+                            // Failure feedback
+                            await new ContentDialog
+                            {
+                                Title = "Error",
+                                Content = "Failed to remove product from wishlist.",
+                                CloseButtonText = "OK",
+                                XamlRoot = this.XamlRoot
+                            }.ShowAsync();
+                        }
+                    }
+                    else
+                    {
+                        // Add to wishlist
+                        WishlistItem addedItem = await this.wishlistViewModel.AddProductToWishlist(selectedProduct);
+                        if (addedItem != null)
+                        {
+                            AddToWishlistButton.Content = "Remove from Wishlist";
+                            // Success feedback
+                            await new ContentDialog
+                            {
+                                Title = "Success",
+                                Content = "Product added to wishlist.",
+                                CloseButtonText = "OK",
+                                XamlRoot = this.XamlRoot
+                            }.ShowAsync();
+                        }
+                        else
+                        {
+                            // Failure feedback
+                            await new ContentDialog
+                            {
+                                Title = "Error",
+                                Content = "Failed to add product to wishlist.",
+                                CloseButtonText = "OK",
+                                XamlRoot = this.XamlRoot
+                            }.ShowAsync();
+                        }
+                    }
+                    /*WishlistItem addedItem = await this.wishlistViewModel.AddProductToWishlist(selectedProduct);
                     if (addedItem != null)
                     {
                         // Success feedback
@@ -256,7 +316,24 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                             CloseButtonText = "OK",
                             XamlRoot = this.XamlRoot
                         }.ShowAsync();
-                    }
+                    }*/
+                }
+            }
+        }
+
+        private async Task CheckProductExistanceInWishlist()
+        {
+            Product selectedProduct = this.ViewModel.GetSelectedProduct();
+            if (selectedProduct != null && selectedProduct.ID.HasValue)
+            {
+                WishlistItem item = await this.wishlistViewModel.GetProductFromWishlist(selectedProduct.ID.Value);
+                if (item != null)
+                {
+                    AddToWishlistButton.Content = "Remove from Wishlist";
+                }
+                else
+                {
+                    AddToWishlistButton.Content = "Add to Wishlist";
                 }
             }
         }

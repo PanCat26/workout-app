@@ -43,5 +43,19 @@ namespace WorkoutApp.ViewModel
         {
             return await this.wishlistService.DeleteAsync(wishlistItemID);
         }
+
+        public async Task<WishlistItem> GetProductFromWishlist(int productId)
+        {
+            IEnumerable<WishlistItem> wishlistItems = await this.wishlistService.GetAllAsync();
+            foreach (WishlistItem item in wishlistItems)
+            {
+                if (item.Product.ID == productId)
+                {
+                    return item;
+                }
+            }
+
+            return null;
+        }
     }
 }
