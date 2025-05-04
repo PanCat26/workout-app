@@ -20,6 +20,8 @@
     <None Remove="Components\ProductCardComponent.xaml" />
     <None Remove="View\AddProductWindow.xaml" />
     <None Remove="View\Components\DeleteProductButton.xaml" />
+    <None Remove="View\Components\UpdateProductButton.xaml" />
+    <None Remove="View\Components\UpdateProductModal.xaml" />
     <None Remove="View\Components\VerticalProductListComponent.xaml" />
     <None Remove="View\Components\VerticalRemovableProductListComponent.xaml" />
     <None Remove="View\MainPage.xaml" />
@@ -84,6 +86,12 @@
     <None Update="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="View\Components\UpdateProductModal.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="View\Components\UpdateProductButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="View\Components\DeleteProductButton.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

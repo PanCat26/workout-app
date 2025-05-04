@@ -5,16 +5,17 @@
 namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
 {
     using System.Configuration;
-    using Microsoft.UI.Xaml.Controls; // For WinUI Page
+    using Microsoft.UI.Xaml.Controls; // For WinUI Page, ContentDialog
     using Microsoft.UI.Xaml.Navigation; // For NavigationEventArgs
     using WorkoutApp.Data.Database; // Assuming DbConnectionFactory and DbService are here
     using WorkoutApp.Repository; // Assuming ProductRepository and IRepository are here
     using WorkoutApp.Service; // Assuming ProductService and IService are here
     using WorkoutApp.ViewModel; // Corrected: Using the singular 'ViewModel' namespace for ProductViewModel
-    using Microsoft.UI.Xaml; // Required for RoutedEventArgs - USED FOR BUTTON CLICKS
+    using Microsoft.UI.Xaml; // Required for RoutedEventArgs, FrameworkElement
     using System; // Required for System namespace
     using System.Diagnostics; // Required for Debug.WriteLine
     using System.ComponentModel; // Required for PropertyChangedEventArgs
+    using Microsoft.UI.Dispatching; // Required for DispatcherQueue
 
     /// <summary>
     /// Code-behind for the ProductDetailPage.xaml.
@@ -41,9 +42,6 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             this.hostingWindow = hostingWindow ?? throw new ArgumentNullException(nameof(hostingWindow));
 
             // Initialize dependencies for the ProductService.
-            // In a real application, you would typically use a Dependency Injection container here
-            // instead of newing up dependencies directly. This is done here to match
-            // the structure of your provided DrinkDetailPage example.
             string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var connectionFactory = new DbConnectionFactory(connectionString);
             var dbService = new DbService(connectionFactory);
@@ -57,28 +55,80 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             // Set the DataContext of the page to the ViewModel
             this.DataContext = ViewModel;
 
-            // Subscribe to the ViewModel's PropertyChanged event to detect when ID changes
-            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-            Debug.WriteLine("ProductDetailPage: Subscribed to ViewModel.PropertyChanged."); // Added logging
-
-            // You can add other initialization logic here if needed,
-            // similar to how you set the RemoveButtonText in DrinkDetailPage.
-            // For example, logic based on user roles or product status.
+            // Subscribe to the ViewModel's events
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged; // Keep for other property changes if needed
+            ViewModel.RequestShowUpdateModal += ViewModel_RequestShowUpdateModal; // Subscribe to the new event
+            Debug.WriteLine("ProductDetailPage: Subscribed to ViewModel.PropertyChanged and RequestShowUpdateModal."); // Added logging
         }
 
         /// <summary>
         /// Handles the PropertyChanged event of the ViewModel.
-        /// Used here to detect when the ViewModel's ID property changes after loading.
+        /// This handler is kept in case you need to react to other property changes,
+        /// but it no longer directly shows the modal based on IsUpdateModalOpen.
         /// </summary>
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ViewModel.ID))
+            Debug.WriteLine($"ProductDetailPage: ViewModel.PropertyChanged called for: {e.PropertyName}"); // Added logging
+                                                                                                           // The logic to show the modal based on IsUpdateModalOpen is moved to ViewModel_RequestShowUpdateModal
+        }
+
+        /// <summary>
+        /// Handles the RequestShowUpdateModal event from the ViewModel.
+        /// This method is responsible for showing the ContentDialog.
+        /// </summary>
+        private void ViewModel_RequestShowUpdateModal(object? sender, EventArgs e)
+        {
+            Debug.WriteLine("ProductDetailPage: ViewModel_RequestShowUpdateModal event received."); // Added logging
+
+            // Use DispatcherQueue.TryEnqueue to schedule the ShowAsync call
+            // back onto the UI thread's dispatcher queue. This is necessary
+            // to avoid potential re-entrancy issues.
+            DispatcherQueue.TryEnqueue(async () =>
             {
-                Debug.WriteLine($"ProductDetailPage: ViewModel.ID changed to: {ViewModel.ID}"); // Added logging
-                // Although the XAML binding ProductId="{Binding ID}" should handle this,
-                // this log confirms when the ID is actually updated in the ViewModel.
-            }
-            // You could add checks for other properties changing if needed for debugging
+                Debug.WriteLine("ProductDetailPage: DispatcherQueue Enqueue callback executing."); // Added logging inside enqueue
+
+                // Explicitly set the DataContext of the ContentDialog's content (the UpdateProductModal)
+                // This ensures the modal has the correct ViewModel instance for binding.
+                // Cast Content to FrameworkElement to access DataContext
+                if (UpdateProductContentDialog.Content is FrameworkElement modalContent) // Corrected: Cast to FrameworkElement
+                {
+                    modalContent.DataContext = ViewModel; // Corrected: Access DataContext on the casted object
+                    Debug.WriteLine($"ProductDetailPage: Explicitly set DataContext of ContentDialog.Content to ViewModel."); // Added logging
+                }
+                else
+                {
+                    Debug.WriteLine("ProductDetailPage: ContentDialog.Content is null or not a FrameworkElement. Cannot set DataContext."); // Added logging
+                }
+
+
+                // Show the dialog
+                // Use the XamlRoot from the page to show the dialog correctly
+                // Ensure XamlRoot is available (page is loaded and in the visual tree)
+                if (this.XamlRoot != null)
+                {
+                    UpdateProductContentDialog.XamlRoot = this.XamlRoot;
+                    Debug.WriteLine("ProductDetailPage: Calling ShowAsync for UpdateProductContentDialog."); // Added logging before ShowAsync
+                    try
+                    {
+                        await UpdateProductContentDialog.ShowAsync();
+                        Debug.WriteLine("ProductDetailPage: UpdateProductContentDialog closed."); // Added logging after ShowAsync
+                                                                                                  // When the dialog is closed (by clicking Save or Cancel),
+                                                                                                  // the IsUpdateModalOpen property in the ViewModel should be set back to false
+                                                                                                  // by the respective ExecuteSaveAsync or ExecuteCancelEditAsync methods.
+                                                                                                  // This ensures the ViewModel state is consistent with the UI.
+                    }
+                    catch (Exception ex)
+                    {
+                        // Catch potential exceptions if ShowAsync is called while already open
+                        // or other UI thread issues.
+                        Debug.WriteLine($"ProductDetailPage: Error showing ContentDialog: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("ProductDetailPage: XamlRoot is null. Cannot show ContentDialog.");
+                }
+            });
         }
 
 
@@ -124,22 +174,24 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 {
                     Debug.WriteLine($"ProductDetailPage: Related Product Button clicked. Navigating to Product ID: {relatedProductId}"); // Added logging
                     // Initialize dependencies for the ProductService for the new page.
-                    // In a real application, you would typically use a Dependency Injection container here.
                     string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
                     var connectionFactory = new DbConnectionFactory(connectionString);
                     var dbService = new DbService(connectionFactory);
                     var productRepository = new ProductRepository(dbService);
                     var productService = new ProductService(productRepository);
 
-                    // Create a new instance of the ProductDetailPage for the related product
-                    // Pass the *current* hosting window to the new page's constructor
+                    // Create a new instance of the ProductDetailPage, passing the *current* hosting window to its constructor
+                    // This allows the ProductDetailPage to know its hosting window for internal navigation.
                     var relatedProductPage = new ProductDetailPage(this.hostingWindow);
 
-                    // Load the data for the related product
-                    // Use _ = relatedProductPage.ViewModel.LoadProductAsync(...) to avoid awaiting in a void method
+                    // If ProductDetailPage ViewModel has a LoadProductAsync(int id) method:
+                    // This is the preferred approach for passing data after page creation.
+                    // You'll need to ensure your ProductDetailPage.xaml.cs has a public ViewModel property.
+                    // Use _ = ViewModel.LoadProductAsync(...) to avoid awaiting in a void method.
                     _ = relatedProductPage.ViewModel.LoadProductAsync(relatedProductId);
 
-                    // Set the content of the *stored hosting window* to the new ProductDetailPage
+
+                    // Set the content of the new window to the ProductDetailPage
                     this.hostingWindow.Content = relatedProductPage;
 
                     // Optional: Update the window title
