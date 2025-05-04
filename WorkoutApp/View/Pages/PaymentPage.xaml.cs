@@ -38,7 +38,21 @@ namespace WorkoutApp.View.Pages
 
         private async void SendOrderButton_Click(object sender, RoutedEventArgs e)
         {
-            await this.paymentPageViewModel.SendOrder();
+            bool successFlag = await this.paymentPageViewModel.SendOrder();
+
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = successFlag ? "Order Placed" : "Order Failed",
+                Content = successFlag ? "Your order was successfully placed." : "Something went wrong. Please try again.",
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot,
+            };
+            await dialog.ShowAsync();
+
+            if (successFlag)
+            {
+                MainWindow.AppFrame?.Navigate(typeof(MainPage));
+            }
         }
     }
 }

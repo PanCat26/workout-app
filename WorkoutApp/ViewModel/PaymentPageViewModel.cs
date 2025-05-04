@@ -7,6 +7,7 @@ namespace WorkoutApp.ViewModel
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -47,9 +48,18 @@ namespace WorkoutApp.ViewModel
         /// Sends the order by creating it from the cart.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task SendOrder()
+        public async Task<bool> SendOrder()
         {
-            await ((OrderService)this.orderService).CreateOrderFromCartAsync();
+            try
+            {
+                await ((OrderService)this.orderService).CreateOrderFromCartAsync();
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine($"Error creating order: {exception.Message}");
+                return false;
+            }
         }
     }
 }
