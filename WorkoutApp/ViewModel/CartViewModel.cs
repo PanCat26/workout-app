@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
 using System.Threading.Tasks;
 using WorkoutApp.Data.Database;
@@ -11,11 +10,9 @@ using WorkoutApp.Service;
 
 namespace WorkoutApp.ViewModel
 {
-    public class CartViewModel : INotifyPropertyChanged
+    public class CartViewModel
     {
         private readonly IService<CartItem> cartService;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
 
         public decimal TotalPrice { get; private set; } = 0;
 

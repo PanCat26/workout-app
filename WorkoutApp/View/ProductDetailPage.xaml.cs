@@ -14,9 +14,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
     using WorkoutApp.Repository; // Assuming ProductRepository and IRepository are here
     using WorkoutApp.Service; // Assuming ProductService and IService are here
     using WorkoutApp.ViewModel; // Corrected: Using the singular 'ViewModel' namespace for ProductViewModel
-    using System; // Required for System namespace
     using System.Diagnostics; // Required for Debug.WriteLine
-    using System.ComponentModel; // Required for PropertyChangedEventArgs
     using Microsoft.UI.Dispatching; // Required for DispatcherQueue
 
     /// <summary>
@@ -30,6 +28,8 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         public ProductViewModel ViewModel { get; }
 
         private readonly CartViewModel cartViewModel;
+
+        private readonly WishlistViewModel wishlistViewModel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductDetailPage"/> class.
@@ -58,6 +58,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             // similar to how you set the RemoveButtonText in DrinkDetailPage.
             // For example, logic based on user roles or product status.
             this.cartViewModel = new CartViewModel();
+            this.wishlistViewModel = new WishlistViewModel();
             this.DataContext = ViewModel;
 
             // Subscribe to the ViewModel's events
@@ -226,5 +227,38 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             }
         }
 
+        private async void AddToWishlistButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button clickedButton)
+            {
+                Product selectedProduct = this.ViewModel.GetSelectedProduct();
+                if (selectedProduct != null)
+                {
+                    WishlistItem addedItem = await this.wishlistViewModel.AddProductToWishlist(selectedProduct);
+                    if (addedItem != null)
+                    {
+                        // Success feedback
+                        await new ContentDialog
+                        {
+                            Title = "Success",
+                            Content = "Product added to wishlist.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot,
+                        }.ShowAsync();
+                    }
+                    else
+                    {
+                        // Failure feedback
+                        await new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Failed to add product to cart.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        }.ShowAsync();
+                    }
+                }
+            }
+        }
     }
 }
