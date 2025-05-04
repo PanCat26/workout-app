@@ -18,18 +18,27 @@ namespace WorkoutApp.View.Pages
     using Microsoft.UI.Xaml.Navigation;
     using Windows.Foundation;
     using Windows.Foundation.Collections;
+    using WorkoutApp.ViewModel;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class PaymentPage : Page
     {
+        private readonly PaymentPageViewModel paymentPageViewModel;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PaymentPage"/> class.
         /// </summary>
         public PaymentPage()
         {
             this.InitializeComponent();
+            this.paymentPageViewModel = new PaymentPageViewModel();
+        }
+
+        private void SendOrderButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
