@@ -27,6 +27,7 @@
     <None Remove="View\MainPage.xaml" />
     <None Remove="View\MainWindow.xaml" />
     <None Remove="View\Pages\CartPage.xaml" />
+    <None Remove="View\Pages\PaymentPage.xaml" />
     <None Remove="View\Pages\WishlistPage.xaml" />
     <None Remove="View\Payment.xaml" />
 
@@ -88,6 +89,9 @@
     <None Update="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="View\Pages\PaymentPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="View\Components\VerticalWishlistItemListComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
