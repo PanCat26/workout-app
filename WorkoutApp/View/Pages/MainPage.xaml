@@ -49,7 +49,7 @@
                                            ColorChanged="ColorSelector_SelectionChanged"/>
                     <component:SizeFilter x:Name="SizeFilterControl"
                                           Margin="0,0,0,10"
-                                          SizeChanged="SizeSelector_SelectionChanged"/>
+                                          SizeFilterChanged="SizeSelector_SelectionChanged"/>
                     <Button x:Name="ResetFiltersButton"
                             Content="Reset Filters"
                             Click="ResetFiltersButton_Click"
