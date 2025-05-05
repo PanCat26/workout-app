@@ -8,17 +8,17 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
     using System.Collections.Generic; // Required for EqualityComparer
     using System.Collections.ObjectModel; // Required for ObservableCollection
     using System.ComponentModel; // Required for INotifyPropertyChanged
+    using System.Configuration; // Required for ConfigurationManager
     using System.Diagnostics; // Required for Debug.WriteLine
     using System.Globalization; // Required for CultureInfo
     using System.Runtime.CompilerServices; // Required for CallerMemberName
     using System.Threading.Tasks;
     using System.Windows.Input; // Required for ICommand
+    using WorkoutApp.Data.Database; // Required for DbConnectionFactory, DbService
     using WorkoutApp.Models; // Assuming Product and Category models are here
+    using WorkoutApp.Repository; // Required for ProductRepository
     using WorkoutApp.Service; // Assuming ProductService and IService<Product> are here
     using WorkoutApp.Utils.Filters; // Required for ProductFilter
-    using WorkoutApp.Data.Database; // Required for DbConnectionFactory, DbService
-    using WorkoutApp.Repository; // Required for ProductRepository
-    using System.Configuration; // Required for ConfigurationManager
 
     /// <summary>
     /// ViewModel for a single product, designed for UI data binding.
@@ -55,6 +55,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// Gets or sets the command for canceling product editing.
         /// </summary>
         public ICommand? CancelEditCommand { get; }
+
         /// <summary>
         /// Gets or sets the command for deleting the product.
         /// </summary>
@@ -62,6 +63,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
 
         // Property to track if the update modal is currently open (useful for ViewModel state)
         private bool isUpdateModalOpen = false;
+
         /// <summary>
         /// Gets or sets a value indicating whether the update modal is open.
         /// </summary>
@@ -72,12 +74,14 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         }
 
         // New event to signal the View to show the update modal
+
         /// <summary>
         /// Event that is raised when the update modal should be shown.
         /// </summary>
         public event EventHandler? RequestShowUpdateModal;
 
         // Event required by INotifyPropertyChanged
+
         /// <summary>
         /// Event that is raised when a property value changes.
         /// </summary>
@@ -92,6 +96,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         public ProductViewModel()
         {
             Debug.WriteLine("ProductViewModel parameterless constructor called.");
+
             // Initialize dependencies with default/placeholder values.
             string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var connectionFactory = new DbConnectionFactory(connectionString);
@@ -251,11 +256,13 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 if (this.product != null)
                 {
                     Debug.WriteLine($"ProductViewModel: Product ID {id} loaded successfully."); // Added logging
+
                     // Update ViewModel properties based on the loaded Product model
                     // SetProperty will raise PropertyChanged event for UI updates
                     this.Name = this.product.Name;
                     this.Price = this.product.Price; // Setting Price will also update FormattedPrice
                     this.Stock = this.product.Stock;
+
                     // Access CategoryID from the Category object within the Product model
                     this.CategoryID = this.product.Category?.ID ?? 0; // Use null conditional operator in case Category is null
                     this.CategoryName = this.product.Category?.Name ?? "Unknown Category"; // Also add Category Name
@@ -263,8 +270,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                     this.Color = this.product.Color;
                     this.Description = this.product.Description;
                     this.PhotoURL = this.product.PhotoURL;
-                    // ID is already set or derived
 
+                    // ID is already set or derived
                     Debug.WriteLine($"ProductViewModel: Properties updated after loading: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
 
                     // Load related products after the main product is loaded
@@ -281,9 +288,11 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 else
                 {
                     Debug.WriteLine($"ProductViewModel: Product ID {id} not found."); // Added logging
+
                     // Handle case where product is not found
                     this.Name = "Product Not Found";
                     this.Description = $"Product with ID {this.productId} could not be loaded.";
+
                     // Reset other properties or show default values
                     this.Price = 0; // Setting Price will also update FormattedPrice
                     this.Stock = 0;
@@ -301,6 +310,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 this.Name = "Error Loading Product";
                 this.Description = $"Failed to load product with ID {this.productId}. Error: {ex.Message}";
                 Debug.WriteLine($"ProductViewModel: Error loading product {this.productId}: {ex}"); // Added logging
+
                 // Reset other properties or show default values
                 this.Price = 0; // Setting Price will also update FormattedPrice
                 this.Stock = 0;
@@ -364,7 +374,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             {
                 // Ensure ViewModel properties are up-to-date with the 'product' model before showing the modal
                 // Although LoadProductAsync does this, explicitly doing it here again ensures the latest data
-                // is in the bindable properties right before the modal is requested.
+                // is in the properties right before the modal is requested.
                 this.Name = this.product.Name;
                 this.Price = this.product.Price;
                 this.Stock = this.product.Stock;
@@ -389,14 +399,12 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 Debug.WriteLine($"ProductViewModel: Properties confirmed before opening modal: Name={Name}, Price={Price}, Stock={Stock}, CategoryID={CategoryID}, CategoryName={CategoryName}"); // Added logging
 
                 IsUpdateModalOpen = true; // Set ViewModel state
-                Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to true. Raising RequestShowUpdateModal event."); // Added logging
-                                                                                                                           // Raise the event to signal the View to show the modal
+                Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to true. Raising RequestShowUpdateModal event.");
                 RequestShowUpdateModal?.Invoke(this, EventArgs.Empty);
             }
             else
             {
-                Debug.WriteLine("ProductViewModel: Cannot enter edit mode, product is null after load attempt."); // Added logging
-                                                                                                                  // Optionally, show an error message to the user
+                Debug.WriteLine("ProductViewModel: Cannot enter edit mode, product is null after load attempt."); 
             }
         }
 
@@ -409,26 +417,26 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         public async Task ExecuteSaveAsync() // Made public
         {
             Debug.WriteLine("ProductViewModel: ExecuteSaveAsync called. Attempting to save product."); // Added logging
-            if (product == null || product.ID == null)
+            if (this.product == null || this.product.ID == null)
             {
                 Debug.WriteLine("ProductViewModel: Attempted to save a product that was not loaded correctly."); // Added logging
-                IsUpdateModalOpen = false; // Close the modal
+                this.IsUpdateModalOpen = false; // Close the modal
                 return;
             }
 
             // Create an updated Product model from the ViewModel properties
             var updatedProduct = new Product(
-                id: product.ID, // Use the existing ID
-                name: Name,
-                price: Price,
-                stock: Stock,
+                id: this.product.ID, // Use the existing ID
+                name: this.Name,
+                price:this. Price,
+                stock: this.Stock,
                 // Need to create a Category object from ViewModel properties
                 // Assuming CategoryName is just for display and CategoryID is used for saving
-                category: new Category(CategoryID, CategoryName), // Pass both ID and Name
-                size: Size,
-                color: Color,
-                description: Description,
-                photoURL: PhotoURL
+                category: new Category(this.CategoryID, this.CategoryName), // Pass both ID and Name
+                size: this.Size,
+                color: this.Color,
+                description: this.Description,
+                photoURL: this.PhotoURL
             );
 
             Debug.WriteLine($"ProductViewModel: Attempting to save with values: Name={updatedProduct.Name}, Price={updatedProduct.Price}, Stock={updatedProduct.Stock}, CategoryID={updatedProduct.Category?.ID}"); // Added logging
@@ -437,7 +445,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             {
                 // Call the service to update the product
                 Debug.WriteLine($"ProductViewModel: Calling productService.UpdateAsync({product.ID.Value})..."); // Added logging
-                Product resultProduct = await productService.UpdateAsync(updatedProduct);
+                Product resultProduct = await this.productService.UpdateAsync(updatedProduct);
                 Debug.WriteLine($"ProductViewModel: productService.UpdateAsync returned."); // Added logging
 
                 // Update the underlying product model in the ViewModel
@@ -445,19 +453,19 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
 
                 // Update ViewModel properties from the result in case the service modified them (e.g., calculated fields)
                 // These properties are already bound to the UI, so updating them will refresh the display
-                Name = product.Name;
-                Price = product.Price;
-                Stock = product.Stock;
-                CategoryID = product.Category?.ID ?? 0;
-                CategoryName = product.Category?.Name ?? "Unknown Category";
-                Size = product.Size;
-                Color = product.Color;
-                Description = product.Description;
-                PhotoURL = product.PhotoURL;
+                this.Name = this.product.Name;
+                this.Price = this.product.Price;
+                this.Stock =this.product.Stock;
+                this.CategoryID = this.product.Category?.ID ?? 0;
+                this.CategoryName = this.product.Category?.Name ?? "Unknown Category";
+                this.Size = this.product.Size;
+                this.Color = this.product.Color;
+                this.Description = this.product.Description;
+                this.PhotoURL = this.product.PhotoURL;
 
-                Debug.WriteLine($"ProductViewModel: Properties updated after save: Name={Name}, Price={Price}, Stock={Stock}, CategoryID={CategoryID}, CategoryName={CategoryName}"); // Added logging
+                Debug.WriteLine($"ProductViewModel: Properties updated after save: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
 
-                Debug.WriteLine($"ProductViewModel: Product ID {product.ID} updated successfully."); // Added logging
+                Debug.WriteLine($"ProductViewModel: Product ID {this.product.ID} updated successfully."); // Added logging
 
                 IsUpdateModalOpen = false; // Close the modal on success
                 Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to false."); // Added logging
@@ -465,9 +473,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ProductViewModel: Error saving product ID {product.ID}: {ex}"); // Added logging
-                // Handle the error (e.g., show an error message in the UI, keep modal open)
-                // IsUpdateModalOpen remains true so the user can fix the error or cancel
+                Debug.WriteLine($"ProductViewModel: Error saving product ID {this.product.ID}: {ex}"); // Added logging
+
             }
             Debug.WriteLine("ProductViewModel: ExecuteSaveAsync finished."); // Added logging
         }
@@ -481,6 +488,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         public async Task ExecuteCancelEditAsync() // Made public
         {
             Debug.WriteLine("ProductViewModel: ExecuteCancelEditAsync called. Reverting changes."); // Added logging
+
             // Re-load the product data from the service to discard changes
             if (product != null)
             {
