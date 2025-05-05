@@ -1,5 +1,5 @@
-﻿// <copyright file="ProductRepository.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+﻿// <copyright file="ProductRepository.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.Repository
@@ -7,21 +7,15 @@ namespace WorkoutApp.Repository
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Data.SqlClient;
     using WorkoutApp.Data.Database;
     using WorkoutApp.Models;
-    using WorkoutApp.Utils.Filters; // Using the Filters namespace
+    using WorkoutApp.Utils.Filters;
 
     /// <summary>
-    /// Represents a repository for managing products in the database.
-    /// Implements the <see cref="IRepository{Product}"/> interface.
+    /// Repository for performing CRUD operations on products.
     /// </summary>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="ProductRepository"/> class.
-    /// </remarks>
-    /// <param name="dbService">The database service.</param>
     public class ProductRepository(DbService dbService) : IRepository<Product>
     {
         private readonly DbService dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
@@ -29,7 +23,7 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            string query = @"
+            const string query = @"
                 SELECT
                     Product.ID AS ProductID,
                     Product.Name AS ProductName,
@@ -42,9 +36,8 @@ namespace WorkoutApp.Repository
                     Category.ID AS CategoryID,
                     Category.Name AS CategoryName
                 FROM Product
-                JOIN Category
-                    ON Product.CategoryID = Category.ID;
-            ";
+                JOIN Category ON Product.CategoryID = Category.ID;";
+
             DataTable result = await this.dbService.ExecuteSelectAsync(query, []);
 
             List<Product> products = [];
@@ -59,7 +52,7 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<Product?> GetByIdAsync(int id)
         {
-            string query = @"
+            const string query = @"
                 SELECT
                     Product.ID AS ProductID,
                     Product.Name AS ProductName,
@@ -72,35 +65,26 @@ namespace WorkoutApp.Repository
                     Category.ID AS CategoryID,
                     Category.Name AS CategoryName
                 FROM Product
-                JOIN Category
-                    ON Product.CategoryID = Category.ID
-                WHERE Product.ID = @ProductID;
-            ";
+                JOIN Category ON Product.CategoryID = Category.ID
+                WHERE Product.ID = @ProductID;";
 
-            List<SqlParameter> parameters =
-            [
-                new ("@ProductID", id),
-            ];
+            List<SqlParameter> parameters = [new ("@ProductID", id)];
 
             DataTable table = await this.dbService.ExecuteSelectAsync(query, parameters);
 
-            if (table.Rows.Count == 0)
-            {
-                return null;
-            }
-
-            return MapRowToProduct(table.Rows[0]);
+            return table.Rows.Count > 0 ? MapRowToProduct(table.Rows[0]) : null;
         }
 
         /// <inheritdoc/>
         public async Task<Product> CreateAsync(Product entity)
         {
-            string query = @"
+            const string query = @"
                 INSERT INTO Product (Name, Price, Stock, CategoryID, Size, Color, Description, PhotoURL)
                 OUTPUT INSERTED.ID
                 VALUES (@Name, @Price, @Stock, @CategoryID, @Size, @Color, @Description, @PhotoURL);";
 
-            List<SqlParameter> parameters = [
+            List<SqlParameter> parameters =
+            [
                 new ("@Name", entity.Name),
                 new ("@Price", entity.Price),
                 new ("@Stock", entity.Stock),
@@ -112,24 +96,22 @@ namespace WorkoutApp.Repository
             ];
 
             int id = await this.dbService.ExecuteScalarAsync<int>(query, parameters);
-
-            entity.ID = id; // Set the newly inserted ID
+            entity.ID = id;
             return entity;
         }
 
         /// <inheritdoc/>
         public async Task<Product> UpdateAsync(Product entity)
         {
-            // Check if the product id is given
             if (entity.ID == null)
             {
                 throw new ArgumentException("Product ID must be provided for update.");
             }
 
-            // Check if the product exists
-            _ = await this.GetByIdAsync((int)entity.ID) ?? throw new InvalidOperationException($"Product with ID {entity.ID} does not exist.");
+            _ = await this.GetByIdAsync((int)entity.ID)
+                ?? throw new InvalidOperationException($"Product with ID {entity.ID} does not exist.");
 
-            string query = @"
+            const string query = @"
                 UPDATE Product
                 SET Name = @Name,
                     Price = @Price,
@@ -141,7 +123,8 @@ namespace WorkoutApp.Repository
                     PhotoURL = @PhotoURL
                 WHERE ID = @ID;";
 
-            List<SqlParameter> parameters = [
+            List<SqlParameter> parameters =
+            [
                 new ("@ID", entity.ID),
                 new ("@Name", entity.Name),
                 new ("@Price", entity.Price),
@@ -160,38 +143,33 @@ namespace WorkoutApp.Repository
         /// <inheritdoc/>
         public async Task<bool> DeleteAsync(int id)
         {
-            string query = "DELETE FROM Product WHERE ID = @ID;";
-            List<SqlParameter> parameters =
-            [
-                new SqlParameter("@ID", id)
-            ];
+            const string query = "DELETE FROM Product WHERE ID = @ID;";
+            List<SqlParameter> parameters = [new ("@ID", id)];
 
             int affectedRows = await this.dbService.ExecuteQueryAsync(query, parameters);
             return affectedRows > 0;
         }
 
         /// <inheritdoc/>
-        // Implementing the GetAllFilteredAsync method from IRepository
         public async Task<IEnumerable<Product>> GetAllFilteredAsync(IFilter filter)
         {
-            List<SqlParameter> parameters = [];
             ProductFilter productFilter = (ProductFilter)filter;
+            List<SqlParameter> parameters =
+            [
+                new ("@CategoryID", (object?)productFilter.CategoryId ?? DBNull.Value),
+                new ("@ExcludeProductID", (object?)productFilter.ExcludeProductId ?? DBNull.Value),
+                new ("@Color", (object?)productFilter.Color ?? DBNull.Value),
+                new ("@Size", (object?)productFilter.Size ?? DBNull.Value),
+                new ("@SearchTerm", (object?)productFilter.SearchTerm ?? DBNull.Value),
+            ];
 
-            // Add all filter parameters (even if null)
-            parameters.Add(new SqlParameter("@CategoryID", (object?)productFilter.CategoryId ?? DBNull.Value));
-            parameters.Add(new SqlParameter("@ExcludeProductID", (object?)productFilter.ExcludeProductId ?? DBNull.Value));
-            parameters.Add(new SqlParameter("@Color", (object?)productFilter.Color ?? DBNull.Value));
-            parameters.Add(new SqlParameter("@Size", (object?)productFilter.Size ?? DBNull.Value));
-            parameters.Add(new SqlParameter("@SearchTerm", (object?)productFilter.SearchTerm ?? DBNull.Value));
-
-            // Use TOP clause safely via string interpolation (not parameterizable)
-            string topClause = String.Empty;
-            if (productFilter.Count.HasValue && productFilter.Count > 0)
+            string topClause = string.Empty;
+            if (productFilter.Count is > 0)
             {
                 topClause = $"TOP ({productFilter.Count.Value})";
             }
 
-            string whereClause = @"
+            const string whereClause = @"
                 WHERE
                     (@CategoryID IS NULL OR Product.CategoryID = @CategoryID)
                 AND (@ExcludeProductID IS NULL OR Product.ID != @ExcludeProductID)
@@ -216,8 +194,7 @@ namespace WorkoutApp.Repository
                     Category.ID AS CategoryID,
                     Category.Name AS CategoryName
                 FROM Product
-                JOIN Category
-                    ON Product.CategoryID = Category.ID
+                JOIN Category ON Product.CategoryID = Category.ID
                 {whereClause}
                 ORDER BY Product.ID;";
 
@@ -232,22 +209,20 @@ namespace WorkoutApp.Repository
             return products;
         }
 
-
-
         private static Product MapRowToProduct(DataRow row)
         {
             return new Product(
-                     id: Convert.ToInt32(row["ProductID"]),
-                     name: Convert.ToString(row["ProductName"])!,
-                     price: Convert.ToDecimal(row["Price"]),
-                     stock: Convert.ToInt32(row["Stock"]),
-                     category: new Category(
-                         id: Convert.ToInt32(row["CategoryID"]),
-                         name: Convert.ToString(row["CategoryName"])!),
-                     size: Convert.ToString(row["Size"])!,
-                     color: Convert.ToString(row["Color"])!,
-                     description: Convert.ToString(row["Description"])!,
-                     photoURL: Convert.ToString(row["PhotoURL"]));
+                id: Convert.ToInt32(row["ProductID"]),
+                name: Convert.ToString(row["ProductName"])!,
+                price: Convert.ToDecimal(row["Price"]),
+                stock: Convert.ToInt32(row["Stock"]),
+                category: new Category(
+                    id: Convert.ToInt32(row["CategoryID"]),
+                    name: Convert.ToString(row["CategoryName"])!),
+                size: Convert.ToString(row["Size"])!,
+                color: Convert.ToString(row["Color"])!,
+                description: Convert.ToString(row["Description"])!,
+                photoURL: Convert.ToString(row["PhotoURL"]));
         }
     }
 }

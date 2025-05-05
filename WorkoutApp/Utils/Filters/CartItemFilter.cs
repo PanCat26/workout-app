@@ -1,4 +1,4 @@
-﻿// <copyright file="IFilter.cs" company="PlaceholderCompany">
+﻿// <copyright file="CartItemFilter.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,7 @@ namespace WorkoutApp.Utils.Filters
     /// <summary>
     /// Represents a filter interface that can be implemented to define filtering logic.
     /// </summary>
-    public class CartItemFilter(int? productID, int? customerID) : IFilter
+    public class CartItemFilter(int? productID, int? customerID): IFilter
     {
         /// <summary>
         /// Gets or sets product id to filter by.

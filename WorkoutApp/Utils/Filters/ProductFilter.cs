@@ -7,7 +7,7 @@ namespace WorkoutApp.Utils.Filters
     /// <summary>
     /// Filter criteria for querying products.
     /// </summary>
-    public class ProductFilter(int? categoryId, int? excludeProductId, int? count, string? color, string? size, string? searchTerm) : IFilter // Added constructor
+    public class ProductFilter(int? categoryId, int? excludeProductId, int? count, string? color, string? size, string? searchTerm) : IFilter
     {
         /// <summary>
         /// Gets or sets the category ID to filter products by.

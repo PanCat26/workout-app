@@ -97,6 +97,5 @@ namespace WorkoutApp.ViewModel
         {
             this.filter = new ProductFilter(null, null, null, null, null, null);
         }
-
     }
 }
