@@ -1,5 +1,5 @@
-﻿// <copyright file="WishlistViewModel.cs" company="YourCompany">
-// Copyright (c) YourCompany. All rights reserved.
+﻿// <copyright file="WishlistViewModel.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace WorkoutApp.ViewModel
