@@ -8,17 +8,17 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
     using System.Collections.Generic; // Required for EqualityComparer
     using System.Collections.ObjectModel; // Required for ObservableCollection
     using System.ComponentModel; // Required for INotifyPropertyChanged
+    using System.Configuration; // Required for ConfigurationManager
     using System.Diagnostics; // Required for Debug.WriteLine
     using System.Globalization; // Required for CultureInfo
     using System.Runtime.CompilerServices; // Required for CallerMemberName
     using System.Threading.Tasks;
     using System.Windows.Input; // Required for ICommand
+    using WorkoutApp.Data.Database; // Required for DbConnectionFactory, DbService
     using WorkoutApp.Models; // Assuming Product and Category models are here
+    using WorkoutApp.Repository; // Required for ProductRepository
     using WorkoutApp.Service; // Assuming ProductService and IService<Product> are here
     using WorkoutApp.Utils.Filters; // Required for ProductFilter
-    using WorkoutApp.Data.Database; // Required for DbConnectionFactory, DbService
-    using WorkoutApp.Repository; // Required for ProductRepository
-    using System.Configuration; // Required for ConfigurationManager
 
     /// <summary>
     /// ViewModel for a single product, designed for UI data binding.
@@ -47,23 +47,44 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
 
         // Commands for UI Interaction
         // These are primarily for the modal's buttons
+        /// <summary>
+        /// Gets or sets the command for saving product changes.
+        /// </summary>
         public ICommand? SaveCommand { get; }
+        /// <summary>
+        /// Gets or sets the command for canceling product editing.
+        /// </summary>
         public ICommand? CancelEditCommand { get; }
+
+        /// <summary>
+        /// Gets or sets the command for deleting the product.
+        /// </summary>
         public ICommand? DeleteCommand { get; } // The command for the delete button
 
         // Property to track if the update modal is currently open (useful for ViewModel state)
         private bool isUpdateModalOpen = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the update modal is open.
+        /// </summary>
         public bool IsUpdateModalOpen
         {
-            get => isUpdateModalOpen;
-            set => SetProperty(ref isUpdateModalOpen, value); // Use SetProperty to notify UI when modal state changes
+            get => this.isUpdateModalOpen;
+            set => this.SetProperty(ref this.isUpdateModalOpen, value); // Use SetProperty to notify UI when modal state changes
         }
 
         // New event to signal the View to show the update modal
+
+        /// <summary>
+        /// Event that is raised when the update modal should be shown.
+        /// </summary>
         public event EventHandler? RequestShowUpdateModal;
 
-
         // Event required by INotifyPropertyChanged
+
+        /// <summary>
+        /// Event that is raised when a property value changes.
+        /// </summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
@@ -75,6 +96,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         public ProductViewModel()
         {
             Debug.WriteLine("ProductViewModel parameterless constructor called.");
+
             // Initialize dependencies with default/placeholder values.
             string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var connectionFactory = new DbConnectionFactory(connectionString);
@@ -83,11 +105,10 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             this.productService = new ProductService(productRepository);
 
             // Initialize Commands
-            SaveCommand = new RelayCommand(async _ => await ExecuteSaveAsync());
-            CancelEditCommand = new RelayCommand(async _ => await ExecuteCancelEditAsync());
-            DeleteCommand = new RelayCommand(async _ => await ExecuteDeleteAsync());
+            SaveCommand = new RelayCommand(async _ => await this.ExecuteSaveAsync());
+            CancelEditCommand = new RelayCommand(async _ => await this.ExecuteCancelEditAsync());
+            DeleteCommand = new RelayCommand(async _ => await this.ExecuteDeleteAsync());
         }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductViewModel"/> class with a product service.
@@ -102,23 +123,23 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             // Initial values are set, data will be loaded when LoadProductAsync is called
 
             // Initialize Commands
-            SaveCommand = new RelayCommand(async _ => await ExecuteSaveAsync());
-            CancelEditCommand = new RelayCommand(async _ => await ExecuteCancelEditAsync());
-            DeleteCommand = new RelayCommand(async _ => await ExecuteDeleteAsync()); // Initialize the DeleteCommand
+            SaveCommand = new RelayCommand(async _ => await this.ExecuteSaveAsync());
+            CancelEditCommand = new RelayCommand(async _ => await this.ExecuteCancelEditAsync());
+            DeleteCommand = new RelayCommand(async _ => await this.ExecuteDeleteAsync()); // Initialize the DeleteCommand
         }
 
         /// <summary>
         /// Gets the unique identifier of the product.
         /// </summary>
-        public int ID => product?.ID ?? productId; // Return loaded ID or initial ID if not loaded
+        public int ID => this.product?.ID ?? this.productId; // Return loaded ID or initial ID if not loaded
 
         /// <summary>
         /// Gets or sets the name of the product.
         /// </summary>
         public string Name
         {
-            get => name;
-            set => SetProperty(ref name, value); // Use SetProperty to notify UI on change
+            get => this.name;
+            set => this.SetProperty(ref this.name, value); // Use SetProperty to notify UI on change
         }
 
         /// <summary>
@@ -126,12 +147,12 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// </summary>
         public decimal Price
         {
-            get => price;
+            get => this.price;
             set
             {
-                if (SetProperty(ref price, value))
+                if (this.SetProperty(ref this.price, value))
                 {
-                    OnPropertyChanged(nameof(FormattedPrice)); // Notify UI when Price changes
+                    this.OnPropertyChanged(nameof(this.FormattedPrice)); // Notify UI when Price changes
                 }
             }
         }
@@ -140,16 +161,15 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// Gets the formatted price as a currency string.
         /// This property is used for UI binding since StringFormat is not supported in WinUI XAML.
         /// </summary>
-        public string FormattedPrice => Price.ToString("C2", CultureInfo.CurrentCulture);
-
+        public string FormattedPrice => this.Price.ToString("C2", CultureInfo.CurrentCulture);
 
         /// <summary>
         /// Gets or sets the stock quantity of the product.
         /// </summary>
         public int Stock
         {
-            get => stock;
-            set => SetProperty(ref stock, value);
+            get => this.stock;
+            set => this.SetProperty(ref this.stock, value);
         }
 
         /// <summary>
@@ -157,8 +177,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// </summary>
         public int CategoryID
         {
-            get => categoryId;
-            set => SetProperty(ref categoryId, value);
+            get => this.categoryId;
+            set => this.SetProperty(ref this.categoryId, value);
         }
 
         /// <summary>
@@ -166,18 +186,17 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// </summary>
         public string CategoryName
         {
-            get => categoryName;
-            set => SetProperty(ref categoryName, value);
+            get => this.categoryName;
+            set => this.SetProperty(ref this.categoryName, value);
         }
-
 
         /// <summary>
         /// Gets or sets the size of the product.
         /// </summary>
         public string Size
         {
-            get => size;
-            set => SetProperty(ref size, value);
+            get => this.size;
+            set => this.SetProperty(ref this.size, value);
         }
 
         /// <summary>
@@ -185,8 +204,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// </summary>
         public string Color
         {
-            get => color;
-            set => SetProperty(ref color, value);
+            get => this.color;
+            set => this.SetProperty(ref this.color, value);
         }
 
         /// <summary>
@@ -194,8 +213,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// </summary>
         public string Description
         {
-            get => description;
-            set => SetProperty(ref description, value);
+            get => this.description;
+            set => this.SetProperty(ref this.description, value);
         }
 
         /// <summary>
@@ -203,8 +222,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// </summary>
         public string? PhotoURL
         {
-            get => photoUrl;
-            set => SetProperty(ref photoUrl, value);
+            get => this.photoUrl;
+            set => this.SetProperty(ref this.photoUrl, value);
         }
 
         /// <summary>
@@ -212,10 +231,9 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         /// </summary>
         public ObservableCollection<Product> RelatedProducts
         {
-            get => relatedProducts;
-            private set => SetProperty(ref relatedProducts, value); // Use SetProperty to notify UI
+            get => this.relatedProducts;
+            private set => this.SetProperty(ref this.relatedProducts, value); // Use SetProperty to notify UI
         }
-
 
         // --- Methods for UI Interaction (Executed by Commands or x:Bind) ---
 
@@ -228,75 +246,80 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         {
             Debug.WriteLine($"ProductViewModel: LoadProductAsync called with ID: {id}"); // Added logging
             this.productId = id; // Store the product ID
-            IsUpdateModalOpen = false; // Ensure modal is closed when loading a new product
+            this.IsUpdateModalOpen = false; // Ensure modal is closed when loading a new product
 
             try
             {
                 // Use the injected service to get the product by ID
-                product = await productService.GetByIdAsync(productId);
+                this.product = await this.productService.GetByIdAsync(this.productId);
 
-                if (product != null)
+                if (this.product != null)
                 {
                     Debug.WriteLine($"ProductViewModel: Product ID {id} loaded successfully."); // Added logging
+
                     // Update ViewModel properties based on the loaded Product model
                     // SetProperty will raise PropertyChanged event for UI updates
-                    Name = product.Name;
-                    Price = product.Price; // Setting Price will also update FormattedPrice
-                    Stock = product.Stock;
-                    // Access CategoryID from the Category object within the Product model
-                    CategoryID = product.Category?.ID ?? 0; // Use null conditional operator in case Category is null
-                    CategoryName = product.Category?.Name ?? "Unknown Category"; // Also add Category Name
-                    Size = product.Size;
-                    Color = product.Color;
-                    Description = product.Description;
-                    PhotoURL = product.PhotoURL;
-                    // ID is already set or derived
+                    this.Name = this.product.Name;
+                    this.Price = this.product.Price; // Setting Price will also update FormattedPrice
+                    this.Stock = this.product.Stock;
 
-                    Debug.WriteLine($"ProductViewModel: Properties updated after loading: Name={Name}, Price={Price}, Stock={Stock}, CategoryID={CategoryID}, CategoryName={CategoryName}"); // Added logging
+                    // Access CategoryID from the Category object within the Product model
+                    this.CategoryID = this.product.Category?.ID ?? 0; // Use null conditional operator in case Category is null
+                    this.CategoryName = this.product.Category?.Name ?? "Unknown Category"; // Also add Category Name
+                    this.Size = this.product.Size;
+                    this.Color = this.product.Color;
+                    this.Description = this.product.Description;
+                    this.PhotoURL = this.product.PhotoURL;
+
+                    // ID is already set or derived
+                    Debug.WriteLine($"ProductViewModel: Properties updated after loading: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
 
                     // Load related products after the main product is loaded
-                    if (product.Category != null)
+                    if (this.product.Category != null)
                     {
-                        await LoadRelatedProductsAsync(product.Category.ID ?? 0, product.ID.Value, 3); // Get 3 related products
+                        await this.LoadRelatedProductsAsync(this.product.Category.ID ?? 0, this.product.ID.Value, 3); // Get 3 related products
                     }
                     else
                     {
                         // Handle case where product has no category
-                        RelatedProducts.Clear(); // Clear related products if no category
+                        this.RelatedProducts.Clear(); // Clear related products if no category
                     }
                 }
                 else
                 {
                     Debug.WriteLine($"ProductViewModel: Product ID {id} not found."); // Added logging
+
                     // Handle case where product is not found
-                    Name = "Product Not Found";
-                    Description = $"Product with ID {productId} could not be loaded.";
+                    this.Name = "Product Not Found";
+                    this.Description = $"Product with ID {this.productId} could not be loaded.";
+
                     // Reset other properties or show default values
-                    Price = 0; // Setting Price will also update FormattedPrice
-                    Stock = 0;
-                    CategoryID = 0;
-                    CategoryName = "N/A";
-                    Size = "N/A";
-                    Color = "N/A";
-                    PhotoURL = null;
-                    RelatedProducts.Clear(); // Clear related products if main product not found
+                    this.Price = 0; // Setting Price will also update FormattedPrice
+                    this.Stock = 0;
+                    this.CategoryID = 0;
+                    this.CategoryName = "N/A";
+                    this.Size = "N/A";
+                    this.Color = "N/A";
+                    this.PhotoURL = null;
+                    this.RelatedProducts.Clear(); // Clear related products if main product not found
                 }
             }
             catch (Exception ex)
             {
                 // Handle loading errors (e.g., log the error, show an error message in the UI)
-                Name = "Error Loading Product";
-                Description = $"Failed to load product with ID {productId}. Error: {ex.Message}";
-                Debug.WriteLine($"ProductViewModel: Error loading product {productId}: {ex}"); // Added logging
+                this.Name = "Error Loading Product";
+                this.Description = $"Failed to load product with ID {this.productId}. Error: {ex.Message}";
+                Debug.WriteLine($"ProductViewModel: Error loading product {this.productId}: {ex}"); // Added logging
+
                 // Reset other properties or show default values
-                Price = 0; // Setting Price will also update FormattedPrice
-                Stock = 0;
-                CategoryID = 0;
-                CategoryName = "N/A";
-                Size = "N/A";
-                Color = "N/A";
-                PhotoURL = null;
-                RelatedProducts.Clear(); // Clear related products on error
+                this.Price = 0; // Setting Price will also update FormattedPrice
+                this.Stock = 0;
+                this.CategoryID = 0;
+                this.CategoryName = "N/A";
+                this.Size = "N/A";
+                this.Color = "N/A";
+                this.PhotoURL = null;
+                this.RelatedProducts.Clear(); // Clear related products on error
             }
             Debug.WriteLine($"ProductViewModel: LoadProductAsync finished for ID: {id}"); // Added logging
         }
@@ -316,23 +339,22 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 var filter = new ProductFilter(categoryId, excludeProductId, count, null, null, null);
 
                 // Call the new generic service method to get filtered products
-                var related = await productService.GetFilteredAsync(filter);
+                var related = await this.productService.GetFilteredAsync(filter);
 
                 // Clear existing related products and add the new ones
-                RelatedProducts.Clear();
+                this.RelatedProducts.Clear();
                 foreach (var p in related)
                 {
-                    RelatedProducts.Add(p);
+                    this.RelatedProducts.Add(p);
                 }
-                Debug.WriteLine($"ProductViewModel: Loaded {RelatedProducts.Count} related products."); // Added logging
+                Debug.WriteLine($"ProductViewModel: Loaded {this.RelatedProducts.Count} related products."); // Added logging
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"ProductViewModel: Error loading related products for category {categoryId}: {ex}"); // Added logging
-                RelatedProducts.Clear(); // Clear related products on error
+                this.RelatedProducts.Clear(); // Clear related products on error
             }
         }
-
 
         /// <summary>
         /// Executes the method to prepare for editing and signals the View to show the modal.
@@ -342,17 +364,29 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         {
             Debug.WriteLine("ProductViewModel: ExecuteEnterEditModeAsync called."); // Added logging
             // Ensure the product is loaded before attempting to edit
-            if (product == null && ID > 0)
+            if (this.product == null && this.ID > 0)
             {
                 Debug.WriteLine("ProductViewModel: Product is null, attempting to load product before entering edit mode.");
-                await LoadProductAsync(ID); // Load if not already loaded
+                await this.LoadProductAsync(this.ID); // Load if not already loaded
             }
 
-            if (product != null)
+            if (this.product != null)
             {
                 // Ensure ViewModel properties are up-to-date with the 'product' model before showing the modal
                 // Although LoadProductAsync does this, explicitly doing it here again ensures the latest data
-                // is in the bindable properties right before the modal is requested.
+                // is in the properties right before the modal is requested.
+                this.Name = this.product.Name;
+                this.Price = this.product.Price;
+                this.Stock = this.product.Stock;
+                this.CategoryID = this.product.Category?.ID ?? 0;
+                this.CategoryName = this.product.Category?.Name ?? "Unknown Category";
+                this.Size = this.product.Size;
+                this.Color = this.product.Color;
+                this.Description = this.product.Description;
+                this.PhotoURL = this.product.PhotoURL;
+                Debug.WriteLine($"ProductViewModel: Properties confirmed before opening modal: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
+
+                this.IsUpdateModalOpen = true; // Set ViewModel state
                 Name = product.Name;
                 Price = product.Price;
                 Stock = product.Stock;
@@ -364,16 +398,13 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 PhotoURL = product.PhotoURL;
                 Debug.WriteLine($"ProductViewModel: Properties confirmed before opening modal: Name={Name}, Price={Price}, Stock={Stock}, CategoryID={CategoryID}, CategoryName={CategoryName}"); // Added logging
 
-
                 IsUpdateModalOpen = true; // Set ViewModel state
-                Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to true. Raising RequestShowUpdateModal event."); // Added logging
-                                                                                                                           // Raise the event to signal the View to show the modal
+                Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to true. Raising RequestShowUpdateModal event.");
                 RequestShowUpdateModal?.Invoke(this, EventArgs.Empty);
             }
             else
             {
-                Debug.WriteLine("ProductViewModel: Cannot enter edit mode, product is null after load attempt."); // Added logging
-                                                                                                                  // Optionally, show an error message to the user
+                Debug.WriteLine("ProductViewModel: Cannot enter edit mode, product is null after load attempt."); 
             }
         }
 
@@ -386,26 +417,26 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         public async Task ExecuteSaveAsync() // Made public
         {
             Debug.WriteLine("ProductViewModel: ExecuteSaveAsync called. Attempting to save product."); // Added logging
-            if (product == null || product.ID == null)
+            if (this.product == null || this.product.ID == null)
             {
                 Debug.WriteLine("ProductViewModel: Attempted to save a product that was not loaded correctly."); // Added logging
-                IsUpdateModalOpen = false; // Close the modal
+                this.IsUpdateModalOpen = false; // Close the modal
                 return;
             }
 
             // Create an updated Product model from the ViewModel properties
             var updatedProduct = new Product(
-                id: product.ID, // Use the existing ID
-                name: Name,
-                price: Price,
-                stock: Stock,
+                id: this.product.ID, // Use the existing ID
+                name: this.Name,
+                price:this. Price,
+                stock: this.Stock,
                 // Need to create a Category object from ViewModel properties
                 // Assuming CategoryName is just for display and CategoryID is used for saving
-                category: new Category(CategoryID, CategoryName), // Pass both ID and Name
-                size: Size,
-                color: Color,
-                description: Description,
-                photoURL: PhotoURL
+                category: new Category(this.CategoryID, this.CategoryName), // Pass both ID and Name
+                size: this.Size,
+                color: this.Color,
+                description: this.Description,
+                photoURL: this.PhotoURL
             );
 
             Debug.WriteLine($"ProductViewModel: Attempting to save with values: Name={updatedProduct.Name}, Price={updatedProduct.Price}, Stock={updatedProduct.Stock}, CategoryID={updatedProduct.Category?.ID}"); // Added logging
@@ -414,29 +445,27 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             {
                 // Call the service to update the product
                 Debug.WriteLine($"ProductViewModel: Calling productService.UpdateAsync({product.ID.Value})..."); // Added logging
-                Product resultProduct = await productService.UpdateAsync(updatedProduct);
+                Product resultProduct = await this.productService.UpdateAsync(updatedProduct);
                 Debug.WriteLine($"ProductViewModel: productService.UpdateAsync returned."); // Added logging
-
 
                 // Update the underlying product model in the ViewModel
                 product = resultProduct;
 
                 // Update ViewModel properties from the result in case the service modified them (e.g., calculated fields)
                 // These properties are already bound to the UI, so updating them will refresh the display
-                Name = product.Name;
-                Price = product.Price;
-                Stock = product.Stock;
-                CategoryID = product.Category?.ID ?? 0;
-                CategoryName = product.Category?.Name ?? "Unknown Category";
-                Size = product.Size;
-                Color = product.Color;
-                Description = product.Description;
-                PhotoURL = product.PhotoURL;
+                this.Name = this.product.Name;
+                this.Price = this.product.Price;
+                this.Stock =this.product.Stock;
+                this.CategoryID = this.product.Category?.ID ?? 0;
+                this.CategoryName = this.product.Category?.Name ?? "Unknown Category";
+                this.Size = this.product.Size;
+                this.Color = this.product.Color;
+                this.Description = this.product.Description;
+                this.PhotoURL = this.product.PhotoURL;
 
-                Debug.WriteLine($"ProductViewModel: Properties updated after save: Name={Name}, Price={Price}, Stock={Stock}, CategoryID={CategoryID}, CategoryName={CategoryName}"); // Added logging
+                Debug.WriteLine($"ProductViewModel: Properties updated after save: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
 
-
-                Debug.WriteLine($"ProductViewModel: Product ID {product.ID} updated successfully."); // Added logging
+                Debug.WriteLine($"ProductViewModel: Product ID {this.product.ID} updated successfully."); // Added logging
 
                 IsUpdateModalOpen = false; // Close the modal on success
                 Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to false."); // Added logging
@@ -444,9 +473,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ProductViewModel: Error saving product ID {product.ID}: {ex}"); // Added logging
-                // Handle the error (e.g., show an error message in the UI, keep modal open)
-                // IsUpdateModalOpen remains true so the user can fix the error or cancel
+                Debug.WriteLine($"ProductViewModel: Error saving product ID {this.product.ID}: {ex}"); // Added logging
+
             }
             Debug.WriteLine("ProductViewModel: ExecuteSaveAsync finished."); // Added logging
         }
@@ -460,6 +488,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         public async Task ExecuteCancelEditAsync() // Made public
         {
             Debug.WriteLine("ProductViewModel: ExecuteCancelEditAsync called. Reverting changes."); // Added logging
+
             // Re-load the product data from the service to discard changes
             if (product != null)
             {
@@ -510,7 +539,6 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             // if (!confirmed) return;
             // --- End Placeholder ---
 
-
             try
             {
                 // Call the service to delete the product
@@ -543,7 +571,6 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                     // listens to and then handles navigation away from the page.
                     // For example: OnProductDeleted?.Invoke(this, EventArgs.Empty);
                     // --- End UI Update ---
-
                 }
                 else
                 {
@@ -558,7 +585,6 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             }
             Debug.WriteLine("ProductViewModel: ExecuteDeleteAsync finished."); // Added logging
         }
-
 
         /// <summary>
         /// Helper method to set property value and raise PropertyChanged event.
@@ -592,9 +618,13 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        /// <summary>
+        /// Gets the selected product.
+        /// </summary>
+        /// <returns>The selected product.</returns>
         public Product GetSelectedProduct()
         {
-            return this.product;
+            return this.product ?? throw new InvalidOperationException("No product is selected.");
         }
 
         // --- Basic ICommand Implementation (RelayCommand) ---
@@ -603,25 +633,44 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             private readonly Action<object?> _execute;
             private readonly Func<object?, bool>? _canExecute;
 
+            /// <summary>
+            /// Occurs when changes occur that affect whether or not the command should execute.
+            /// </summary>
             public event EventHandler? CanExecuteChanged;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="RelayCommand"/> class.
+            /// </summary>
+            /// <param name="execute">The execution logic.</param>
+            /// <param name="canExecute">The execution status logic.</param>
             public RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null)
             {
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
                 _canExecute = canExecute;
             }
 
+            /// <summary>
+            /// Defines the method that determines whether the command can execute in its current state.
+            /// </summary>
+            /// <param name="parameter">Data used by the command.</param>
+            /// <returns>True if this command can be executed; otherwise, false.</returns>
             public bool CanExecute(object? parameter)
             {
                 return _canExecute == null || _canExecute(parameter);
             }
 
+            /// <summary>
+            /// Defines the method to be called when the command is invoked.
+            /// </summary>
+            /// <param name="parameter">Data used by the command.</param>
             public void Execute(object? parameter)
             {
                 _execute(parameter);
             }
 
-            // Method to manually raise CanExecuteChanged (if needed for dynamic enabling/disabling)
+            /// <summary>
+            /// Raises the CanExecuteChanged event.
+            /// </summary>
             public void RaiseCanExecuteChanged()
             {
                 CanExecuteChanged?.Invoke(this, EventArgs.Empty);

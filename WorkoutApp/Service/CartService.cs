@@ -38,7 +38,7 @@ namespace WorkoutApp.Service
             }
         }
 
-        /// <summary>
+        /// <summary>WarningFixBranch
         /// Retrieves a specific cart item by its ID.
         /// </summary>
         /// <param name="id">The ID of the cart item to retrieve.</param>
