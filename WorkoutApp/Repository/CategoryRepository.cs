@@ -48,7 +48,9 @@ namespace WorkoutApp.Repository
             {
                 // Map DataRow to Category object
                 var category = new Category(
+
                     // ID is INT PRIMARY KEY IDENTITY, retrieve the DB generated ID
+
                     id: Convert.ToInt32(row["ID"]),
                     // Name is NVARCHAR(100) NOT NULL
                     name: row["Name"].ToString()

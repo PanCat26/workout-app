@@ -1,38 +1,72 @@
-﻿using System.ComponentModel;
+﻿// <copyright file="CartItemViewModel.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
 namespace WorkoutApp.ViewModel
 {
+    using System.ComponentModel;
+
+    /// <summary>
+    /// ViewModel for displaying cart item information in the UI.
+    /// </summary>
     public class CartItemViewModel : INotifyPropertyChanged
     {
-        public string ProductName { get; set; }
-        public string Price { get; set; }
-        public string ImageSource { get; set; }
-        public string Quantity { get; set; }
-
-        public string TotalPrice { get; set; }
-
-        public CartItemViewModel() { }
-        public CartItemViewModel(string ProductName, string ImageSource, double Price, int Quantity)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CartItemViewModel"/> class.
+        /// </summary>
+        public CartItemViewModel()
         {
-            this.ProductName = ProductName;
-            this.Price = "$" + string.Format("{0:0.##}", Price);
-            this.ImageSource = ImageSource;
-            this.Quantity = Quantity.ToString();
-            TotalPrice = "$" + string.Format("{0:0.##}", Price * Quantity);
-
         }
-        /*
-        public CartItemViewModel(IProduct product)
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CartItemViewModel"/> class with details.
+        /// </summary>
+        /// <param name="productName">The product name.</param>
+        /// <param name="imageSource">The image source path or URL.</param>
+        /// <param name="price">The unit price.</param>
+        /// <param name="quantity">The quantity.</param>
+        public CartItemViewModel(string productName, string imageSource, double price, int quantity)
         {
-            ProductName = product.Name;
-            ImageSource = product.FileUrl;
-            Quantity = product.Stock.ToString();
-            Price = product.Price.ToString();
-            TotalPrice = "totalPrice";
+            this.ProductName = productName;
+            this.Price = $"${price:0.##}";
+            this.ImageSource = imageSource;
+            this.Quantity = quantity.ToString();
+            this.TotalPrice = $"${price * quantity:0.##}";
         }
-        */
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        /// <inheritdoc/>
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>
+        /// Gets or sets the product name.
+        /// </summary>
+        required public string ProductName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the price as a formatted string.
+        /// </summary>
+        required public string Price { get; set; }
+
+        /// <summary>
+        /// Gets or sets the image source path or URL.
+        /// </summary>
+        required public string ImageSource { get; set; }
+
+        /// <summary>
+        /// Gets or sets the quantity.
+        /// </summary>
+        required public string Quantity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total price (unit price × quantity).
+        /// </summary>
+        required public string TotalPrice { get; set; }
+
+        /// <summary>
+        /// Notifies UI of property change.
+        /// </summary>
+        /// <param name="propertyName">Name of the property that changed.</param>
+        protected void OnPropertyChanged(string propertyName) =>
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
