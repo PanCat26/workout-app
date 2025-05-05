@@ -18,6 +18,11 @@ namespace WorkoutApp.ViewModel
     public class AddProductViewModel : INotifyPropertyChanged
     {
         /// <summary>
+        /// The service used for product operations.
+        /// </summary>
+        private readonly ProductService productService;
+
+        /// <summary>
         /// Backing field for validation message.
         /// </summary>
         private string validationMessage = string.Empty;
@@ -155,6 +160,35 @@ namespace WorkoutApp.ViewModel
         }
 
         /// <summary>
+        /// Notifies listeners that a property has changed.
+        /// </summary>
+        /// <param name="propertyName">The name of the property.</param>
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// Sets the property and notifies listeners if the value changes.
+        /// </summary>
+        /// <typeparam name="T">The property type.</typeparam>
+        /// <param name="storage">The backing field.</param>
+        /// <param name="value">The new value.</param>
+        /// <param name="propertyName">The name of the property.</param>
+        /// <returns><c>true</c> if changed; otherwise, <c>false</c>.</returns>
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
+        {
+            if (Equals(storage, value))
+            {
+                return false;
+            }
+
+            storage = value;
+            this.OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        /// <summary>
         /// Validates the input form data.
         /// </summary>
         /// <param name="error">The output error message if invalid.</param>
@@ -206,35 +240,5 @@ namespace WorkoutApp.ViewModel
             error = null;
             return true;
         }
-
-        /// <summary>
-        /// Notifies listeners that a property has changed.
-        /// </summary>
-        /// <param name="propertyName">The name of the property.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        /// Sets the property and notifies listeners if the value changes.
-        /// </summary>
-        /// <typeparam name="T">The property type.</typeparam>
-        /// <param name="storage">The backing field.</param>
-        /// <param name="value">The new value.</param>
-        /// <param name="propertyName">The name of the property.</param>
-        /// <returns><c>true</c> if changed; otherwise, <c>false</c>.</returns>
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
-        {
-            if (Equals(storage, value)) return false;
-            storage = value;
-            this.OnPropertyChanged(propertyName);
-            return true;
-        }
-
-        /// <summary>
-        /// The service used for product operations.
-        /// </summary>
-        private readonly ProductService productService;
     }
 }
