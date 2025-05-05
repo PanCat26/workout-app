@@ -387,16 +387,16 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 Debug.WriteLine($"ProductViewModel: Properties confirmed before opening modal: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
 
                 this.IsUpdateModalOpen = true; // Set ViewModel state
-                Name = product.Name;
-                Price = product.Price;
-                Stock = product.Stock;
-                CategoryID = product.Category?.ID ?? 0;
-                CategoryName = product.Category?.Name ?? "Unknown Category";
-                Size = product.Size;
-                Color = product.Color;
-                Description = product.Description;
-                PhotoURL = product.PhotoURL;
-                Debug.WriteLine($"ProductViewModel: Properties confirmed before opening modal: Name={Name}, Price={Price}, Stock={Stock}, CategoryID={CategoryID}, CategoryName={CategoryName}"); // Added logging
+                this.Name = this.product.Name;
+                this.Price = this.product.Price;
+                this.Stock = this.product.Stock;
+                this.CategoryID = this.product.Category?.ID ?? 0;
+                this.CategoryName = this.product.Category?.Name ?? "Unknown Category";
+                this.Size = this.product.Size;
+                this.Color = this.product.Color;
+                this.Description = this.product.Description;
+                this.PhotoURL = this.product.PhotoURL;
+                Debug.WriteLine($"ProductViewModel: Properties confirmed before opening modal: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
 
                 IsUpdateModalOpen = true; // Set ViewModel state
                 Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to true. Raising RequestShowUpdateModal event.");
@@ -467,8 +467,9 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
 
                 Debug.WriteLine($"ProductViewModel: Product ID {this.product.ID} updated successfully."); // Added logging
 
-                IsUpdateModalOpen = false; // Close the modal on success
+                this.IsUpdateModalOpen = false; // Close the modal on success
                 Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to false."); // Added logging
+
                 // Optionally, show a success message to the user (e.g., using a InfoBar)
             }
             catch (Exception ex)
@@ -490,31 +491,31 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             Debug.WriteLine("ProductViewModel: ExecuteCancelEditAsync called. Reverting changes."); // Added logging
 
             // Re-load the product data from the service to discard changes
-            if (product != null)
+            if (this.product != null)
             {
                 await LoadProductAsync(product.ID.Value); // This will reset all ViewModel properties
-                Debug.WriteLine($"ProductViewModel: Properties reverted after cancel: Name={Name}, Price={Price}, Stock={Stock}, CategoryID={CategoryID}, CategoryName={CategoryName}"); // Added logging
+                Debug.WriteLine($"ProductViewModel: Properties reverted after cancel: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
             }
             else
             {
                 // If product was never loaded successfully, just exit editing
                 // Reset ViewModel properties to default state
-                Name = "Product Not Loaded";
-                Price = 0;
-                Stock = 0;
-                CategoryID = 0;
-                CategoryName = "N/A";
-                Size = "N/A";
-                Color = "N/A";
-                Description = "";
-                PhotoURL = null;
-                RelatedProducts.Clear();
+                this.Name = "Product Not Loaded";
+                this.Price = 0;
+                this.Stock = 0;
+                this.CategoryID = 0;
+                this.CategoryName = "N/A";
+                this.Size = "N/A";
+                this.Color = "N/A";
+                this.Description = string.Empty;
+                this.PhotoURL = null;
+                this.RelatedProducts.Clear();
                 Debug.WriteLine("ProductViewModel: Properties reset to default after cancel (product was null)."); // Added logging
             }
 
-            IsUpdateModalOpen = false; // Close the modal
+            this.IsUpdateModalOpen = false; // Close the modal
             Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to false."); // Added logging
-            Debug.WriteLine($"ProductViewModel: Editing cancelled for product ID {(product?.ID.HasValue == true ? product.ID.Value : "N/A")}."); // Added logging
+            Debug.WriteLine($"ProductViewModel: Editing cancelled for product ID {(this.product?.ID.HasValue == true ? this.product.ID.Value : "N/A")}."); // Added logging
         }
 
         /// <summary>
@@ -525,7 +526,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         public async Task ExecuteDeleteAsync() // Made public
         {
             Debug.WriteLine("ProductViewModel: ExecuteDeleteAsync called."); // Added logging at the very beginning
-            if (product == null || product.ID == null)
+            if (this.product == null || this.product.ID == null)
             {
                 Debug.WriteLine("ProductViewModel: Attempted to delete a product that was not loaded correctly (product or ID is null)."); // Added logging
                 return; // Command finished, no action taken
@@ -534,7 +535,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             // --- Placeholder for Confirmation Dialog ---
             // In a real app, you would show a confirmation dialog here.
             // For this example, we'll assume the user confirmed.
-            Debug.WriteLine($"ProductViewModel: Attempting to delete product ID {product.ID}. (Assuming user confirmation)"); // Added logging
+            Debug.WriteLine($"ProductViewModel: Attempting to delete product ID {this.product.ID}. (Assuming user confirmation)"); // Added logging
             // bool confirmed = await ShowConfirmationDialogAsync($"Are you sure you want to delete {Name}?");
             // if (!confirmed) return;
             // --- End Placeholder ---
@@ -542,27 +543,27 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             try
             {
                 // Call the service to delete the product
-                Debug.WriteLine($"ProductViewModel: Calling productService.DeleteAsync({product.ID.Value})..."); // Added logging
-                bool success = await productService.DeleteAsync(product.ID.Value);
+                Debug.WriteLine($"ProductViewModel: Calling productService.DeleteAsync({this.product.ID.Value})..."); // Added logging
+                bool success = await this.productService.DeleteAsync(this.product.ID.Value);
                 Debug.WriteLine($"ProductViewModel: productService.DeleteAsync returned: {success}"); // Added logging
 
                 if (success)
                 {
-                    Debug.WriteLine($"ProductViewModel: Product ID {product.ID} deleted successfully."); // Added logging
+                    Debug.WriteLine($"ProductViewModel: Product ID {this.product.ID} deleted successfully."); // Added logging
 
                     // --- Update UI State After Successful Deletion ---
                     // Clear ViewModel properties to visually indicate deletion
-                    Name = "Product Deleted";
-                    Price = 0;
-                    Stock = 0;
-                    CategoryID = 0;
-                    CategoryName = "";
-                    Size = "";
-                    Color = "";
-                    Description = "This product has been deleted.";
-                    PhotoURL = null; // Clear the image
-                    RelatedProducts.Clear(); // Clear related products
-                    IsUpdateModalOpen = false; // Ensure modal is closed if open
+                    this.Name = "Product Deleted";
+                    this.Price = 0;
+                    this.Stock = 0;
+                    this.CategoryID = 0;
+                    this.CategoryName = string.Empty;
+                    this.Size = string.Empty;
+                    this.Color = string.Empty;
+                    this.Description = "This product has been deleted.";
+                    this.PhotoURL = null; // Clear the image
+                    this.RelatedProducts.Clear(); // Clear related products
+                    this.IsUpdateModalOpen = false; // Ensure modal is closed if open
 
                     Debug.WriteLine("ProductViewModel: ViewModel properties updated after successful deletion."); // Added logging
 
@@ -574,13 +575,15 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 }
                 else
                 {
-                    Debug.WriteLine($"ProductViewModel: Failed to delete product ID {product.ID}. Service reported failure."); // Added logging
+                    Debug.WriteLine($"ProductViewModel: Failed to delete product ID {this.product.ID}. Service reported failure."); // Added logging
+
                     // Handle the error (e.g., show an error message in the UI)
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ProductViewModel: Error deleting product ID {product.ID}: {ex}"); // Added logging
+                Debug.WriteLine($"ProductViewModel: Error deleting product ID {this.product.ID}: {ex}"); // Added logging
+
                 // Handle the error (e.g., show an error message in the UI)
             }
             Debug.WriteLine("ProductViewModel: ExecuteDeleteAsync finished."); // Added logging
@@ -604,7 +607,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
 
             // Debug.WriteLine($"ProductViewModel: SetProperty for {propertyName} - Value changing from '{field}' to '{value}'."); // Added logging for property changes
             field = value; // Update the backing field
-            OnPropertyChanged(propertyName); // Notify the UI
+            this.OnPropertyChanged(propertyName); // Notify the UI
             return true; // Value was changed
         }
 
@@ -615,7 +618,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             Debug.WriteLine($"ProductViewModel: OnPropertyChanged called for: {propertyName}"); // Added logging
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
