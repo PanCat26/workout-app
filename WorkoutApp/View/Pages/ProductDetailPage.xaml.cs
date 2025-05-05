@@ -24,7 +24,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
     public sealed partial class ProductDetailPage : Page // Inherit from Page
     {
         /// <summary>
-        /// The ViewModel for the ProductDetailPage.
+        /// Gets The ViewModel for the ProductDetailPage.
         /// </summary>
         public ProductViewModel ViewModel { get; }
 
@@ -35,7 +35,6 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductDetailPage"/> class.
         /// </summary>
-        // Corrected: Parameterless constructor as per user instruction to remove hostingWindow
         public ProductDetailPage()
         {
             Debug.WriteLine("ProductDetailPage: Constructor called."); // Added logging
@@ -51,8 +50,8 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             var productService = new ProductService(productRepository);
 
             // Initialize the ViewModel with the necessary service
-            ViewModel = new ProductViewModel(productService);
-            Debug.WriteLine($"ProductDetailPage: ViewModel created. Initial ViewModel.ID: {ViewModel.ID}"); // Added logging
+            this.ViewModel = new ProductViewModel(productService);
+            Debug.WriteLine($"ProductDetailPage: ViewModel created. Initial ViewModel.ID: {this.ViewModel.ID}"); // Added logging
 
             // Set the DataContext of the page to the ViewModel
             // You can add other initialization logic here if needed,
@@ -60,11 +59,11 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             // For example, logic based on user roles or product status.
             this.cartViewModel = new CartViewModel();
             this.wishlistViewModel = new WishlistViewModel();
-            this.DataContext = ViewModel;
+            this.DataContext = this.ViewModel;
 
             // Subscribe to the ViewModel's events
             // ViewModel.PropertyChanged += ViewModel_PropertyChanged; // Removed as it's no longer needed for modal logic
-            ViewModel.RequestShowUpdateModal += ViewModel_RequestShowUpdateModal; // Subscribe to the event that signals modal display
+            this.ViewModel.RequestShowUpdateModal += this.ViewModel_RequestShowUpdateModal; // Subscribe to the event that signals modal display
             Debug.WriteLine("ProductDetailPage: Subscribed to RequestShowUpdateModal."); // Updated logging
         }
 
@@ -76,8 +75,6 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
              // The logic to show the modal based on IsUpdateModalOpen is moved to ViewModel_RequestShowUpdateModal
         }
         */
-
-
         /// <summary>
         /// Handles the RequestShowUpdateModal event from the ViewModel.
         /// This method is responsible for showing the ContentDialog.
@@ -89,16 +86,16 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             // Use DispatcherQueue.TryEnqueue to schedule the ShowAsync call
             // back onto the UI thread's dispatcher queue. This is necessary
             // to avoid potential re-entrancy issues.
-            DispatcherQueue.TryEnqueue(async () =>
+            this.DispatcherQueue.TryEnqueue(async () =>
             {
                 Debug.WriteLine("ProductDetailPage: DispatcherQueue Enqueue callback executing."); // Added logging inside enqueue
 
                 // Explicitly set the DataContext of the ContentDialog's content (the UpdateProductModal)
                 // This ensures the modal has the correct ViewModel instance for binding.
                 // Cast Content to FrameworkElement to access DataContext
-                if (UpdateProductContentDialog.Content is FrameworkElement modalContent) // Corrected: Cast to FrameworkElement
+                if (this.UpdateProductContentDialog.Content is FrameworkElement modalContent) // Corrected: Cast to FrameworkElement
                 {
-                    modalContent.DataContext = ViewModel; // Corrected: Access DataContext on the casted object
+                    modalContent.DataContext = this.ViewModel; // Corrected: Access DataContext on the casted object
                     Debug.WriteLine($"ProductDetailPage: Explicitly set DataContext of ContentDialog.Content to ViewModel."); // Added logging
                 }
                 else
@@ -112,11 +109,11 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 // Ensure XamlRoot is available (page is loaded and in the visual tree)
                 if (this.XamlRoot != null)
                 {
-                    UpdateProductContentDialog.XamlRoot = this.XamlRoot;
+                    this.UpdateProductContentDialog.XamlRoot = this.XamlRoot;
                     Debug.WriteLine("ProductDetailPage: Calling ShowAsync for UpdateProductContentDialog."); // Added logging before ShowAsync
                     try
                     {
-                        await UpdateProductContentDialog.ShowAsync();
+                        await this.UpdateProductContentDialog.ShowAsync();
                         Debug.WriteLine("ProductDetailPage: UpdateProductContentDialog closed."); // Added logging after ShowAsync
                                                                                                   // When the dialog is closed (by clicking Save or Cancel),
                                                                                                   // the IsUpdateModalOpen property in the ViewModel should be set back to false
@@ -151,6 +148,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             if (e.Parameter is int productId)
             {
                 Debug.WriteLine($"ProductDetailPage: Navigation parameter is Product ID: {productId}. Calling LoadProductAsync."); // Added logging
+
                 // Load the product data using the ViewModel
                 await this.ViewModel.LoadProductAsync(productId); // Await the LoadProductAsync call
                 await this.CheckProductExistanceInWishlist(); // Check if the product exists in the wishlist
@@ -158,6 +156,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
             else
             {
                 Debug.WriteLine($"ProductDetailPage: Navigation parameter is NOT an integer Product ID. Parameter: {e.Parameter}"); // Added logging
+
                 // You might want to handle cases where the parameter is not an int or is missing
                 // For example, navigate back or show an error message.
             }
@@ -172,6 +171,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
         private async void SeeRelatedProductButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("ProductDetailPage: SeeRelatedProductButton_Click called."); // Added logging
+
             // Get the clicked Button
             if (sender is Button clickedButton)
             {
@@ -179,6 +179,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 if (clickedButton.Tag is int relatedProductId)
                 {
                     Debug.WriteLine($"ProductDetailPage: Related Product Button clicked. Loading Product ID: {relatedProductId} into current page."); // Added logging
+
                     // Load the data for the related product into the *current* ViewModel
                     // This will update the UI bindings on the current page.
                     await this.ViewModel.LoadProductAsync(relatedProductId);
@@ -244,8 +245,7 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                         bool removed = await this.wishlistViewModel.RemoveProductFromWishlist(item.ID.Value);
                         if (removed)
                         {
-                            AddToWishlistButton.Content = "Add to Wishlist";
-                            // Success feedback
+                            this.AddToWishlistButton.Content = "Add to Wishlist";
                             await new ContentDialog
                             {
                                 Title = "Success",
@@ -272,7 +272,8 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                         WishlistItem addedItem = await this.wishlistViewModel.AddProductToWishlist(selectedProduct);
                         if (addedItem != null)
                         {
-                            AddToWishlistButton.Content = "Remove from Wishlist";
+                            this.AddToWishlistButton.Content = "Remove from Wishlist";
+                            
                             // Success feedback
                             await new ContentDialog
                             {
@@ -329,11 +330,11 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
                 WishlistItem item = await this.wishlistViewModel.GetProductFromWishlist(selectedProduct.ID.Value);
                 if (item != null)
                 {
-                    AddToWishlistButton.Content = "Remove from Wishlist";
+                    this.AddToWishlistButton.Content = "Remove from Wishlist";
                 }
                 else
                 {
-                    AddToWishlistButton.Content = "Add to Wishlist";
+                    this.AddToWishlistButton.Content = "Add to Wishlist";
                 }
             }
         }

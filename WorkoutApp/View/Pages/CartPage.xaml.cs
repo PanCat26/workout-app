@@ -27,9 +27,22 @@ namespace WorkoutApp.View.Pages
             this.cartViewModel = new CartViewModel();
         }
 
+        /// <summary>
+        /// Called when the page is navigated to.
+        /// </summary>
+        /// <param name="e">Event data that provides information about the navigation.</param>
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            await this.LoadProducts();
+        }
+
         private void VerticalProductListControl_ProductClicked(object sender, int productID)
         {
-            MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
+            if (MainWindow.AppFrame != null)
+            {
+                MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
+            }
         }
 
         private async void VerticalProductListControl_CartItemRemoved(object sender, int cartItemID)
@@ -41,12 +54,6 @@ namespace WorkoutApp.View.Pages
         private void CheckoutButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             MainWindow.AppFrame?.Navigate(typeof(PaymentPage));
-        }
-
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-            await this.LoadProducts();
         }
 
         private async Task LoadProducts()

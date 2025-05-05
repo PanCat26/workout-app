@@ -38,7 +38,7 @@ namespace WorkoutApp.Repository
                 FROM Product
                 JOIN Category ON Product.CategoryID = Category.ID;";
 
-            DataTable result = await this.dbService.ExecuteSelectAsync(query, []);
+            DataTable result = await this.dbService.ExecuteSelectAsync(query,[]);
 
             List<Product> products = [];
             foreach (DataRow row in result.Rows)

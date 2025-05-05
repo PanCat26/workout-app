@@ -101,7 +101,8 @@ namespace WorkoutApp.Tests.Repository
 
             WishlistItem createdItem = await wishlistRepository.CreateAsync(wishlistItem);
 
-            WishlistItem? retrievedItem = await wishlistRepository.GetByIdAsync((int)createdItem.ID);
+            WishlistItem retrievedItem = await wishlistRepository.GetByIdAsync(createdItem.ID ?? throw new InvalidOperationException("Created item ID is null."))
+                ?? throw new InvalidOperationException("Retrieved item is null.");
 
             Assert.NotNull(retrievedItem);
             Assert.Equal(createdItem.ID, retrievedItem.ID);
@@ -142,8 +143,8 @@ namespace WorkoutApp.Tests.Repository
 
             WishlistItem createdItem = await wishlistRepository.CreateAsync(wishlistItem);
 
-            bool deleted = await wishlistRepository.DeleteAsync((int)createdItem.ID);
-            WishlistItem? result = await wishlistRepository.GetByIdAsync((int)createdItem.ID);
+            bool deleted = await wishlistRepository.DeleteAsync(createdItem.ID ?? throw new InvalidOperationException("Created item ID is null."));
+            WishlistItem? result = await wishlistRepository.GetByIdAsync(createdItem.ID ?? throw new InvalidOperationException("Created item ID is null."));
 
             Assert.True(deleted);
             Assert.Null(result);
@@ -158,7 +159,7 @@ namespace WorkoutApp.Tests.Repository
                 customerID: testCustomerId);
 
             WishlistItem createdItem = await wishlistRepository.CreateAsync(wishlistItem);
-            WishlistItem? result = await wishlistRepository.GetByIdAsync((int)createdItem.ID);
+            WishlistItem? result = await wishlistRepository.GetByIdAsync(createdItem.ID ?? throw new InvalidOperationException("Created item ID is null."));
 
             Assert.NotNull(result);
             Assert.Equal(createdItem.ID, result.ID);

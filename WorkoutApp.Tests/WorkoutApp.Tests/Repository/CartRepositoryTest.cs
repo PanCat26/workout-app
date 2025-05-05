@@ -154,7 +154,7 @@ namespace WorkoutApp.Tests.Repository
                 customerID: testCustomerId);
 
             CartItem createdItem = await cartRepository.CreateAsync(cartItem);
-            CartItem? result = await cartRepository.GetByIdAsync((int)createdItem.ID);
+            CartItem? result = await cartRepository.GetByIdAsync((int)createdItem.ID!.Value);
 
             Assert.NotNull(result);
             Assert.Equal(createdItem.ID, result.ID);

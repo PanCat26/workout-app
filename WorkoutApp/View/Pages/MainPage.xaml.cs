@@ -4,6 +4,7 @@
 
 namespace WorkoutApp.View
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.UI.Xaml;
@@ -43,7 +44,15 @@ namespace WorkoutApp.View
 
         private void VerticalProductListControl_ProductClicked(object sender, int productID)
         {
-            MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
+            if (MainWindow.AppFrame != null)
+            {
+                MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
+            }
+            else
+            {
+                // Handle the case where AppFrame is null, e.g., log an error or show a message.
+                throw new InvalidOperationException("Navigation frame is not initialized.");
+            }
         }
 
         private async void CategorySelector_SelectionChanged(object sender, int selectedCategoryID)

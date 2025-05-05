@@ -210,8 +210,11 @@ namespace WorkoutApp.Tests.Repository
             Assert.Equal(createdCategory.ID, updatedCategory.ID);
             Assert.Equal("Updated Name", updatedCategory.Name);
 
-            // Verify in database: Fetch the category from the DB and ensure it was updated
-            var fetchedCategory = await repository.GetByIdAsync((int)updatedCategory.ID);
+            // Fix for CS8629: Nullable value type may be null.
+            // The issue occurs because `updatedCategory.ID` is nullable, and the cast to `(int)` assumes it is not null.
+            // To fix this, we can use the null-coalescing operator to provide a default value or throw an exception if null.
+
+            var fetchedCategory = await repository.GetByIdAsync(updatedCategory.ID ?? throw new InvalidOperationException("Updated category ID is null."));
             Assert.NotNull(fetchedCategory);
             Assert.Equal(updatedCategory.ID, fetchedCategory.ID);
             Assert.Equal("Updated Name", fetchedCategory.Name);
@@ -236,7 +239,7 @@ namespace WorkoutApp.Tests.Repository
             Assert.Equal(nonExistentCategory.Name, updatedCategory.Name);
 
             // Verify in database: Ensure no category with this ID was created or affected
-            var fetchedCategory = await repository.GetByIdAsync((int)nonExistentCategory.ID);
+            var fetchedCategory = await repository.GetByIdAsync(nonExistentCategory.ID ?? throw new InvalidOperationException("Updated category ID is null."));
             Assert.Null(fetchedCategory);
         }
 

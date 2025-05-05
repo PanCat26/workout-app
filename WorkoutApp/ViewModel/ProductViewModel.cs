@@ -427,7 +427,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             var updatedProduct = new Product(
                 id: this.product.ID, // Use the existing ID
                 name: this.Name,
-                price:this. Price,
+                price:this.Price,
                 stock: this.Stock,
                 // Need to create a Category object from ViewModel properties
                 // Assuming CategoryName is just for display and CategoryID is used for saving
@@ -454,7 +454,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 // These properties are already bound to the UI, so updating them will refresh the display
                 this.Name = this.product.Name;
                 this.Price = this.product.Price;
-                this.Stock =this.product.Stock;
+                this.Stock = this.product.Stock;
                 this.CategoryID = this.product.Category?.ID ?? 0;
                 this.CategoryName = this.product.Category?.Name ?? "Unknown Category";
                 this.Size = this.product.Size;
@@ -534,9 +534,12 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             // --- Placeholder for Confirmation Dialog ---
             // In a real app, you would show a confirmation dialog here.
             // For this example, we'll assume the user confirmed.
-            Debug.WriteLine($"ProductViewModel: Attempting to delete product ID {this.product.ID}. (Assuming user confirmation)"); // Added logging
+            Debug.WriteLine($"ProductViewModel: Attempting to delete product ID {this.product.ID}. (Assuming user confirmation)");
+            
+                                                                                                                                   
             // bool confirmed = await ShowConfirmationDialogAsync($"Are you sure you want to delete {Name}?");
             // if (!confirmed) return;
+            
             // --- End Placeholder ---
 
             try

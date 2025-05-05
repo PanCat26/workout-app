@@ -12,11 +12,12 @@ namespace WorkoutApp.View.Pages
     using WorkoutApp.ViewModel;
 
     /// <summary>
-    /// An page that displays the user's wishlist.
+    /// A page that displays the user's wishlist.
     /// </summary>
     public sealed partial class WishlistPage : Page
     {
         private readonly WishlistViewModel wishlistViewModel;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="WishlistPage"/> class.
         /// </summary>
@@ -26,17 +27,10 @@ namespace WorkoutApp.View.Pages
             this.wishlistViewModel = new WishlistViewModel();
         }
 
-        private void VerticalWishlistItemListControl_WishlistItemClicked(object sender, int productID)
-        {
-            MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
-        }
-
-        private async void VerticalWishlistItemListControl_WishlistItemRemoved(object sender, int wishlistItemID)
-        {
-            await this.wishlistViewModel.RemoveProductFromWishlist(wishlistItemID);
-            await this.LoadProducts();
-        }
-
+        /// <summary>
+        /// Called when the page is navigated to.
+        /// </summary>
+        /// <param name="e">Event data that provides information about the navigation.</param>
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
@@ -48,14 +42,28 @@ namespace WorkoutApp.View.Pages
             {
                 // Handle exceptions, e.g., show a message to the user
                 System.Diagnostics.Debug.WriteLine($"Error loading products: {ex.Message}");
-
             }
         }
 
+        /// <summary>
+        /// Loads the products in the wishlist.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task LoadProducts()
         {
             IEnumerable<WishlistItem> products = await this.wishlistViewModel.GetAllProductsFromWishlistAsync();
             this.WishlistItemListControl.SetProducts(products);
+        }
+
+        private void VerticalWishlistItemListControl_WishlistItemClicked(object sender, int productID)
+        {
+            MainWindow.AppFrame.Navigate(typeof(ProductDetailPage), productID);
+        }
+
+        private async void VerticalWishlistItemListControl_WishlistItemRemoved(object sender, int wishlistItemID)
+        {
+            await this.wishlistViewModel.RemoveProductFromWishlist(wishlistItemID);
+            await this.LoadProducts();
         }
     }
 }

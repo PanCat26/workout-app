@@ -108,7 +108,8 @@ namespace WorkoutApp.Tests.Service
             mockCartRepo.Verify(repo => repo.GetAllAsync(), Times.Once);
             foreach (var item in sampleCartItems)
             {
-                mockCartRepo.Verify(repo => repo.DeleteAsync((int)item.ID), Times.Once);
+                // Fix for CS8188: Use a lambda expression to avoid the throw-expression in the expression tree
+                mockCartRepo.Verify(repo => repo.DeleteAsync(It.Is<int>(id => id == item.ID.GetValueOrDefault())), Times.Once);
             }
 
             mockOrderRepo.Verify(repo => repo.CreateAsync(It.Is<Order>(o =>
