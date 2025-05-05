@@ -1,39 +1,46 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.UI.Xaml.Controls;
-using WorkoutApp.Models;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+// <copyright file="VerticalWishlistItemListComponent.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace WorkoutApp.View.Components
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.UI.Xaml.Controls;
+    using WorkoutApp.Models;
+
+    /// <summary>
+    /// Component that displays a vertical list of wishlist items.
+    /// </summary>
     public sealed partial class VerticalWishlistItemListComponent : UserControl
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VerticalWishlistItemListComponent"/> class.
+        /// </summary>
         public VerticalWishlistItemListComponent()
         {
             this.InitializeComponent();
         }
 
         /// <summary>
-        /// Occurs when a product is clicked.
+        /// Occurs when a wishlist item is clicked.
         /// </summary>
-        public event EventHandler<int> WishlistItemClicked;
+        public event EventHandler<int>? WishlistItemClicked;
 
         /// <summary>
-        /// Occurs when a product is requested to be removed.
+        /// Occurs when a wishlist item is requested to be removed.
         /// </summary>
-        public event EventHandler<int> WishlistItemRemoved;
+        public event EventHandler<int>? WishlistItemRemoved;
 
         /// <summary>
-        /// Gets or sets the list of products to display.
+        /// Gets or sets the list of wishlist items to display.
         /// </summary>
-        public IEnumerable<WishlistItem> WishlistItemList { get; set; }
+        public IEnumerable<WishlistItem> WishlistItemList { get; set; } = new List<WishlistItem>();
 
         /// <summary>
         /// Sets the product list and refreshes the view.
         /// </summary>
-        /// <param name="wishlistItems">The list of products to display.</param>
+        /// <param name="wishlistItems">The list of wishlist items to display.</param>
         public void SetProducts(IEnumerable<WishlistItem> wishlistItems)
         {
             this.WishlistItemList = wishlistItems;
@@ -41,10 +48,10 @@ namespace WorkoutApp.View.Components
         }
 
         /// <summary>
-        /// Handles click events on product items.
+        /// Handles item click events in the product list.
         /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">Event data for the item click event.</param>
+        /// <param name="sender">The source of the event (the control that was clicked).</param>
+        /// <param name="e">The event data associated with the item click.</param>
         public void ProductList_ItemClick(object sender, ItemClickEventArgs e)
         {
             if (e.ClickedItem is WishlistItem wishlistItem && wishlistItem.Product.ID.HasValue)
@@ -53,6 +60,9 @@ namespace WorkoutApp.View.Components
             }
         }
 
+        /// <summary>
+        /// Handles removal button click and prompts confirmation dialog.
+        /// </summary>
         private async void RemoveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             ContentDialog dialog = new ContentDialog
@@ -62,7 +72,7 @@ namespace WorkoutApp.View.Components
                 PrimaryButtonText = "Yes",
                 CloseButtonText = "No",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.XamlRoot, // Required in WinUI 3
+                XamlRoot = this.XamlRoot,
             };
 
             var result = await dialog.ShowAsync();

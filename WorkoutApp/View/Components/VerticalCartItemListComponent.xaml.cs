@@ -1,4 +1,4 @@
-// <copyright file="VerticalProductListComponent.xaml.cs" company="PlaceholderCompany">
+// <copyright file="VerticalCartItemListComponent.xaml.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -25,17 +25,17 @@ namespace WorkoutApp.View.Components
         /// <summary>
         /// Occurs when a product is clicked.
         /// </summary>
-        public event EventHandler<int> CartItemClicked;
+        public event EventHandler<int>? CartItemClicked;
 
         /// <summary>
         /// Occurs when a product is requested to be removed.
         /// </summary>
-        public event EventHandler<int> CartItemRemoved;
+        public event EventHandler<int>? CartItemRemoved;
 
         /// <summary>
         /// Gets or sets the list of products to display.
         /// </summary>
-        public IEnumerable<CartItem> CartItemList { get; set; }
+        public IEnumerable<CartItem> CartItemList { get; set; } = new List<CartItem>();
 
         /// <summary>
         /// Sets the product list and refreshes the view.
@@ -60,6 +60,11 @@ namespace WorkoutApp.View.Components
             }
         }
 
+        /// <summary>
+        /// Handles the removal confirmation and triggers removal if confirmed.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private async void RemoveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             ContentDialog dialog = new ContentDialog
@@ -69,7 +74,7 @@ namespace WorkoutApp.View.Components
                 PrimaryButtonText = "Yes",
                 CloseButtonText = "No",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.XamlRoot, // Required in WinUI 3
+                XamlRoot = this.XamlRoot,
             };
 
             var result = await dialog.ShowAsync();

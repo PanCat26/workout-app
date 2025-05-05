@@ -25,12 +25,12 @@ namespace WorkoutApp.View.Components
         /// <summary>
         /// Occurs when a product is clicked.
         /// </summary>
-        public event EventHandler<int> ProductClicked;
+        public event EventHandler<int>? ProductClicked;
 
         /// <summary>
         /// Gets or sets the list of products to display.
         /// </summary>
-        public IEnumerable<Product> ProductList { get; set; }
+        public IEnumerable<Product> ProductList { get; set; } = new List<Product>();
 
         /// <summary>
         /// Sets the product list and refreshes the view.

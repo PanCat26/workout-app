@@ -1,4 +1,4 @@
-﻿// <copyright file="SqlDbConnectionFactory.cs" company="PlaceholderCompany">
+﻿// <copyright file="DbConnectionFactory.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
