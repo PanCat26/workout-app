@@ -1,16 +1,15 @@
-// WorkoutApp.View.Components/UpdateProductModal.xaml.cs
-// <copyright file="UpdateProductModal.xaml.cs" company="WorkoutApp">
-// Copyright (c) WorkoutApp. All rights reserved.
+// <copyright file="UpdateProductModal.xaml.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace WorkoutApp.View.Components // Your specified namespace
+namespace WorkoutApp.View.Components
 {
-    using Microsoft.UI.Xaml.Controls; // Required for UserControl
-    using System.Diagnostics; // Required for Debug.WriteLine
-    using Microsoft.UI.Xaml; // Required for DependencyPropertyChangedEventArgs, DependencyObject
+    using System.Diagnostics;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
 
     /// <summary>
-    /// Interaction logic for UpdateProductModal.xaml
+    /// Interaction logic for UpdateProductModal.xaml.
     /// This UserControl serves as the content for the update product dialog.
     /// Its DataContext is expected to be set to a ProductViewModel.
     /// </summary>
@@ -21,38 +20,41 @@ namespace WorkoutApp.View.Components // Your specified namespace
         /// </summary>
         public UpdateProductModal()
         {
-            Debug.WriteLine("UpdateProductModal: Constructor called."); // Added logging
+            Debug.WriteLine("UpdateProductModal: Constructor called.");
             this.InitializeComponent();
-            // The DataContext will be set externally by the ContentDialog or the parent page.
-
-            // Subscribe to the DataContextChanged event to know when the ViewModel is set
-            this.DataContextChanged += UpdateProductModal_DataContextChanged;
-
-            // Subscribe to the Loaded event to know when the control is added to the visual tree
-            this.Loaded += UpdateProductModal_Loaded;
+            this.DataContextChanged += this.UpdateProductModal_DataContextChanged;
+            this.Loaded += this.UpdateProductModal_Loaded;
         }
 
         /// <summary>
         /// Handles the DataContextChanged event.
         /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="args">The event data containing the new DataContext.</param>
         private void UpdateProductModal_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
         {
-            Debug.WriteLine($"UpdateProductModal: DataContextChanged event fired. New DataContext is {(args.NewValue == null ? "null" : args.NewValue.GetType().Name)}."); // Added logging
+            string contextType = args.NewValue?.GetType().Name ?? "null";
+            Debug.WriteLine($"UpdateProductModal: DataContextChanged event fired. New DataContext is {contextType}.");
+
             if (args.NewValue is ViewModel.ProductViewModel vm)
             {
-                Debug.WriteLine($"UpdateProductModal: DataContext set to ProductViewModel. Current Name: {vm.Name}, Price: {vm.Price}, Stock: {vm.Stock}"); // Log some properties
+                Debug.WriteLine($"UpdateProductModal: DataContext set to ProductViewModel. Name: {vm.Name}, Price: {vm.Price}, Stock: {vm.Stock}");
             }
         }
 
         /// <summary>
-        /// Handles the Loaded event.
+        /// Handles the Loaded event of the control.
         /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The routed event arguments.</param>
         private void UpdateProductModal_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine($"UpdateProductModal: Loaded event fired. Current DataContext is {(this.DataContext == null ? "null" : this.DataContext.GetType().Name)}."); // Added logging
+            string contextType = this.DataContext?.GetType().Name ?? "null";
+            Debug.WriteLine($"UpdateProductModal: Loaded event fired. Current DataContext is {contextType}.");
+
             if (this.DataContext is ViewModel.ProductViewModel vm)
             {
-                Debug.WriteLine($"UpdateProductModal: DataContext is ProductViewModel on Loaded. Current Name: {vm.Name}, Price: {vm.Price}, Stock: {vm.Stock}"); // Log some properties
+                Debug.WriteLine($"UpdateProductModal: DataContext is ProductViewModel on Loaded. Name: {vm.Name}, Price: {vm.Price}, Stock: {vm.Stock}");
             }
         }
     }
