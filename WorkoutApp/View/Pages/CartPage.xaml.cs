@@ -4,10 +4,10 @@
 
 namespace WorkoutApp.View.Pages
 {
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Navigation;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Navigation;
     using WorkoutApp.Models;
     using WorkoutApp.ViewModel;
 

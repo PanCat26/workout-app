@@ -1,11 +1,11 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using WorkoutApp.Data.Database;
-using WorkoutApp.Repository;
-using WorkoutApp.Service;
-
 namespace WorkoutApp.View
 {
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using WorkoutApp.Data.Database;
+    using WorkoutApp.Repository;
+    using WorkoutApp.Service;
+
     public sealed partial class AddProductButton : UserControl
     {
         public AddProductButton()

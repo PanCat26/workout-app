@@ -6,6 +6,9 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
 {
     using System;
     using System.Configuration;
+    using System.Diagnostics; // Required for Debug.WriteLine
+    using System.Threading.Tasks;
+    using Microsoft.UI.Dispatching; // Required for DispatcherQueue
     using Microsoft.UI.Xaml; // Required for RoutedEventArgs, FrameworkElement
     using Microsoft.UI.Xaml.Controls; // For WinUI Page, ContentDialog
     using Microsoft.UI.Xaml.Navigation; // For NavigationEventArgs
@@ -14,9 +17,6 @@ namespace WorkoutApp.View // Using the 'View' namespace as in your provided code
     using WorkoutApp.Repository; // Assuming ProductRepository and IRepository are here
     using WorkoutApp.Service; // Assuming ProductService and IService are here
     using WorkoutApp.ViewModel; // Corrected: Using the singular 'ViewModel' namespace for ProductViewModel
-    using System.Diagnostics; // Required for Debug.WriteLine
-    using Microsoft.UI.Dispatching; // Required for DispatcherQueue
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Code-behind for the ProductDetailPage.xaml.

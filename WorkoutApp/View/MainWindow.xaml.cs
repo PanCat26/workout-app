@@ -1,14 +1,14 @@
 // MainWindow.xaml.cs
-using Microsoft.UI;
-using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using System;
-using Windows.Graphics;
-using WinRT.Interop;
-
 namespace WorkoutApp.View
 {
+    using System;
+    using Microsoft.UI;
+    using Microsoft.UI.Windowing;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using Windows.Graphics;
+    using WinRT.Interop;
+
     public sealed partial class MainWindow : Window
     {
         public static Frame? AppFrame { get; private set; }
