@@ -5,6 +5,7 @@ using WorkoutApp.Data.Database;
 using System.Configuration;
 using WorkoutApp.Models;
 using System;
+using WorkoutApp.ViewModel;
 
 namespace WorkoutApp.View.Components
 {
