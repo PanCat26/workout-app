@@ -45,21 +45,20 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
         // New property for related products
         private ObservableCollection<Product> relatedProducts = new ObservableCollection<Product>();
 
-        // Commands for UI Interaction
-        // These are primarily for the modal's buttons
         /// <summary>
-        /// Gets or sets the command for saving product changes.
+        /// Gets the command for saving product changes.
         /// </summary>
         public ICommand? SaveCommand { get; }
+
         /// <summary>
-        /// Gets or sets the command for canceling product editing.
+        /// Gets the command for cancelling product editing.
         /// </summary>
         public ICommand? CancelEditCommand { get; }
 
         /// <summary>
-        /// Gets or sets the command for deleting the product.
+        /// Gets the command for deleting the product.
         /// </summary>
-        public ICommand? DeleteCommand { get; } // The command for the delete button
+        public ICommand? DeleteCommand { get; }
 
         // Property to track if the update modal is currently open (useful for ViewModel state)
         private bool isUpdateModalOpen = false;
@@ -105,9 +104,9 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             this.productService = new ProductService(productRepository);
 
             // Initialize Commands
-            SaveCommand = new RelayCommand(async _ => await this.ExecuteSaveAsync());
-            CancelEditCommand = new RelayCommand(async _ => await this.ExecuteCancelEditAsync());
-            DeleteCommand = new RelayCommand(async _ => await this.ExecuteDeleteAsync());
+            this.SaveCommand = new RelayCommand(async _ => await this.ExecuteSaveAsync());
+            this.CancelEditCommand = new RelayCommand(async _ => await this.ExecuteCancelEditAsync());
+            this.DeleteCommand = new RelayCommand(async _ => await this.ExecuteDeleteAsync());
         }
 
         /// <summary>
@@ -123,9 +122,9 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             // Initial values are set, data will be loaded when LoadProductAsync is called
 
             // Initialize Commands
-            SaveCommand = new RelayCommand(async _ => await this.ExecuteSaveAsync());
-            CancelEditCommand = new RelayCommand(async _ => await this.ExecuteCancelEditAsync());
-            DeleteCommand = new RelayCommand(async _ => await this.ExecuteDeleteAsync()); // Initialize the DeleteCommand
+            this.SaveCommand = new RelayCommand(async _ => await this.ExecuteSaveAsync());
+            this.CancelEditCommand = new RelayCommand(async _ => await this.ExecuteCancelEditAsync());
+            this.DeleteCommand = new RelayCommand(async _ => await this.ExecuteDeleteAsync()); // Initialize the DeleteCommand
         }
 
         /// <summary>
@@ -398,9 +397,9 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
                 this.PhotoURL = this.product.PhotoURL;
                 Debug.WriteLine($"ProductViewModel: Properties confirmed before opening modal: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
 
-                IsUpdateModalOpen = true; // Set ViewModel state
+                this.IsUpdateModalOpen = true; // Set ViewModel state
                 Debug.WriteLine("ProductViewModel: IsUpdateModalOpen set to true. Raising RequestShowUpdateModal event.");
-                RequestShowUpdateModal?.Invoke(this, EventArgs.Empty);
+                this.RequestShowUpdateModal?.Invoke(this, EventArgs.Empty);
             }
             else
             {
@@ -444,12 +443,12 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             try
             {
                 // Call the service to update the product
-                Debug.WriteLine($"ProductViewModel: Calling productService.UpdateAsync({product.ID.Value})..."); // Added logging
+                Debug.WriteLine($"ProductViewModel: Calling productService.UpdateAsync({this.product.ID.Value})..."); // Added logging
                 Product resultProduct = await this.productService.UpdateAsync(updatedProduct);
                 Debug.WriteLine($"ProductViewModel: productService.UpdateAsync returned."); // Added logging
 
                 // Update the underlying product model in the ViewModel
-                product = resultProduct;
+                this.product = resultProduct;
 
                 // Update ViewModel properties from the result in case the service modified them (e.g., calculated fields)
                 // These properties are already bound to the UI, so updating them will refresh the display
@@ -493,7 +492,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             // Re-load the product data from the service to discard changes
             if (this.product != null)
             {
-                await LoadProductAsync(product.ID.Value); // This will reset all ViewModel properties
+                await this.LoadProductAsync(this.product.ID.Value); // This will reset all ViewModel properties
                 Debug.WriteLine($"ProductViewModel: Properties reverted after cancel: Name={this.Name}, Price={this.Price}, Stock={this.Stock}, CategoryID={this.CategoryID}, CategoryName={this.CategoryName}"); // Added logging
             }
             else
@@ -648,8 +647,8 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             /// <param name="canExecute">The execution status logic.</param>
             public RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null)
             {
-                _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-                _canExecute = canExecute;
+                this._execute = execute ?? throw new ArgumentNullException(nameof(execute));
+                this._canExecute = canExecute;
             }
 
             /// <summary>
@@ -659,7 +658,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             /// <returns>True if this command can be executed; otherwise, false.</returns>
             public bool CanExecute(object? parameter)
             {
-                return _canExecute == null || _canExecute(parameter);
+                return this._canExecute == null || this._canExecute(parameter);
             }
 
             /// <summary>
@@ -668,7 +667,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             /// <param name="parameter">Data used by the command.</param>
             public void Execute(object? parameter)
             {
-                _execute(parameter);
+                this._execute(parameter);
             }
 
             /// <summary>
@@ -676,7 +675,7 @@ namespace WorkoutApp.ViewModel // Using the singular 'ViewModel' namespace as pe
             /// </summary>
             public void RaiseCanExecuteChanged()
             {
-                CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+                this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
             }
         }
     }
